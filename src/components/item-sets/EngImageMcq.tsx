@@ -22,9 +22,6 @@ export function EngImageMcq({ sequence, asset }: EngImageMcqProps) {
           題組 {sequence}
         </span>
         <div className="flex-1 space-y-4">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            場景類型：{asset.scene_type}
-          </div>
           <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
             <Image
               src={asset.image.url}
@@ -34,9 +31,6 @@ export function EngImageMcq({ sequence, asset }: EngImageMcqProps) {
               unoptimized
             />
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-            {asset.image.description}
-          </p>
         </div>
       </div>
     </Card>
