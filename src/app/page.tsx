@@ -8,6 +8,8 @@ import Link from 'next/link';
 
 export default function HomePage() {
   const { data: health, isLoading, isError } = useHealth();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  const apiBaseUrl = apiUrl.replace('/api/v1', '');
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -116,7 +118,7 @@ export default function HomePage() {
               進入管理後台
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">
+              <a href={`${apiBaseUrl}/docs`} target="_blank" rel="noopener noreferrer">
                 查看 API 文檔
               </a>
             </Button>

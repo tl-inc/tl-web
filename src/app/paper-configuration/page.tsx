@@ -72,7 +72,8 @@ export default function PaperConfigurationPage() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/difficulty-papers?level=${selectedLevel}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${apiUrl}/difficulty-papers?level=${selectedLevel}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
