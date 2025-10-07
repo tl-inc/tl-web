@@ -64,8 +64,8 @@ export default function PaperDetailPage() {
   useEffect(() => {
     const fetchPaper = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/papers/${paper_id}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+        const response = await fetch(`${apiUrl}/papers/${paper_id}`);
 
         if (!response.ok) {
           throw new Error('無法載入考卷資料');
