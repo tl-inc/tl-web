@@ -72,6 +72,21 @@ export default function PaperDetailPage() {
         }
 
         const data = await response.json();
+
+        // Normalize asset_json: parse strings to objects
+        if (data.item_sets) {
+          data.item_sets = data.item_sets.map((itemSet: any) => {
+            if (itemSet.asset_json && typeof itemSet.asset_json === 'string') {
+              try {
+                itemSet.asset_json = JSON.parse(itemSet.asset_json);
+              } catch (e) {
+                console.error('Failed to parse asset_json:', e);
+              }
+            }
+            return itemSet;
+          });
+        }
+
         setPaper(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : '未知錯誤');
