@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Loader2, AlertCircle, FileText, Layers, ChevronDown, Sparkles } from 'lucide-react';
 import type { ItemDifficultyBundle, ItemSetDifficultyBundle } from '@/types/api';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { SidebarLayout } from '@/components/layout/SidebarLayout';
 
 const DIFFICULTY_LEVELS = [
   { value: '1', label: 'Level 1 - 最簡單' },
@@ -105,10 +107,12 @@ export default function PaperConfigurationPage() {
   }, [selectedLevel, itemBundles, itemSetBundles]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="mb-8">
+    <ProtectedRoute>
+      <SidebarLayout>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="container mx-auto px-4 py-8 md:py-12">
+            {/* Header */}
+            <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             考卷設定
           </h1>
@@ -262,11 +266,12 @@ export default function PaperConfigurationPage() {
                 )}
               </CardContent>
             </Card>
+              </div>
+            )}
           </div>
-        )}
-
-      </div>
-    </div>
+        </div>
+      </SidebarLayout>
+    </ProtectedRoute>
   );
 }
 

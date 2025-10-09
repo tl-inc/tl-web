@@ -1,11 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { Menu } from 'lucide-react';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -17,11 +23,23 @@ export default function Header() {
     }
   };
 
+  // Show menu button only when user is logged in and not on dashboard or homepage
+  const showMenuButton = user && pathname !== '/' && pathname !== '/dashboard';
+
   return (
-    <header className="bg-white dark:bg-gray-800 shadow">
+    <header className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 shadow z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
+          <div className="flex items-center gap-3">
+            {showMenuButton && (
+              <button
+                onClick={onMenuClick}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="開啟選單"
+              >
+                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              </button>
+            )}
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
                 Test Learn
@@ -32,7 +50,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:block">
                   {user.full_name || user.email}
                 </span>
                 <button

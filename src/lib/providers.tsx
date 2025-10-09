@@ -4,9 +4,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ReactNode, useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import Header from '@/components/Header';
+import { ScrollToTop } from '@/components/ScrollToTop';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
+function HeaderWithSidebar() {
+  const { toggleMobile } = useSidebar();
+  return <Header onMenuClick={toggleMobile} />;
+}
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -25,8 +32,11 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
-          <Header />
-          {children}
+          <SidebarProvider>
+            <ScrollToTop />
+            <HeaderWithSidebar />
+            {children}
+          </SidebarProvider>
         </AuthProvider>
       </GoogleOAuthProvider>
     </QueryClientProvider>

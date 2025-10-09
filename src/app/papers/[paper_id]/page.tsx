@@ -11,6 +11,8 @@ import { EngInfoReadingMenu } from '@/components/item-sets/EngInfoReadingMenu';
 import { EngInfoReadingNotice } from '@/components/item-sets/EngInfoReadingNotice';
 import { EngInfoReadingSchedule } from '@/components/item-sets/EngInfoReadingSchedule';
 import { EngListening } from '@/components/item-sets/EngListening';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { SidebarLayout } from '@/components/layout/SidebarLayout';
 
 interface PaperItem {
   sequence: number;
@@ -336,112 +338,116 @@ export default function PaperDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            {paper.name}
-          </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 dark:text-gray-400">
-            <span>考卷 ID: {paper.id}</span>
-            <span className="hidden sm:inline">|</span>
-            <span>科目: {paper.subject_id}</span>
-            <span className="hidden sm:inline">|</span>
-            <span>範圍: {paper.range_pack_id}</span>
-          </div>
-          <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <button
-              onClick={() => setShowAnswers(!showAnswers)}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
-            >
-              {showAnswers ? '隱藏解答' : '顯示解答'}
-            </button>
-            {showAnswers && scoreData && (
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-blue-500 dark:border-blue-400 shadow-md">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                      {scoreData.score}
+    <ProtectedRoute>
+      <SidebarLayout>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                {paper.name}
+              </h1>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 dark:text-gray-400">
+                <span>考卷 ID: {paper.id}</span>
+                <span className="hidden sm:inline">|</span>
+                <span>科目: {paper.subject_id}</span>
+                <span className="hidden sm:inline">|</span>
+                <span>範圍: {paper.range_pack_id}</span>
+              </div>
+              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <button
+                  onClick={() => setShowAnswers(!showAnswers)}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
+                >
+                  {showAnswers ? '隱藏解答' : '顯示解答'}
+                </button>
+                {showAnswers && scoreData && (
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-blue-500 dark:border-blue-400 shadow-md">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                          {scoreData.score}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">分數</div>
+                      </div>
+                      <div className="hidden sm:block w-px h-12 bg-gray-300 dark:bg-gray-600"></div>
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">答對：</span>
+                          <span className="font-semibold text-green-600 dark:text-green-400">
+                            {scoreData.correct}/{scoreData.total}
+                          </span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">正確率：</span>
+                          <span className="font-semibold text-blue-600 dark:text-blue-400">
+                            {scoreData.percentage}%
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">分數</div>
                   </div>
-                  <div className="hidden sm:block w-px h-12 bg-gray-300 dark:bg-gray-600"></div>
-                  <div className="flex flex-col gap-1">
-                    <div className="text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">答對：</span>
-                      <span className="font-semibold text-green-600 dark:text-green-400">
-                        {scoreData.correct}/{scoreData.total}
-                      </span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">正確率：</span>
-                      <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        {scoreData.percentage}%
-                      </span>
-                    </div>
+                )}
+              </div>
+            </div>
+
+            {/* Paper Content - Sections */}
+            <div className="space-y-8">
+              {/* Items Section */}
+              {paper.items.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
+                    單選題
+                  </h2>
+                  <div className="space-y-6">
+                    {paper.items
+                      .sort((a, b) => a.sequence - b.sequence)
+                      .map((item, index) => renderItem(item, index + 1))}
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
+              )}
 
-        {/* Paper Content - Sections */}
-        <div className="space-y-8">
-          {/* Items Section */}
-          {paper.items.length > 0 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
-                單選題
-              </h2>
-              <div className="space-y-6">
-                {paper.items
-                  .sort((a, b) => a.sequence - b.sequence)
-                  .map((item, index) => renderItem(item, index + 1))}
-              </div>
+              {/* Item Sets Section */}
+              {paper.item_sets.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
+                    題組
+                  </h2>
+                  <div className="space-y-6">
+                    {paper.item_sets
+                      .sort((a, b) => a.sequence - b.sequence)
+                      .map((itemSet, index) => renderItemSet(itemSet, index + 1))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Item Sets Section */}
-          {paper.item_sets.length > 0 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
-                題組
-              </h2>
-              <div className="space-y-6">
-                {paper.item_sets
-                  .sort((a, b) => a.sequence - b.sequence)
-                  .map((itemSet, index) => renderItemSet(itemSet, index + 1))}
+            {/* Footer Stats */}
+            <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {paper.items.length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">單題</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {paper.item_sets.length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">題組</div>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {paper.items.length + paper.item_sets.length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">總計</div>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer Stats */}
-        <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {paper.items.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">單題</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {paper.item_sets.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">題組</div>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {paper.items.length + paper.item_sets.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">總計</div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SidebarLayout>
+    </ProtectedRoute>
   );
 }
