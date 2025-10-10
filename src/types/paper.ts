@@ -114,3 +114,33 @@ export interface PaperData {
   items: PaperItem[];
   item_sets: PaperItemSet[];
 }
+
+// User Paper API types
+export type UserPaperStatus = 'pending' | 'in_progress' | 'completed' | 'abandoned';
+
+export interface UserPaperResponse {
+  id: string;
+  user_id: number;
+  paper_id: number;
+  range_pack_id: string;
+  status: UserPaperStatus;
+  score: number | null;
+  max_score: number | null;
+  started_at: string | null;
+  completed_at: string | null;
+  time_spent: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StartPaperRequest {
+  range_pack_id: string;
+  subject_id: string;
+  blueprint_id?: string;
+}
+
+export interface StartPaperResponse {
+  user_paper_id: string;
+  paper_id: number;
+  started_at: string | null;
+}

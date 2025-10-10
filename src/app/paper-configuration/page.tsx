@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
+import { paperService } from '@/lib/api/paper';
 
 const GRADES = [
   { value: 7, label: '七年級' },
@@ -40,6 +41,7 @@ export default function PaperConfigurationPage() {
   // Loading states
   const [loadingSubjects, setLoadingSubjects] = useState(false);
   const [loadingRanges, setLoadingRanges] = useState(false);
+  const [startingPaper, setStartingPaper] = useState(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -50,7 +52,7 @@ export default function PaperConfigurationPage() {
     const fetchSubjects = async () => {
       setLoadingSubjects(true);
       try {
-        const response = await fetch(`${apiUrl}/range_packs/available_subjects?grade=${selectedGrade}`);
+        const response = await fetch(`${apiUrl}/range-packs/available_subjects?grade=${selectedGrade}`);
         if (!response.ok) throw new Error('Failed to fetch subjects');
         const data = await response.json();
         setSubjects(data.subjects || []);
@@ -73,7 +75,7 @@ export default function PaperConfigurationPage() {
       setLoadingRanges(true);
       try {
         const response = await fetch(
-          `${apiUrl}/range_packs?subject=${selectedSubject}&grade=${selectedGrade}`
+          `${apiUrl}/range-packs?subject=${selectedSubject}&grade=${selectedGrade}`
         );
         if (!response.ok) throw new Error('Failed to fetch range packs');
         const data = await response.json();
@@ -111,13 +113,24 @@ export default function PaperConfigurationPage() {
   };
 
   // Handle start practice
-  const handleStartPractice = () => {
-    // TODO: Implement paper creation and navigation
-    console.log('Starting practice with:', {
-      grade: selectedGrade,
-      subject: selectedSubject,
-      range: selectedRange,
-    });
+  const handleStartPractice = async () => {
+    if (!selectedSubject || !selectedRange) return;
+
+    setStartingPaper(true);
+    try {
+      const response = await paperService.startPaper({
+        range_pack_id: selectedRange,
+        subject_id: selectedSubject,
+      });
+
+      // Navigate to paper page using paper_id (not user_paper_id)
+      router.push(`/papers/${response.paper_id}`);
+    } catch (error) {
+      console.error('Error starting paper:', error);
+      alert('無法開始考卷，請稍後再試');
+    } finally {
+      setStartingPaper(false);
+    }
   };
 
   const isButtonEnabled = selectedGrade !== null && selectedSubject !== null && selectedRange !== null;
@@ -239,11 +252,18 @@ export default function PaperConfigurationPage() {
                 <div className="pt-4">
                   <Button
                     onClick={handleStartPractice}
-                    disabled={!isButtonEnabled}
+                    disabled={!isButtonEnabled || startingPaper}
                     className="w-full"
                     size="lg"
                   >
-                    進入練習
+                    {startingPaper ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        正在生成考卷...
+                      </>
+                    ) : (
+                      '進入練習'
+                    )}
                   </Button>
                 </div>
               </CardContent>
