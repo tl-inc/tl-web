@@ -119,4 +119,17 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Prevent Radix Select from locking scroll and causing layout shift */
+  body[data-scroll-locked] {
+    overflow: auto !important;
+    pointer-events: auto !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Reserve space for scrollbar to prevent layout shift */
+  html {
+    scrollbar-gutter: stable;
+  }
 }

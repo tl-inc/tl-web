@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+  return <SelectPrimitive.Root data-slot="select" modal={false} {...props} />
 }
 
 function SelectGroup({
@@ -57,6 +57,52 @@ function SelectContent({
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+
+  /**
+   * Fix: Prevent Radix Select from locking body scroll
+   *
+   * Issue: Radix Select adds `data-scroll-locked` attribute and sets
+   * `overflow: hidden` + `pointer-events: none` on body when opened,
+   * causing:
+   * 1. Scrollbar to disappear (layout shift/jitter)
+   * 2. Page content to jump to top/bottom
+   * 3. Unwanted scroll position changes
+   *
+   * Solution: Use MutationObserver to immediately remove these changes.
+   * This is more reliable than `modal={false}` which doesn't always work.
+   *
+   * This fix applies to ALL Select components in the app automatically.
+   */
+  React.useEffect(() => {
+    const preventScrollLock = () => {
+      // Remove scroll lock attribute
+      if (document.body.hasAttribute('data-scroll-locked')) {
+        document.body.removeAttribute('data-scroll-locked')
+      }
+      // Restore overflow (prevent scrollbar disappearance)
+      if (document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = ''
+      }
+      // Restore pointer events
+      if (document.body.style.pointerEvents === 'none') {
+        document.body.style.pointerEvents = ''
+      }
+    }
+
+    // Watch for body attribute/style changes and revert them immediately
+    const observer = new MutationObserver(preventScrollLock)
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['style', 'data-scroll-locked']
+    })
+
+    return () => {
+      observer.disconnect()
+      preventScrollLock() // Ensure cleanup on unmount
+    }
+  }, [])
+
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
