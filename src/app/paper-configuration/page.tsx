@@ -52,7 +52,12 @@ export default function PaperConfigurationPage() {
     const fetchSubjects = async () => {
       setLoadingSubjects(true);
       try {
-        const response = await fetch(`${apiUrl}/range-packs/available_subjects?grade=${selectedGrade}`);
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${apiUrl}/range-packs/available_subjects?grade=${selectedGrade}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         if (!response.ok) throw new Error('Failed to fetch subjects');
         const data = await response.json();
         setSubjects(data.subjects || []);
@@ -74,12 +79,18 @@ export default function PaperConfigurationPage() {
     const fetchRangePacks = async () => {
       setLoadingRanges(true);
       try {
+        const token = localStorage.getItem('access_token');
         const response = await fetch(
-          `${apiUrl}/range-packs?subject=${selectedSubject}&grade=${selectedGrade}`
+          `${apiUrl}/range-packs?subject_id=${selectedSubject}&grade=${selectedGrade}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
         );
         if (!response.ok) throw new Error('Failed to fetch range packs');
         const data = await response.json();
-        setRangePacks(data.range_packs || []);
+        setRangePacks(data.data || []);
       } catch (error) {
         console.error('Error fetching range packs:', error);
         setRangePacks([]);
