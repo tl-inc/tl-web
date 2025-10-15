@@ -39,7 +39,7 @@ export default function SignupPage() {
         password,
         full_name: fullName || undefined,
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || '註冊失敗，請稍後再試');
     } finally {
@@ -52,7 +52,7 @@ export default function SignupPage() {
       setLoading(true);
       setError('');
       await googleLogin(credentialResponse.credential);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Google 註冊失敗');
     } finally {
