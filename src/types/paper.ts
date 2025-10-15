@@ -1,5 +1,20 @@
 // Paper and item type definitions
 
+// Import type definitions from api.ts
+export interface ItemType {
+  id: number;
+  subject_id: string;
+  name: string;
+  description?: string;
+}
+
+export interface ItemSetType {
+  id: number;
+  subject_id: string;
+  name: string;
+  description?: string;
+}
+
 export interface McqContent {
   stem: string;
   options: string[];
@@ -90,7 +105,7 @@ export interface SubItem {
 export interface PaperItem {
   sequence: number;
   item_id: number;
-  item_type: string;
+  item_type: ItemType;
   difficulty_bundle_id: string;
   content_json: ItemContent;
 }
@@ -98,7 +113,7 @@ export interface PaperItem {
 export interface PaperItemSet {
   sequence: number;
   item_set_id: number;
-  item_set_type: string;
+  item_set_type: ItemSetType;
   difficulty_bundle_id: string;
   asset_json: AssetContent;
   items?: SubItem[];
@@ -134,9 +149,9 @@ export interface UserPaperResponse {
 }
 
 export interface StartPaperRequest {
-  range_pack_id: string;
-  subject_id: string;
-  blueprint_id?: string;
+  range_pack_id: number;
+  subject_id: number;
+  blueprint_id?: number;
 }
 
 export interface StartPaperResponse {

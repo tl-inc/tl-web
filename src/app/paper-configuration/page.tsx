@@ -130,8 +130,8 @@ export default function PaperConfigurationPage() {
     setStartingPaper(true);
     try {
       const response = await paperService.startPaper({
-        range_pack_id: selectedRange,
-        subject_id: selectedSubject,
+        range_pack_id: parseInt(selectedRange),
+        subject_id: parseInt(selectedSubject),
       });
 
       // Navigate to paper page using paper_id (not user_paper_id)
