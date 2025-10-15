@@ -12,11 +12,26 @@ export interface PaginatedResponse<T> {
   items?: T[];
 }
 
+// Type definitions
+export interface ItemType {
+  id: number;
+  subject_id: string;
+  name: string;
+  description?: string;
+}
+
+export interface ItemSetType {
+  id: number;
+  subject_id: string;
+  name: string;
+  description?: string;
+}
+
 // Item types
 export interface Item {
   id: number;
   subject_id: string;
-  type: string;
+  item_type: ItemType;
   difficulty_bundle_id: string | null;
   content_json: Record<string, unknown>;
   hash: string;
@@ -41,7 +56,7 @@ export interface ItemSetItem {
 export interface ItemSet {
   id: number;
   subject_id: string;
-  type: string;
+  item_set_type: ItemSetType;
   difficulty_bundle_id: string | null;
   asset_json: Record<string, unknown>;
   created_at: string;
@@ -79,7 +94,7 @@ export interface RangePackListResponse extends PaginatedResponse<RangePack> {
 export interface ItemDifficultyBundle {
   id: string;
   subject_id: string;
-  item_type: string;
+  item_type: ItemType;
   level: number;
   name: string | null;
   params: Record<string, unknown>;
@@ -96,7 +111,7 @@ export interface ItemDifficultyBundleListResponse extends PaginatedResponse<Item
 export interface ItemSetDifficultyBundle {
   id: string;
   subject_id: string;
-  item_set_type: string;
+  item_set_type: ItemSetType;
   level: number;
   name: string | null;
   params: Record<string, unknown>;

@@ -5,16 +5,17 @@ import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { ItemType, ItemSetType } from '@/types/api';
 
 interface ItemTypeLevel {
-  item_type: string;
+  item_type: ItemType;
   level: number;
   accuracy: number | null;
   max_level: number;
 }
 
 interface ItemSetTypeLevel {
-  item_set_type: string;
+  item_set_type: ItemSetType;
   level: number;
   accuracy: number | null;
   max_level: number;
@@ -24,21 +25,6 @@ interface AnalyticsData {
   item_type_levels: ItemTypeLevel[];
   item_set_type_levels: ItemSetTypeLevel[];
 }
-
-// Type name mapping for display
-const TYPE_NAME_MAP: Record<string, string> = {
-  'eng_mcq_text': '文意選填',
-  'eng_mcq_lexicon': '字彙題',
-  'eng_mcq_phrase': '片語題',
-  'eng_mcq_grammar': '文法題',
-  'eng_cloze': '克漏字',
-  'eng_listening': '聽力測驗',
-  'eng_narrative_reading_set': '敘事閱讀',
-  'eng_info_reading_menu': '菜單閱讀',
-  'eng_info_reading_notice': '公告閱讀',
-  'eng_info_reading_schedule': '時程閱讀',
-  'eng_image_mcq': '圖片理解'
-};
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -81,13 +67,13 @@ export default function AnalyticsPage() {
     // Combine all types and calculate percentage
     const allTypes = [
       ...analytics.item_type_levels.map(item => ({
-        name: TYPE_NAME_MAP[item.item_type] || item.item_type,
+        name: item.item_type.name,
         percentage: Math.round((item.level / item.max_level) * 100),
         level: item.level,
         maxLevel: item.max_level
       })),
       ...analytics.item_set_type_levels.map(item => ({
-        name: TYPE_NAME_MAP[item.item_set_type] || item.item_set_type,
+        name: item.item_set_type.name,
         percentage: Math.round((item.level / item.max_level) * 100),
         level: item.level,
         maxLevel: item.max_level
@@ -206,11 +192,11 @@ export default function AnalyticsPage() {
                     <tbody>
                       {analytics?.item_type_levels.map((item) => (
                         <tr
-                          key={item.item_type}
+                          key={item.item_type.id}
                           className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                         >
                           <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
-                            {TYPE_NAME_MAP[item.item_type] || item.item_type}
+                            {item.item_type.name}
                           </td>
                           <td className="text-center py-3 px-4">
                             <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold">
@@ -259,11 +245,11 @@ export default function AnalyticsPage() {
                     <tbody>
                       {analytics?.item_set_type_levels.map((item) => (
                         <tr
-                          key={item.item_set_type}
+                          key={item.item_set_type.id}
                           className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                         >
                           <td className="py-3 px-4 text-gray-900 dark:text-gray-100">
-                            {TYPE_NAME_MAP[item.item_set_type] || item.item_set_type}
+                            {item.item_set_type.name}
                           </td>
                           <td className="text-center py-3 px-4">
                             <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-bold">
