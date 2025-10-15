@@ -758,7 +758,7 @@ export default function PaperDetailPage() {
           <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg space-y-3">
             {asset.notice.date_time && (
               <div className="flex items-start gap-2">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📅 日期時間:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📅 Date & Time:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.date_time?.content || asset.notice.date_time}</span>
                   {mode === 'completed' && asset.notice.date_time?.translation && (
@@ -769,7 +769,7 @@ export default function PaperDetailPage() {
             )}
             {asset.notice.location && (
               <div className="flex items-start gap-2">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📍 地點:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📍 Location:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.location?.content || asset.notice.location}</span>
                   {mode === 'completed' && asset.notice.location?.translation && (
@@ -790,7 +790,7 @@ export default function PaperDetailPage() {
             </div>
             {asset.notice.participant_info && (
               <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👥 參加資訊:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👥 Participants:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.participant_info?.content || asset.notice.participant_info}</span>
                   {mode === 'completed' && asset.notice.participant_info?.translation && (
@@ -801,7 +801,7 @@ export default function PaperDetailPage() {
             )}
             {asset.notice.fee_info && (
               <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">💰 費用資訊:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">💰 Fee:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.fee_info?.content || asset.notice.fee_info}</span>
                   {mode === 'completed' && asset.notice.fee_info?.translation && (
@@ -812,7 +812,7 @@ export default function PaperDetailPage() {
             )}
             {asset.notice.contact_info && (
               <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📞 聯絡資訊:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📞 Contact:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.contact_info?.content || asset.notice.contact_info}</span>
                   {mode === 'completed' && asset.notice.contact_info?.translation && (
@@ -823,7 +823,7 @@ export default function PaperDetailPage() {
             )}
             {asset.notice.requirements && (
               <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">✅ 參加條件:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">✅ Requirements:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.requirements?.content || asset.notice.requirements}</span>
                   {mode === 'completed' && asset.notice.requirements?.translation && (
@@ -834,7 +834,7 @@ export default function PaperDetailPage() {
             )}
             {asset.notice.deadline && (
               <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">⏰ 報名截止:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">⏰ Deadline:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.notice.deadline?.content || asset.notice.deadline}</span>
                   {mode === 'completed' && asset.notice.deadline?.translation && (
@@ -845,7 +845,7 @@ export default function PaperDetailPage() {
             )}
             {asset.organizer && (
               <div className="flex items-start gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👤 主辦單位:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👤 Organizer:</span>
                 <div className="flex-1">
                   <span className="text-gray-700 dark:text-gray-300">{asset.organizer?.content || asset.organizer}</span>
                   {mode === 'completed' && asset.organizer?.translation && (
@@ -912,7 +912,7 @@ export default function PaperDetailPage() {
               <div key={idx} className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border-l-4 border-sky-500">
                 <div className="font-bold text-sky-700 dark:text-sky-300 mb-2 flex items-center gap-2">
                   <span className="bg-sky-500 text-white px-2 py-0.5 rounded text-sm">{trip.time}</span>
-                  {/* 價格 */}
+                  {/* Price */}
                   {trip.price && (
                     <span className="ml-auto text-sm font-semibold text-sky-600 dark:text-sky-400">
                       💵 {trip.price?.content || trip.price}
@@ -1021,7 +1021,7 @@ export default function PaperDetailPage() {
               </p>
             )}
 
-            {/* 時間資訊 */}
+            {/* Time Info */}
             {asset.advertisement.time_info && (
               <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
                 <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">🕒</span>
@@ -1038,7 +1038,7 @@ export default function PaperDetailPage() {
               </div>
             )}
 
-            {/* 地點 */}
+            {/* Location */}
             {asset.advertisement.location && (
               <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
                 <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">📍</span>
@@ -1055,7 +1055,7 @@ export default function PaperDetailPage() {
               </div>
             )}
 
-            {/* 聯絡資訊 */}
+            {/* Contact Info */}
             {asset.advertisement.contact_info && (
               <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
                 <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">📞</span>
@@ -1072,7 +1072,7 @@ export default function PaperDetailPage() {
               </div>
             )}
 
-            {/* 折扣資訊 */}
+            {/* Discount Info */}
             {asset.advertisement.discount_info && (
               <div className="mt-3 p-3 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-lg border-l-4 border-amber-500">
                 <p className="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-2">
@@ -1087,7 +1087,7 @@ export default function PaperDetailPage() {
               </div>
             )}
 
-            {/* 宣傳文字 */}
+            {/* Promotional Text */}
             {asset.advertisement.promotional_text && (
               <div className="mt-3 p-3 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-l-4 border-orange-500">
                 <p className="font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-2">
@@ -1113,10 +1113,10 @@ export default function PaperDetailPage() {
 
       return (
         <div className="p-5 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
-          {/* 情境描述 */}
+          {/* Scenario */}
           {asset.scenario && (
             <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-emerald-500">
-              <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">💬 情境</div>
+              <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">💬 Scenario</div>
               <p className="text-gray-700 dark:text-gray-300">
                 {asset.scenario?.content || asset.scenario}
               </p>
