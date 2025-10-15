@@ -22,10 +22,10 @@ paperApi.interceptors.request.use((config) => {
 
 export const paperService = {
   /**
-   * Start a new paper
+   * Create a new paper
    */
   async startPaper(data: StartPaperRequest): Promise<StartPaperResponse> {
-    const response = await paperApi.post<StartPaperResponse>('/start', data);
+    const response = await paperApi.post<StartPaperResponse>('/new', data);
     return response.data;
   },
 };

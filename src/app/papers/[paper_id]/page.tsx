@@ -1,47 +1,61 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Loader2, AlertCircle, Clock, ChevronDown } from 'lucide-react';
-import { EngMcqText } from '@/components/items/EngMcqText';
-import { EngCloze } from '@/components/items/EngCloze';
-import { EngImageMcq } from '@/components/item-sets/EngImageMcq';
-import { EngNarrativeReadingSet } from '@/components/item-sets/EngNarrativeReadingSet';
-import { EngInfoReadingMenu } from '@/components/item-sets/EngInfoReadingMenu';
-import { EngInfoReadingNotice } from '@/components/item-sets/EngInfoReadingNotice';
-import { EngInfoReadingSchedule } from '@/components/item-sets/EngInfoReadingSchedule';
-import { EngListening } from '@/components/item-sets/EngListening';
+import { useParams, useRouter } from 'next/navigation';
+import { Loader2, AlertCircle, Clock, Play, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
-import { PaperData, UserPaperResponse, UserPaperStatus } from '@/types/paper';
+import { PaperData, UserPaperResponse, UserPaperStatus, Exercise } from '@/types/paper';
+
+// 四種模式
+type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
 
 export default function PaperDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const paper_id = params.paper_id as string;
 
   // Data states
   const [paper, setPaper] = useState<PaperData | null>(null);
   const [userPapers, setUserPapers] = useState<UserPaperResponse[]>([]);
   const [activeUserPaper, setActiveUserPaper] = useState<UserPaperResponse | null>(null);
+  const [mode, setMode] = useState<PageMode>('pending');
 
   // UI states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAnswers, setShowAnswers] = useState(false);
-  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Answer states (V3: use exercise_item_id as key)
-  const [exerciseItemAnswers, setExerciseItemAnswers] = useState<Map<number, number>>(new Map());
+  // Answer state: Map<exercise_item_id, answer_index>
+  const [answers, setAnswers] = useState<Map<number, number>>(new Map());
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
-  // Fetch paper and user_papers on mount
+  // 選擇要顯示的 user_paper
+  // 優先順序: in_progress > pending > 最新的 completed/abandoned
+  const selectActiveUserPaper = (userPapers: UserPaperResponse[]): UserPaperResponse | null => {
+    if (userPapers.length === 0) return null;
+
+    const inProgress = userPapers.find(up => up.status === 'in_progress');
+    if (inProgress) return inProgress;
+
+    const pending = userPapers.find(up => up.status === 'pending');
+    if (pending) return pending;
+
+    // 最新的 completed/abandoned
+    const sorted = [...userPapers].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return sorted[0];
+  };
+
+  // 載入試卷和 user_papers
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch paper data with full exercise details (V3 schema)
+        // 1. 載入試卷資料
         const paperResponse = await fetch(`${apiUrl}/papers/${paper_id}/detail`);
-        if (!paperResponse.ok) throw new Error('無法載入考卷資料');
+        if (!paperResponse.ok) throw new Error('無法載入試卷資料');
         const paperData: PaperData = await paperResponse.json();
 
         // Parse asset_json if it's a string
@@ -59,32 +73,36 @@ export default function PaperDetailPage() {
 
         setPaper(paperData);
 
-        // Fetch user_papers for this paper
+        // 2. 載入該 paper 的所有 user_papers
         const token = localStorage.getItem('access_token');
         const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (userPapersResponse.ok) {
-          const userPapersData = await userPapersResponse.json();
-          console.log('User papers data:', userPapersData);
+          const userPapersData: UserPaperResponse[] = await userPapersResponse.json();
           setUserPapers(userPapersData);
 
-          // Select active user_paper: prioritize in_progress > pending > most recent completed/abandoned
+          // 3. 選擇要顯示的 user_paper
           const active = selectActiveUserPaper(userPapersData);
-          console.log('Active user paper:', active);
           setActiveUserPaper(active);
 
-          // Set read-only mode if completed/abandoned
-          if (active && (active.status === 'completed' || active.status === 'abandoned')) {
-            setShowAnswers(true);
-            // Load user answers for completed/abandoned papers
-            loadUserAnswers(active.id);
+          // 4. 根據 status 決定模式
+          if (active) {
+            setMode(active.status as PageMode);
+
+            // 5. 如果是 in_progress，載入已答題目
+            if (active.status === 'in_progress') {
+              const answersResponse = await fetch(`${apiUrl}/user-papers/${active.id}/answers`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (answersResponse.ok) {
+                const savedAnswers: Array<{ exercise_item_id: number; answer_index: number }> = await answersResponse.json();
+                const answerMap = new Map(savedAnswers.map(a => [a.exercise_item_id, a.answer_index]));
+                setAnswers(answerMap);
+              }
+            }
           }
-        } else {
-          console.error('Failed to fetch user papers:', userPapersResponse.status);
         }
 
       } catch (err) {
@@ -99,94 +117,14 @@ export default function PaperDetailPage() {
     }
   }, [paper_id]);
 
-  // Load user answers from backend
-  const loadUserAnswers = async (userPaperId: string) => {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${userPaperId}/review`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const reviewData = await response.json();
-
-        // Load item answers
-        const newItemAnswers = new Map<number, number>();
-        const newClozeAnswers = new Map<number, Map<number, number>>();
-
-        reviewData.items.forEach((item: any) => {
-          if (item.user_answer) {
-            // Check if it's a cloze type by looking at the type ID (1) or name
-            if ((item.item_type?.id === 1 || item.item_type?.name === '克漏字') && item.user_answer.answers) {
-              // Cloze test answers
-              const clozeMap = new Map<number, number>();
-              Object.entries(item.user_answer.answers).forEach(([blankNum, answerIdx]) => {
-                clozeMap.set(Number(blankNum), answerIdx as number);
-              });
-              newClozeAnswers.set(item.item_id, clozeMap);
-            } else if (item.user_answer.selected_index !== undefined) {
-              // MCQ answers
-              newItemAnswers.set(item.item_id, item.user_answer.selected_index);
-            }
-          }
-        });
-
-        // Load item_set answers
-        const newItemSetAnswers = new Map<number, number>();
-        reviewData.item_sets.forEach((itemSet: any) => {
-          if (itemSet.user_answer) {
-            // item_set answers are stored as {sub_item_id: {selected_index: value}}
-            Object.entries(itemSet.user_answer).forEach(([subItemId, answer]: [string, any]) => {
-              if (answer.selected_index !== undefined) {
-                newItemSetAnswers.set(Number(subItemId), answer.selected_index);
-              }
-            });
-          }
-        });
-
-        setItemAnswers(newItemAnswers);
-        setClozeAnswers(newClozeAnswers);
-        setItemSetAnswers(newItemSetAnswers);
-      }
-    } catch (err) {
-      console.error('Failed to load user answers:', err);
-    }
-  };
-
-  const selectActiveUserPaper = (userPapers: UserPaperResponse[]): UserPaperResponse | null => {
-    if (userPapers.length === 0) return null;
-
-    // Priority: in_progress > pending > most recent completed/abandoned
-    const inProgress = userPapers.find(up => up.status === 'in_progress');
-    if (inProgress) return inProgress;
-
-    const pending = userPapers.find(up => up.status === 'pending');
-    if (pending) return pending;
-
-    // Return most recent (already sorted by created_at desc from API)
-    return userPapers[0];
-  };
-
-  const handleStartPaper = async () => {
+  // 開始作答
+  const handleStart = async () => {
     if (!activeUserPaper) return;
 
-    // Update local state to in_progress to show buttons immediately
-    // The actual backend transition will happen on first answer
-    setActiveUserPaper({
-      ...activeUserPaper,
-      status: 'in_progress',
-      started_at: new Date().toISOString()
-    });
-  };
-
-  const handleCompletePaper = async () => {
-    if (!activeUserPaper) return;
-
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/complete`, {
+      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/start`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -194,630 +132,548 @@ export default function PaperDetailPage() {
         }
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        // Refresh user_papers to get updated data
-        const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (userPapersResponse.ok) {
-          const userPapersData = await userPapersResponse.json();
-          setUserPapers(userPapersData);
-          const completed = userPapersData.find((up: UserPaperResponse) => up.id === activeUserPaper.id);
-          if (completed) setActiveUserPaper(completed);
-        }
-        setShowAnswers(true);
-        alert(`考卷已完成！得分：${result.total_score}/${result.max_score}`);
-      }
+      if (!response.ok) throw new Error('無法開始作答');
+
+      const data = await response.json();
+      setActiveUserPaper({ ...activeUserPaper, status: 'in_progress', started_at: data.started_at });
+      setMode('in_progress');
     } catch (err) {
-      console.error('Failed to complete paper:', err);
+      alert(err instanceof Error ? err.message : '開始作答失敗');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleAbandonPaper = async () => {
-    if (!activeUserPaper) return;
-    if (!confirm('確定要放棄此次作答嗎？')) return;
+  // 答題（即時送出）
+  const handleAnswerChange = async (exerciseId: number, exerciseItemId: number, answerIndex: number) => {
+    if (!activeUserPaper || mode !== 'in_progress') return;
 
+    // 1. 更新 local state (立即反應)
+    setAnswers(prev => new Map(prev).set(exerciseItemId, answerIndex));
+
+    // 2. 立即送出到 backend (背景執行)
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/answer`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          exercise_id: exerciseId,
+          exercise_item_id: exerciseItemId,
+          answer_content: { selected_option: answerIndex }
+        })
+      });
+    } catch (error) {
+      console.error('答案送出失敗:', error);
+      // 不阻斷操作，但可以顯示提示
+    }
+  };
+
+  // 完成作答
+  const handleComplete = async () => {
+    if (!activeUserPaper) return;
+
+    if (!confirm('確定要完成作答嗎？完成後將無法修改答案。')) return;
+
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ submit: true })
+      });
+
+      if (!response.ok) throw new Error('無法完成作答');
+
+      const data = await response.json();
+      setActiveUserPaper({ ...activeUserPaper, status: 'completed', finished_at: data.finished_at });
+      setMode('completed');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '完成作答失敗');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 放棄作答
+  const handleAbandon = async () => {
+    if (!activeUserPaper) return;
+
+    if (!confirm('確定要放棄作答嗎？')) return;
+
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('access_token');
       const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/abandon`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        const updated = await response.json();
-        setActiveUserPaper(updated);
-        setUserPapers(prev => prev.map(up => up.id === updated.id ? updated : up));
-        setShowAnswers(true);
-        alert('已放棄此次作答');
-      }
+      if (!response.ok) throw new Error('無法放棄作答');
+
+      const data = await response.json();
+      setActiveUserPaper({ ...activeUserPaper, status: 'abandoned', finished_at: data.finished_at });
+      setMode('abandoned');
     } catch (err) {
-      console.error('Failed to abandon paper:', err);
+      alert(err instanceof Error ? err.message : '放棄作答失敗');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleItemAnswer = async (itemId: number, paperItemSequence: number, answer: number | null) => {
-    setItemAnswers(prev => {
-      const newAnswers = new Map(prev);
-      if (answer === null) {
-        newAnswers.delete(itemId);
-      } else {
-        newAnswers.set(itemId, answer);
+  // 重新作答
+  const handleRenew = async () => {
+    if (!activeUserPaper) return;
+
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/renew`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('無法重新作答');
+
+      const data = await response.json();
+
+      // 建立新的 user_paper
+      const newUserPaper: UserPaperResponse = {
+        id: data.user_paper_id,
+        user_id: activeUserPaper.user_id,
+        paper_id: data.paper_id,
+        status: data.status,
+        started_at: null,
+        finished_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setActiveUserPaper(newUserPaper);
+      setMode('in_progress');
+      setAnswers(new Map()); // 清空答案
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '重新作答失敗');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 渲染 Exercise
+  const renderExercise = (exercise: Exercise, index: number) => {
+    const exerciseTypeId = exercise.exercise_type_id;
+    const exerciseTypeName = exercise.exercise_type.name;
+
+    // 根據題型渲染
+    // V3 exercise_type_id:
+    // 1: 單字題, 2: 片語題, 3: 文法題 (MCQ)
+    // 4: 克漏字 (Cloze)
+    // 5-12: 各種題組 (閱讀、聽力、圖片理解等)
+
+    return (
+      <div key={exercise.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-4">
+          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            題目 {index + 1} - {exerciseTypeName}
+          </span>
+        </div>
+
+        {/* 克漏字 */}
+        {exerciseTypeId === 4 && renderCloze(exercise)}
+
+        {/* 單選題 (1, 2, 3) */}
+        {[1, 2, 3].includes(exerciseTypeId) && renderMCQ(exercise)}
+
+        {/* 題組 (5-12) */}
+        {exerciseTypeId >= 5 && exerciseTypeId <= 12 && renderItemSet(exercise)}
+      </div>
+    );
+  };
+
+  // 渲染克漏字
+  const renderCloze = (exercise: Exercise) => {
+    if (!exercise.passage) return null;
+
+    let parts: React.ReactNode[] = [];
+    let text = exercise.passage;
+
+    // 按照 sequence 排序
+    const sortedItems = [...exercise.exercise_items].sort((a, b) => a.sequence - b.sequence);
+
+    sortedItems.forEach((item, idx) => {
+      const placeholder = `{{blank_${item.sequence}}}`;
+      const placeholderIndex = text.indexOf(placeholder);
+
+      if (placeholderIndex !== -1) {
+        // 加入空格前的文字
+        if (placeholderIndex > 0) {
+          parts.push(text.substring(0, placeholderIndex));
+        }
+
+        // 加入下拉選單
+        parts.push(
+          <select
+            key={item.id}
+            value={answers.get(item.id) ?? -1}
+            onChange={(e) => handleAnswerChange(exercise.id, item.id, Number(e.target.value))}
+            disabled={mode !== 'in_progress'}
+            className="mx-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value={-1}>請選擇</option>
+            {item.options.map((opt, optIdx) => (
+              <option key={optIdx} value={optIdx}>
+                {opt.text}
+              </option>
+            ))}
+          </select>
+        );
+
+        // 更新剩餘文字
+        text = text.substring(placeholderIndex + placeholder.length);
       }
-      return newAnswers;
     });
 
-    // Save to backend immediately if paper is pending or in_progress
-    if (activeUserPaper && (activeUserPaper.status === 'pending' || activeUserPaper.status === 'in_progress')) {
-      try {
-        const token = localStorage.getItem('access_token');
-        const wasPending = activeUserPaper.status === 'pending';
-
-        await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/items/answer`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            item_id: itemId,
-            paper_item_id: paperItemSequence,
-            answer: { selected_index: answer },
-            time_spent: null
-          })
-        });
-
-        // If it was pending, refresh to get updated status (should now be in_progress)
-        if (wasPending) {
-          const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (userPapersResponse.ok) {
-            const userPapersData = await userPapersResponse.json();
-            setUserPapers(userPapersData);
-            const updated = userPapersData.find((up: UserPaperResponse) => up.id === activeUserPaper.id);
-            if (updated) setActiveUserPaper(updated);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to save answer:', err);
-      }
+    // 加入剩餘文字
+    if (text) {
+      parts.push(text);
     }
+
+    return (
+      <div className="space-y-4">
+        <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
+          {parts}
+        </div>
+
+        {/* 在 completed 模式顯示解答 */}
+        {mode === 'completed' && (
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
+            <div className="font-semibold text-blue-900 dark:text-blue-100 mb-2">正確答案：</div>
+            {sortedItems.map((item, idx) => {
+              const correctIdx = item.options.findIndex(opt => opt.is_correct);
+              const userAnswer = answers.get(item.id);
+              const isCorrect = userAnswer === correctIdx;
+
+              return (
+                <div key={item.id} className="mb-2">
+                  <span className="font-medium">空格 {item.sequence}:</span>{' '}
+                  <span className={isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                    {item.options[correctIdx]?.text}
+                    {!isCorrect && userAnswer !== undefined && userAnswer !== -1 && (
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">
+                        (你的答案: {item.options[userAnswer]?.text})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
   };
 
-  const handleClozeAnswer = async (itemId: number, paperItemSequence: number, blankNumber: number, answerIndex: number | null) => {
-    setClozeAnswers(prev => {
-      const newAnswers = new Map(prev);
-      const itemAnswers = newAnswers.get(itemId) || new Map();
+  // 渲染單選題
+  const renderMCQ = (exercise: Exercise) => {
+    // 單選題只有一個 exercise_item
+    const item = exercise.exercise_items[0];
+    if (!item) return null;
 
-      if (answerIndex === null) {
-        itemAnswers.delete(blankNumber);
-      } else {
-        itemAnswers.set(blankNumber, answerIndex);
-      }
+    const userAnswer = answers.get(item.id);
 
-      newAnswers.set(itemId, itemAnswers);
-      return newAnswers;
-    });
+    return (
+      <div className="space-y-4">
+        {item.question && (
+          <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {item.question}
+          </div>
+        )}
 
-    // Save to backend immediately if paper is pending or in_progress
-    if (activeUserPaper && (activeUserPaper.status === 'pending' || activeUserPaper.status === 'in_progress')) {
-      try {
-        const token = localStorage.getItem('access_token');
-        const wasPending = activeUserPaper.status === 'pending';
+        <div className="space-y-2">
+          {item.options.map((option, idx) => {
+            const isSelected = userAnswer === idx;
+            const isCorrect = option.is_correct;
+            const showCorrect = mode === 'completed';
 
-        // Get current answers for this item
-        const currentAnswers = clozeAnswers.get(itemId) || new Map();
-        const updatedAnswers = new Map(currentAnswers);
+            return (
+              <label
+                key={idx}
+                className={`
+                  flex items-center p-3 rounded-lg border cursor-pointer transition-colors
+                  ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
+                  ${isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}
+                  ${showCorrect && isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''}
+                  ${showCorrect && isSelected && !isCorrect ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : ''}
+                `}
+              >
+                <input
+                  type="radio"
+                  name={`exercise-${exercise.id}`}
+                  value={idx}
+                  checked={isSelected}
+                  onChange={() => handleAnswerChange(exercise.id, item.id, idx)}
+                  disabled={mode !== 'in_progress'}
+                  className="mr-3"
+                />
+                <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
+                {showCorrect && isCorrect && (
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 ml-2" />
+                )}
+                {showCorrect && isSelected && !isCorrect && (
+                  <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
+                )}
+              </label>
+            );
+          })}
+        </div>
 
-        if (answerIndex === null) {
-          updatedAnswers.delete(blankNumber);
-        } else {
-          updatedAnswers.set(blankNumber, answerIndex);
-        }
-
-        // Convert Map to object {blankNumber: answerIndex}
-        const answersObject: Record<number, number> = {};
-        updatedAnswers.forEach((value, key) => {
-          answersObject[key] = value;
-        });
-
-        await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/items/answer`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            item_id: itemId,
-            paper_item_id: paperItemSequence,
-            answer: { answers: answersObject },
-            time_spent: null
-          })
-        });
-
-        // If it was pending, refresh to get updated status (should now be in_progress)
-        if (wasPending) {
-          const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (userPapersResponse.ok) {
-            const userPapersData = await userPapersResponse.json();
-            setUserPapers(userPapersData);
-            const updated = userPapersData.find((up: UserPaperResponse) => up.id === activeUserPaper.id);
-            if (updated) setActiveUserPaper(updated);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to save cloze answer:', err);
-      }
-    }
+        {/* 在 completed 模式顯示解析 */}
+        {mode === 'completed' && (
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
+            {item.options.map((option, idx) => {
+              if (option.is_correct && option.why_correct) {
+                return (
+                  <div key={idx}>
+                    <div className="font-semibold text-blue-900 dark:text-blue-100 mb-1">正確答案解析：</div>
+                    <div className="text-gray-700 dark:text-gray-300">{option.why_correct}</div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+      </div>
+    );
   };
 
-  const handleItemSetAnswer = async (subItemId: number, itemSetId: number, paperItemSetSequence: number, answer: number | null) => {
-    setItemSetAnswers(prev => {
-      const newAnswers = new Map(prev);
-      if (answer === null) {
-        newAnswers.delete(subItemId);
-      } else {
-        newAnswers.set(subItemId, answer);
-      }
-      return newAnswers;
-    });
+  // 渲染題組
+  const renderItemSet = (exercise: Exercise) => {
+    // TODO: 根據不同的 exercise_type_id 使用對應的組件
+    // 目前先簡單顯示
+    return (
+      <div className="space-y-4">
+        {/* 顯示 passage/audio/image */}
+        {exercise.passage && (
+          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
+            <div className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
+              {exercise.passage}
+            </div>
+          </div>
+        )}
 
-    // Save to backend immediately if paper is pending or in_progress
-    if (activeUserPaper && (activeUserPaper.status === 'pending' || activeUserPaper.status === 'in_progress')) {
-      try {
-        const token = localStorage.getItem('access_token');
-        const wasPending = activeUserPaper.status === 'pending';
+        {exercise.audio_url && (
+          <audio controls className="w-full">
+            <source src={exercise.audio_url} type="audio/mpeg" />
+          </audio>
+        )}
 
-        await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/item-sets/answer`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            item_set_id: itemSetId,
-            paper_item_set_id: paperItemSetSequence,
-            answer: { [subItemId]: { selected_index: answer } },
-            time_spent: null
-          })
-        });
+        {exercise.image_url && (
+          <img src={exercise.image_url} alt="Exercise" className="max-w-full rounded" />
+        )}
 
-        // If it was pending, refresh to get updated status (should now be in_progress)
-        if (wasPending) {
-          const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (userPapersResponse.ok) {
-            const userPapersData = await userPapersResponse.json();
-            setUserPapers(userPapersData);
-            const updated = userPapersData.find((up: UserPaperResponse) => up.id === activeUserPaper.id);
-            if (updated) setActiveUserPaper(updated);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to save item set answer:', err);
-      }
-    }
+        {/* 顯示各個子題 */}
+        <div className="space-y-6">
+          {exercise.exercise_items.map((item, itemIdx) => {
+            const userAnswer = answers.get(item.id);
+
+            return (
+              <div key={item.id} className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="text-base font-medium text-gray-900 dark:text-gray-100 mb-3">
+                  {itemIdx + 1}. {item.question}
+                </div>
+
+                <div className="space-y-2">
+                  {item.options.map((option, optIdx) => {
+                    const isSelected = userAnswer === optIdx;
+                    const isCorrect = option.is_correct;
+                    const showCorrect = mode === 'completed';
+
+                    return (
+                      <label
+                        key={optIdx}
+                        className={`
+                          flex items-center p-3 rounded-lg border cursor-pointer transition-colors
+                          ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
+                          ${isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}
+                          ${showCorrect && isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''}
+                          ${showCorrect && isSelected && !isCorrect ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : ''}
+                        `}
+                      >
+                        <input
+                          type="radio"
+                          name={`item-${item.id}`}
+                          value={optIdx}
+                          checked={isSelected}
+                          onChange={() => handleAnswerChange(exercise.id, item.id, optIdx)}
+                          disabled={mode !== 'in_progress'}
+                          className="mr-3"
+                        />
+                        <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
+                        {showCorrect && isCorrect && (
+                          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 ml-2" />
+                        )}
+                        {showCorrect && isSelected && !isCorrect && (
+                          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
-  // Get score data from backend (activeUserPaper)
-  const scoreData = showAnswers && activeUserPaper?.status === 'completed' ? {
-    score: activeUserPaper.score || 0,
-    max_score: activeUserPaper.max_score || 0,
-    percentage: activeUserPaper.max_score && activeUserPaper.max_score > 0
-      ? Math.round((activeUserPaper.score || 0) / activeUserPaper.max_score * 100)
-      : 0
-  } : null;
-  const isReadOnly = activeUserPaper?.status === 'completed' || activeUserPaper?.status === 'abandoned';
-  const isPending = activeUserPaper?.status === 'pending';
-  const isInProgress = activeUserPaper?.status === 'in_progress';
-
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="text-gray-600 dark:text-gray-400">載入考卷中...</span>
-        </div>
-      </div>
+      <ProtectedRoute>
+        <SidebarLayout>
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          </div>
+        </SidebarLayout>
+      </ProtectedRoute>
     );
   }
 
+  // Error state
   if (error || !paper) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-red-500">
-          <AlertCircle className="h-12 w-12" />
-          <span>{error || '找不到考卷'}</span>
-        </div>
-      </div>
+      <ProtectedRoute>
+        <SidebarLayout>
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-gray-900 dark:text-gray-100">{error || '無法載入試卷'}</p>
+            </div>
+          </div>
+        </SidebarLayout>
+      </ProtectedRoute>
     );
   }
-
-  const renderItem = (item: any, displaySequence: number) => {
-    const itemTypeName = item.item_type?.name || '';
-    const itemTypeId = item.item_type?.id;
-
-    // V3 Schema: ID 4 = 克漏字
-    if (itemTypeId === 4 || itemTypeName === '克漏字') {
-      return (
-        <EngCloze
-          key={`item-${item.item_id}`}
-          sequence={displaySequence}
-          content={item.content_json as any}
-          userAnswers={clozeAnswers.get(item.item_id)}
-          onAnswerChange={(blankNumber, answer) => handleClozeAnswer(item.item_id, item.sequence, blankNumber, answer)}
-          showAnswer={showAnswers}
-        />
-      );
-    }
-
-    // V3 Schema: ID 1, 2, 3 = 單字題, 片語題, 文法題 (all MCQ)
-    if (itemTypeId && [1, 2, 3].includes(itemTypeId)) {
-      return (
-        <EngMcqText
-          key={`item-${item.item_id}`}
-          sequence={displaySequence}
-          content={item.content_json as any}
-          userAnswer={itemAnswers.get(item.item_id)}
-          onAnswerChange={(answer) => handleItemAnswer(item.item_id, item.sequence, answer)}
-          showAnswer={showAnswers}
-        />
-      );
-    }
-
-    // Default case for unknown types
-    return (
-      <div key={`item-${item.item_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-        Unknown item type: {itemTypeName} (ID: {itemTypeId})
-      </div>
-    );
-  };
-
-  const renderItemSet = (itemSet: any, displaySequence: number) => {
-    const hasSubItems = itemSet.items && itemSet.items.length > 0;
-    const itemSetTypeId = itemSet.item_set_type?.id;
-    const itemSetTypeName = itemSet.item_set_type?.name || '';
-
-    const renderSubItems = () => {
-      if (!hasSubItems) return null;
-      return itemSet.items!.map((item: any, index: number) => (
-        <EngMcqText
-          key={item.id}
-          sequence={displaySequence}
-          subItemNumber={index + 1}
-          content={item.content_json}
-          userAnswer={itemSetAnswers.get(item.id)}
-          onAnswerChange={(answer) => handleItemSetAnswer(item.id, itemSet.item_set_id, itemSet.sequence, answer)}
-          showAnswer={showAnswers}
-        />
-      ));
-    };
-
-    // V3 Schema: ID 7 = 聽力測驗
-    if (itemSetTypeId === 7 || itemSetTypeName === '聽力測驗') {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngListening
-            sequence={displaySequence}
-            asset={itemSet.asset_json as any}
-            items={itemSet.items}
-            userAnswers={itemSetAnswers}
-            onAnswerChange={(subItemId: number, answer: number | null) =>
-              handleItemSetAnswer(subItemId, itemSet.item_set_id, itemSet.sequence, answer)
-            }
-            showAnswer={showAnswers}
-          />
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 5 = 圖片理解
-    if (itemSetTypeId === 5 || itemSetTypeName === '圖片理解') {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngImageMcq sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 6 = 閱讀理解
-    if (itemSetTypeId === 6 || itemSetTypeName === '閱讀理解') {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 8 = 資訊理解題—菜單
-    if (itemSetTypeId === 8 || itemSetTypeName.includes('菜單')) {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngInfoReadingMenu sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 9 = 資訊理解題—通知單
-    if (itemSetTypeId === 9 || itemSetTypeName.includes('通知')) {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 10 = 資訊理解題—時刻表
-    if (itemSetTypeId === 10 || itemSetTypeName.includes('時刻表')) {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngInfoReadingSchedule sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 11 = 資訊理解題—廣告
-    if (itemSetTypeId === 11 || itemSetTypeName.includes('廣告')) {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // V3 Schema: ID 12 = 資訊理解題—對話
-    if (itemSetTypeId === 12 || itemSetTypeName.includes('對話')) {
-      return (
-        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-          <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
-          {renderSubItems()}
-        </div>
-      );
-    }
-
-    // Default case for unknown types
-    return (
-      <div key={`itemset-${itemSet.item_set_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-        Unknown item set type: {itemSetTypeName} (ID: {itemSetTypeId})
-      </div>
-    );
-  };
 
   return (
     <ProtectedRoute>
       <SidebarLayout>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-          <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                {paper.name}
-              </h1>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 dark:text-gray-400">
-                <span>考卷 ID: {paper.id}</span>
-                <span className="hidden sm:inline">|</span>
-                <span>科目: {paper.subject_id}</span>
-                <span className="hidden sm:inline">|</span>
-                <span>範圍: {paper.range_pack_id}</span>
-              </div>
-
-              {/* Status and Controls */}
-              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                {/* Status Badge */}
-                {activeUserPaper && (
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    activeUserPaper.status === 'pending' ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
-                    activeUserPaper.status === 'in_progress' ? 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300' :
-                    activeUserPaper.status === 'completed' ? 'bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300' :
-                    'bg-red-200 dark:bg-red-800 text-red-700 dark:text-red-300'
+        <div className="max-w-4xl mx-auto p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              試卷 #{paper.id}
+            </h1>
+            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <span>總題數: {paper.total_items}</span>
+              {activeUserPaper && (
+                <>
+                  <span>•</span>
+                  <span className={`font-semibold ${
+                    mode === 'pending' ? 'text-gray-600' :
+                    mode === 'in_progress' ? 'text-blue-600' :
+                    mode === 'completed' ? 'text-green-600' :
+                    'text-red-600'
                   }`}>
-                    {activeUserPaper.status === 'pending' ? '未開始' :
-                     activeUserPaper.status === 'in_progress' ? '作答中' :
-                     activeUserPaper.status === 'completed' ? '已完成' : '已放棄'}
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {isPending && (
-                  <button
-                    onClick={handleStartPaper}
-                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors cursor-pointer"
-                  >
-                    開始作答
-                  </button>
-                )}
-
-                {isInProgress && (
-                  <>
-                    <button
-                      onClick={handleCompletePaper}
-                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
-                    >
-                      完成考卷
-                    </button>
-                    <button
-                      onClick={handleAbandonPaper}
-                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
-                    >
-                      放棄作答
-                    </button>
-                  </>
-                )}
-
-                {isReadOnly && (
-                  <button
-                    onClick={() => setShowAnswers(!showAnswers)}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors cursor-pointer"
-                  >
-                    {showAnswers ? '隱藏解答' : '顯示解答'}
-                  </button>
-                )}
-
-                {/* Score Display */}
-                {showAnswers && scoreData && (
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-blue-500 dark:border-blue-400 shadow-md">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">分數</div>
-                        <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                          {scoreData.percentage}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">答對題數</div>
-                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                          {Math.round(scoreData.score)}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">總題數</div>
-                        <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                          {Math.round(scoreData.max_score)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* History Dropdown */}
-                {userPapers.length > 1 && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowHistoryDropdown(!showHistoryDropdown)}
-                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
-                    >
-                      <Clock className="h-4 w-4" />
-                      歷史作答 ({userPapers.length})
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-
-                    {showHistoryDropdown && (
-                      <div className="absolute top-full mt-2 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 min-w-[250px]">
-                        {userPapers.map((up, index) => (
-                          <button
-                            key={up.id}
-                            onClick={() => {
-                              setActiveUserPaper(up);
-                              setShowHistoryDropdown(false);
-                              if (up.status === 'completed' || up.status === 'abandoned') {
-                                setShowAnswers(true);
-                                loadUserAnswers(up.id);
-                              } else {
-                                // Clear answers when switching to pending/in_progress
-                                setShowAnswers(false);
-                                setItemAnswers(new Map());
-                                setClozeAnswers(new Map());
-                                setItemSetAnswers(new Map());
-                              }
-                            }}
-                            className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
-                              index === 0 ? 'rounded-t-lg' : ''
-                            } ${index === userPapers.length - 1 ? 'rounded-b-lg' : 'border-b border-gray-200 dark:border-gray-700'} ${
-                              activeUserPaper?.id === up.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                            }`}
-                          >
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {up.status === 'pending' && '未開始'}
-                              {up.status === 'in_progress' && '作答中'}
-                              {up.status === 'completed' && `已完成 - ${up.score}/${up.max_score}`}
-                              {up.status === 'abandoned' && '已放棄'}
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(up.created_at).toLocaleString('zh-TW')}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Paper Content */}
-            <div className="space-y-8">
-              {paper.items && paper.items.length > 0 && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
-                    單選題
-                  </h2>
-                  <div className="space-y-6">
-                    {paper.items
-                      .sort((a, b) => a.sequence - b.sequence)
-                      .map((item, index) => renderItem(item, index + 1))}
-                  </div>
-                </div>
+                    {mode === 'pending' && '未開始'}
+                    {mode === 'in_progress' && '作答中'}
+                    {mode === 'completed' && '已完成'}
+                    {mode === 'abandoned' && '已放棄'}
+                  </span>
+                </>
               )}
-
-              {paper.item_sets && paper.item_sets.length > 0 && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
-                    題組
-                  </h2>
-                  <div className="space-y-6">
-                    {paper.item_sets
-                      .sort((a, b) => a.sequence - b.sequence)
-                      .map((itemSet, index) => renderItemSet(itemSet, index + 1))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Action Buttons */}
-            {isInProgress && (
-              <div className="mt-8 flex flex-wrap gap-3 justify-center">
-                <button
-                  onClick={handleCompletePaper}
-                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer"
-                >
-                  完成考卷
-                </button>
-                <button
-                  onClick={handleAbandonPaper}
-                  className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium cursor-pointer"
-                >
-                  放棄考卷
-                </button>
-              </div>
-            )}
-
-            {/* Footer Stats */}
-            <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {paper.items.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">單題</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {paper.item_sets.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">題組</div>
-                </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {paper.items.length + paper.item_sets.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">總計</div>
-                </div>
-              </div>
             </div>
           </div>
+
+          {/* Mode-specific header buttons */}
+          <div className="mb-6">
+            {mode === 'pending' && (
+              <button
+                onClick={handleStart}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="w-5 h-5" />
+                開始作答
+              </button>
+            )}
+
+            {mode === 'abandoned' && (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
+                    <AlertCircle className="w-5 h-5" />
+                    <span className="font-semibold">此試卷已放棄</span>
+                  </div>
+                  <button
+                    onClick={handleRenew}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    重新作答
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Exercises */}
+          <div className="space-y-6">
+            {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
+          </div>
+
+          {/* Bottom action buttons */}
+          {mode === 'in_progress' && (
+            <div className="mt-8 flex gap-4 justify-center">
+              <button
+                onClick={handleComplete}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckCircle className="w-5 h-5" />
+                完成作答
+              </button>
+              <button
+                onClick={handleAbandon}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <XCircle className="w-5 h-5" />
+                放棄作答
+              </button>
+            </div>
+          )}
+
+          {/* Completed mode: show stats */}
+          {mode === 'completed' && (
+            <div className="mt-8 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="text-center">
+                <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
+                <div className="text-2xl font-bold text-green-900 dark:text-green-100 mb-2">
+                  作答完成！
+                </div>
+                <div className="text-gray-600 dark:text-gray-400">
+                  已顯示正確答案與解析
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </SidebarLayout>
     </ProtectedRoute>
