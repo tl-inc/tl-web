@@ -1,43 +1,84 @@
-// Paper and item type definitions
+// Paper type definitions (V3 Schema)
 
-// Import type definitions from api.ts
-export interface ItemType {
+// Exercise Type (V3)
+export interface ExerciseType {
   id: number;
-  subject_id: string;
   name: string;
+  subject_id?: number;
   description?: string;
 }
 
-export interface ItemSetType {
+// Exercise Item Option
+export interface ExerciseItemOption {
+  text: string;
+  is_correct: boolean;
+  why_correct?: string | null;
+  why_incorrect?: string | null;
+}
+
+// Exercise Item (子題)
+export interface ExerciseItem {
   id: number;
-  subject_id: string;
-  name: string;
-  description?: string;
+  exercise_id: number;
+  sequence: number;
+  question: string | null;
+  options: ExerciseItemOption[];
 }
 
-export interface McqContent {
-  stem: string;
-  options: string[];
-  answer_index: number;
-  explanation: string;
-  explanations?: {
-    why_correct: string;
-    why_incorrect: string[];
-  };
+// Exercise (練習 / 題目)
+export interface Exercise {
+  id: number;
+  exercise_type_id: number;
+  subject_id: number;
+  difficulty_bundle_id: number;
+  passage: string | null;
+  audio_url: string | null;
+  image_url: string | null;
+  asset_json: any;
+  exercise_type: ExerciseType;
+  exercise_items: ExerciseItem[];
+  created_at: string;
 }
 
-export interface ClozeAnswer {
-  blank_number: number;
-  answer_index: number;
-  explanation: string;
+// Paper (試卷)
+export interface PaperData {
+  id: number;
+  range_pack_id: number;
+  blueprint_id: number;
+  total_items: number;
+  exercises: Exercise[];
+  created_at: string;
 }
 
-export interface ClozeContent {
-  passage: string;
-  options: string[];
-  answers: ClozeAnswer[];
+// User Paper API types
+export type UserPaperStatus = 'pending' | 'in_progress' | 'completed' | 'abandoned';
+
+export interface UserPaperResponse {
+  id: number;
+  user_id: number;
+  paper_id: number;
+  status: UserPaperStatus;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
+export interface StartPaperRequest {
+  range_pack_id: number;
+  subject_id: number;
+  blueprint_id?: number;
+}
+
+export interface StartPaperResponse {
+  user_paper_id: number;
+  paper_id: number;
+  exercise_ids: number[];
+  total_items: number;
+  started_at: string | null;
+}
+
+// Asset types for different exercise types
 export interface ImageAsset {
   url: string;
   prompt: string;
@@ -92,70 +133,4 @@ export interface ScheduleAsset {
   entries: ScheduleEntry[];
 }
 
-export type ItemContent = McqContent | ClozeContent;
 export type AssetContent = ImageAsset | AudioAsset | ReadingAsset | MenuAsset | NoticeAsset | ScheduleAsset;
-
-export interface SubItem {
-  id: number;
-  sequence: number;
-  content_json: McqContent;
-  answer: string;
-}
-
-export interface PaperItem {
-  sequence: number;
-  item_id: number;
-  item_type: ItemType;
-  difficulty_bundle_id: string;
-  content_json: ItemContent;
-}
-
-export interface PaperItemSet {
-  sequence: number;
-  item_set_id: number;
-  item_set_type: ItemSetType;
-  difficulty_bundle_id: string;
-  asset_json: AssetContent;
-  items?: SubItem[];
-}
-
-export interface PaperData {
-  id: number;
-  subject_id: string;
-  name: string;
-  range_pack_id: string;
-  created_at: string;
-  updated_at: string;
-  items: PaperItem[];
-  item_sets: PaperItemSet[];
-}
-
-// User Paper API types
-export type UserPaperStatus = 'pending' | 'in_progress' | 'completed' | 'abandoned';
-
-export interface UserPaperResponse {
-  id: string;
-  user_id: number;
-  paper_id: number;
-  range_pack_id: string;
-  status: UserPaperStatus;
-  score: number | null;
-  max_score: number | null;
-  started_at: string | null;
-  completed_at: string | null;
-  time_spent: number | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface StartPaperRequest {
-  range_pack_id: number;
-  subject_id: number;
-  blueprint_id?: number;
-}
-
-export interface StartPaperResponse {
-  user_paper_id: string;
-  paper_id: number;
-  started_at: string | null;
-}
