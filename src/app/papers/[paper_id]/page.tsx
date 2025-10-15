@@ -170,7 +170,20 @@ export default function PaperDetailPage() {
 
   // 答題（即時送出）
   const handleAnswerChange = async (exerciseId: number, exerciseItemId: number, answerIndex: number) => {
-    if (!activeUserPaper || mode !== 'in_progress') return;
+    if (!activeUserPaper) return;
+
+    // 如果是 pending 狀態，自動開始考試
+    if (mode === 'pending') {
+      await handleStart();
+      // 等待狀態更新後再記錄答案
+      setTimeout(() => {
+        setAnswers(prev => new Map(prev).set(exerciseItemId, answerIndex));
+      }, 100);
+      return;
+    }
+
+    // 只有 in_progress 才能答題
+    if (mode !== 'in_progress') return;
 
     // 1. 更新 local state (立即反應)
     setAnswers(prev => new Map(prev).set(exerciseItemId, answerIndex));
@@ -220,8 +233,8 @@ export default function PaperDetailPage() {
       setActiveUserPaper({ ...activeUserPaper, status: 'completed', finished_at: data.finished_at });
       setMode('completed');
 
-      // 捲回頂部
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // 立即跳到頂部
+      window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (err) {
       alert(err instanceof Error ? err.message : '完成作答失敗');
     } finally {
@@ -252,8 +265,8 @@ export default function PaperDetailPage() {
       setActiveUserPaper({ ...activeUserPaper, status: 'abandoned', finished_at: data.finished_at });
       setMode('abandoned');
 
-      // 捲回頂部
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // 立即跳到頂部
+      window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (err) {
       alert(err instanceof Error ? err.message : '放棄作答失敗');
     } finally {
@@ -1374,22 +1387,45 @@ export default function PaperDetailPage() {
                     {mode === 'abandoned' && '❌ 已放棄'}
                   </span>
                 )}
-                {/* 分數統計（completed 模式） */}
-                {mode === 'completed' && (() => {
-                  const { correctCount, totalCount, score } = calculateStats();
-                  return (
-                    <>
-                      <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 text-blue-700 dark:text-blue-300 rounded-full font-bold">
-                        分數: {score}
-                      </span>
-                      <span className="px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/40 dark:to-green-800/40 text-green-700 dark:text-green-300 rounded-full font-medium">
-                        答對: {correctCount}/{totalCount}
-                      </span>
-                    </>
-                  );
-                })()}
               </div>
             </div>
+
+            {/* Completed mode: show stats at top */}
+            {mode === 'completed' && (() => {
+              const { correctCount, totalCount, score } = calculateStats();
+              return (
+                <div className="mt-6 p-8 bg-gradient-to-br from-green-50/90 to-emerald-50/90 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-sm border-2 border-green-300 dark:border-green-700 rounded-2xl shadow-lg">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full mb-4">
+                      <CheckCircle className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-4">
+                      作答完成！
+                    </div>
+
+                    {/* 分數統計 */}
+                    <div className="mt-6 grid grid-cols-3 gap-4 max-w-md mx-auto">
+                      <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                        <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{score}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">分數</div>
+                      </div>
+                      <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">{correctCount}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">答對數</div>
+                      </div>
+                      <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                        <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{totalCount}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">總題數</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
+                      已顯示正確答案與解析
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Mode-specific header buttons */}
             <div className="mb-8">
@@ -1450,43 +1486,6 @@ export default function PaperDetailPage() {
               </button>
             </div>
           )}
-
-          {/* Completed mode: show stats */}
-          {mode === 'completed' && (() => {
-            const { correctCount, totalCount, score } = calculateStats();
-            return (
-              <div className="mt-8 p-8 bg-gradient-to-br from-green-50/90 to-emerald-50/90 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-sm border-2 border-green-300 dark:border-green-700 rounded-2xl shadow-lg">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full mb-4">
-                    <CheckCircle className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-4">
-                    作答完成！
-                  </div>
-
-                  {/* 分數統計 */}
-                  <div className="mt-6 grid grid-cols-3 gap-4 max-w-md mx-auto">
-                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
-                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{score}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">分數</div>
-                    </div>
-                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
-                      <div className="text-3xl font-bold text-green-600 dark:text-green-400">{correctCount}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">答對數</div>
-                    </div>
-                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
-                      <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{totalCount}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">總題數</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
-                    已顯示正確答案與解析
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
         </div>
         </div>
       </SidebarLayout>
