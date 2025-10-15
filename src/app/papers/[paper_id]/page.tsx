@@ -465,6 +465,178 @@ export default function PaperDetailPage() {
     );
   };
 
+  // 渲染資訊理解題的 asset_json 內容
+  const renderInformationAsset = (exercise: Exercise) => {
+    const asset = exercise.asset_json;
+    if (!asset) return null;
+
+    const typeId = exercise.exercise_type_id;
+
+    // 8: 資訊理解題—菜單
+    if (typeId === 8 && asset.menu) {
+      return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
+          <h3 className="text-xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100">
+            {asset.restaurant_name?.content || asset.restaurant_name}
+          </h3>
+          <div className="space-y-4">
+            {asset.menu.beverages && (
+              <div>
+                <h4 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">Beverages</h4>
+                {asset.menu.beverages.map((item: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium">{item.name?.content || item.name}</span>
+                      <span>{item.price}</span>
+                    </div>
+                    {item.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.description?.content || item.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {asset.menu.main_courses && (
+              <div>
+                <h4 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">Main Courses</h4>
+                {asset.menu.main_courses.map((item: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium">{item.name?.content || item.name}</span>
+                      <span>{item.price}</span>
+                    </div>
+                    {item.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.description?.content || item.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // 9: 資訊理解題—通知單
+    if (typeId === 9 && asset.notice) {
+      return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            {asset.notice.title?.content || asset.notice.title}
+          </h3>
+          {asset.notice.date_time && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <strong>Date & Time:</strong> {asset.notice.date_time?.content || asset.notice.date_time}
+            </p>
+          )}
+          {asset.notice.location && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <strong>Location:</strong> {asset.notice.location?.content || asset.notice.location}
+            </p>
+          )}
+          <p className="mt-3 text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+            {asset.notice.description?.content || asset.notice.description || asset.notice.content?.content || asset.notice.content}
+          </p>
+          {asset.organizer && (
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+              <strong>Organizer:</strong> {asset.organizer?.content || asset.organizer}
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    // 10: 資訊理解題—時刻表
+    if (typeId === 10 && asset.timetable) {
+      const schedule = asset.timetable.schedule || [];
+      const locations = asset.timetable.locations || [];
+      const routeName = asset.timetable.route_name?.content || asset.timetable.route_name;
+
+      return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            {asset.title?.content || asset.title || 'Schedule'}
+          </h3>
+          {routeName && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{routeName}</p>
+          )}
+          <div className="space-y-4">
+            {schedule.map((trip: any, idx: number) => (
+              <div key={idx} className="border-l-4 border-blue-500 pl-3">
+                <div className="font-semibold mb-2">{trip.time}</div>
+                {trip.stops && trip.stops.map((stop: any, stopIdx: number) => {
+                  const location = locations[stop.location_index];
+                  return (
+                    <div key={stopIdx} className="text-sm ml-2 mb-1">
+                      {stop.arrival_time} - {location?.name?.content || location?.name}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // 11: 資訊理解題—廣告
+    if (typeId === 11 && asset.advertisement) {
+      return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
+          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            {asset.product_name?.content || asset.product_name || asset.advertisement.headline?.content || asset.advertisement.headline}
+          </h3>
+          {asset.advertisement.price && (
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+              {asset.advertisement.price}
+            </p>
+          )}
+          <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap mb-3">
+            {asset.advertisement.description?.content || asset.advertisement.description}
+          </p>
+          {asset.advertisement.promotional_text && (
+            <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mt-2">
+              {asset.advertisement.promotional_text?.content || asset.advertisement.promotional_text}
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    // 12: 資訊理解題—對話
+    if (typeId === 12 && asset.dialogue) {
+      const turns = asset.dialogue.turns || [];
+      const speakers = asset.dialogue.speakers || [];
+
+      return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded space-y-3">
+          {turns.map((turn: any, idx: number) => {
+            const speaker = speakers[turn.speaker_index];
+            const speakerName = speaker?.name?.content || speaker?.name || `Speaker ${turn.speaker_index + 1}`;
+            const text = turn.text?.content || turn.text || turn.message?.content || turn.message;
+
+            return (
+              <div key={idx}>
+                <div className="font-semibold text-gray-800 dark:text-gray-200">
+                  {speakerName}:
+                </div>
+                <div className="ml-4 text-gray-900 dark:text-gray-100">
+                  {text}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   // 渲染題組
   const renderItemSet = (exercise: Exercise) => {
     // TODO: 根據不同的 exercise_type_id 使用對應的組件
@@ -478,6 +650,13 @@ export default function PaperDetailPage() {
 
     // 音訊 URL 可能在 audio_url 或 asset_json.audio_url 中
     const audioUrl = exercise.audio_url || exercise.asset_json?.audio_url;
+
+    // 聽力測驗 (exercise_type_id = 7) 的逐字稿只在結算模式顯示
+    const isListening = exercise.exercise_type_id === 7;
+    const shouldShowPassage = passageText && (!isListening || mode === 'completed');
+
+    // 資訊理解題 (8-12) 需要渲染 asset_json
+    const isInformationReading = exercise.exercise_type_id >= 8 && exercise.exercise_type_id <= 12;
 
     return (
       <div className="space-y-4">
@@ -495,8 +674,11 @@ export default function PaperDetailPage() {
           </audio>
         )}
 
-        {/* 顯示文章 */}
-        {passageText && (
+        {/* 顯示資訊理解題內容 (8-12) */}
+        {isInformationReading && renderInformationAsset(exercise)}
+
+        {/* 顯示文章（聽力測驗的逐字稿只在結算模式顯示，資訊理解題不顯示） */}
+        {!isInformationReading && shouldShowPassage && (
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <div className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
               {passageText}
