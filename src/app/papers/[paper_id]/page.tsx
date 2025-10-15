@@ -41,24 +41,56 @@ export default function PaperDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch paper data
-        const paperResponse = await fetch(`${apiUrl}/papers/${paper_id}`);
+        // Fetch paper data with full exercise details (V3 schema)
+        const paperResponse = await fetch(`${apiUrl}/papers/${paper_id}/detail`);
         if (!paperResponse.ok) throw new Error('無法載入考卷資料');
         const paperData = await paperResponse.json();
 
-        // Normalize asset_json
-        if (paperData.item_sets) {
-          paperData.item_sets = paperData.item_sets.map((itemSet: any) => {
-            if (itemSet.asset_json && typeof itemSet.asset_json === 'string') {
+        // Convert V3 schema (exercises) to V2 format (items + item_sets) for compatibility
+        // TODO: Refactor frontend to use V3 schema directly
+        const items: any[] = [];
+        const item_sets: any[] = [];
+
+        if (paperData.exercises) {
+          paperData.exercises.forEach((exercise: any) => {
+            // Parse asset_json if needed
+            if (exercise.asset_json && typeof exercise.asset_json === 'string') {
               try {
-                itemSet.asset_json = JSON.parse(itemSet.asset_json);
+                exercise.asset_json = JSON.parse(exercise.asset_json);
               } catch (e) {
                 console.error('Failed to parse asset_json:', e);
               }
             }
-            return itemSet;
+
+            // Check if it's a single-item exercise (V2 "item") or multi-item (V2 "item_set")
+            if (exercise.exercise_items && exercise.exercise_items.length === 1 && !exercise.passage && !exercise.audio_url) {
+              // Single item exercise -> convert to V2 item format
+              const exerciseItem = exercise.exercise_items[0];
+              items.push({
+                id: exerciseItem.id,
+                exercise_id: exercise.id,
+                sequence: exerciseItem.sequence,
+                content: exerciseItem.question || exercise.passage,
+                options: exerciseItem.options,
+                item_type: exercise.exercise_type.name
+              });
+            } else {
+              // Multi-item exercise or has passage/audio -> convert to V2 item_set format
+              item_sets.push({
+                id: exercise.id,
+                type: exercise.exercise_type.name,
+                passage: exercise.passage,
+                audio_url: exercise.audio_url,
+                image_url: exercise.image_url,
+                asset_json: exercise.asset_json,
+                items: exercise.exercise_items
+              });
+            }
           });
         }
+
+        paperData.items = items;
+        paperData.item_sets = item_sets;
         setPaper(paperData);
 
         // Fetch user_papers for this paper
@@ -120,7 +152,8 @@ export default function PaperDetailPage() {
 
         reviewData.items.forEach((item: any) => {
           if (item.user_answer) {
-            if (item.item_type === 'eng_cloze' && item.user_answer.answers) {
+            // Check if it's a cloze type by looking at the type ID (1) or name
+            if ((item.item_type?.id === 1 || item.item_type?.name === '克漏字') && item.user_answer.answers) {
               // Cloze test answers
               const clozeMap = new Map<number, number>();
               Object.entries(item.user_answer.answers).forEach(([blankNum, answerIdx]) => {
@@ -442,43 +475,48 @@ export default function PaperDetailPage() {
   }
 
   const renderItem = (item: any, displaySequence: number) => {
-    switch (item.item_type) {
-      case 'eng_mcq_text':
-      case 'eng_mcq_lexicon':
-      case 'eng_mcq_phrase':
-      case 'eng_mcq_grammar':
-        return (
-          <EngMcqText
-            key={`item-${item.item_id}`}
-            sequence={displaySequence}
-            content={item.content_json as any}
-            userAnswer={itemAnswers.get(item.item_id)}
-            onAnswerChange={(answer) => handleItemAnswer(item.item_id, item.sequence, answer)}
-            showAnswer={showAnswers}
-          />
-        );
-      case 'eng_cloze':
-        return (
-          <EngCloze
-            key={`item-${item.item_id}`}
-            sequence={displaySequence}
-            content={item.content_json as any}
-            userAnswers={clozeAnswers.get(item.item_id)}
-            onAnswerChange={(blankNumber, answer) => handleClozeAnswer(item.item_id, item.sequence, blankNumber, answer)}
-            showAnswer={showAnswers}
-          />
-        );
-      default:
-        return (
-          <div key={`item-${item.item_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-            Unknown item type: {item.item_type}
-          </div>
-        );
+    const itemTypeName = item.item_type?.name || '';
+
+    // Check if it's a cloze type (ID 1 or name '克漏字')
+    if (item.item_type?.id === 1 || itemTypeName === '克漏字') {
+      return (
+        <EngCloze
+          key={`item-${item.item_id}`}
+          sequence={displaySequence}
+          content={item.content_json as any}
+          userAnswers={clozeAnswers.get(item.item_id)}
+          onAnswerChange={(blankNumber, answer) => handleClozeAnswer(item.item_id, item.sequence, blankNumber, answer)}
+          showAnswer={showAnswers}
+        />
+      );
     }
+
+    // All MCQ types (文法題, 字彙題, 片語題, etc.)
+    if (item.item_type?.id && [2, 3, 4].includes(item.item_type.id)) {
+      return (
+        <EngMcqText
+          key={`item-${item.item_id}`}
+          sequence={displaySequence}
+          content={item.content_json as any}
+          userAnswer={itemAnswers.get(item.item_id)}
+          onAnswerChange={(answer) => handleItemAnswer(item.item_id, item.sequence, answer)}
+          showAnswer={showAnswers}
+        />
+      );
+    }
+
+    // Default case for unknown types
+    return (
+      <div key={`item-${item.item_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+        Unknown item type: {itemTypeName} (ID: {item.item_type?.id})
+      </div>
+    );
   };
 
   const renderItemSet = (itemSet: any, displaySequence: number) => {
     const hasSubItems = itemSet.items && itemSet.items.length > 0;
+    const itemSetTypeId = itemSet.item_set_type?.id;
+    const itemSetTypeName = itemSet.item_set_type?.name || '';
 
     const renderSubItems = () => {
       if (!hasSubItems) return null;
@@ -495,64 +533,80 @@ export default function PaperDetailPage() {
       ));
     };
 
-    switch (itemSet.item_set_type) {
-      case 'eng_listening':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngListening
-              sequence={displaySequence}
-              asset={itemSet.asset_json as any}
-              items={itemSet.items}
-              userAnswers={itemSetAnswers}
-              onAnswerChange={(subItemId: number, answer: number | null) =>
-                handleItemSetAnswer(subItemId, itemSet.item_set_id, itemSet.sequence, answer)
-              }
-              showAnswer={showAnswers}
-            />
-          </div>
-        );
-      case 'eng_image_mcq':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngImageMcq sequence={displaySequence} asset={itemSet.asset_json as any} />
-            {renderSubItems()}
-          </div>
-        );
-      case 'eng_narrative_reading_set':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
-            {renderSubItems()}
-          </div>
-        );
-      case 'eng_info_reading_menu':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngInfoReadingMenu sequence={displaySequence} asset={itemSet.asset_json as any} />
-            {renderSubItems()}
-          </div>
-        );
-      case 'eng_info_reading_notice':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
-            {renderSubItems()}
-          </div>
-        );
-      case 'eng_info_reading_schedule':
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
-            <EngInfoReadingSchedule sequence={displaySequence} asset={itemSet.asset_json as any} />
-            {renderSubItems()}
-          </div>
-        );
-      default:
-        return (
-          <div key={`itemset-${itemSet.item_set_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-            Unknown item set type: {itemSet.item_set_type}
-          </div>
-        );
+    // Listening (ID: 5)
+    if (itemSetTypeId === 5 || itemSetTypeName === '聽力測驗') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngListening
+            sequence={displaySequence}
+            asset={itemSet.asset_json as any}
+            items={itemSet.items}
+            userAnswers={itemSetAnswers}
+            onAnswerChange={(subItemId: number, answer: number | null) =>
+              handleItemSetAnswer(subItemId, itemSet.item_set_id, itemSet.sequence, answer)
+            }
+            showAnswer={showAnswers}
+          />
+        </div>
+      );
     }
+
+    // Image MCQ (ID: 1)
+    if (itemSetTypeId === 1 || itemSetTypeName === '圖片理解') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngImageMcq sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // Narrative Reading (ID: 6)
+    if (itemSetTypeId === 6 || itemSetTypeName === '敘事閱讀') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // Menu Reading (ID: 2)
+    if (itemSetTypeId === 2 || itemSetTypeName === '菜單閱讀') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngInfoReadingMenu sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // Notice Reading (ID: 3)
+    if (itemSetTypeId === 3 || itemSetTypeName === '公告閱讀') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // Schedule Reading (ID: 4)
+    if (itemSetTypeId === 4 || itemSetTypeName === '時程閱讀') {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngInfoReadingSchedule sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // Default case for unknown types
+    return (
+      <div key={`itemset-${itemSet.item_set_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+        Unknown item set type: {itemSetTypeName} (ID: {itemSetTypeId})
+      </div>
+    );
   };
 
   return (
@@ -708,7 +762,7 @@ export default function PaperDetailPage() {
 
             {/* Paper Content */}
             <div className="space-y-8">
-              {paper.items.length > 0 && (
+              {paper.items && paper.items.length > 0 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
                     單選題
@@ -721,7 +775,7 @@ export default function PaperDetailPage() {
                 </div>
               )}
 
-              {paper.item_sets.length > 0 && (
+              {paper.item_sets && paper.item_sets.length > 0 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-700 pb-2">
                     題組
