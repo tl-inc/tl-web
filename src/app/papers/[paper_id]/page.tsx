@@ -394,11 +394,14 @@ export default function PaperDetailPage() {
 
     const userAnswer = answers.get(item.id);
 
+    // 將 {{blank}} 或 {{blank_N}} 替換成底線
+    const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
+
     return (
       <div className="space-y-4">
         {item.question && (
           <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {item.question}
+            {displayQuestion}
           </div>
         )}
 
@@ -489,11 +492,13 @@ export default function PaperDetailPage() {
         <div className="space-y-6">
           {exercise.exercise_items.map((item, itemIdx) => {
             const userAnswer = answers.get(item.id);
+            // 將 {{blank}} 或 {{blank_N}} 替換成底線
+            const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
 
             return (
               <div key={item.id} className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="text-base font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  {itemIdx + 1}. {item.question}
+                  {itemIdx + 1}. {displayQuestion}
                 </div>
 
                 <div className="space-y-2">
