@@ -31,6 +31,30 @@ export default function PaperDetailPage() {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
+  // 計算分數統計
+  const calculateStats = () => {
+    if (!paper) return { correctCount: 0, totalCount: 0, score: 0 };
+
+    let correctCount = 0;
+    let totalCount = 0;
+
+    paper.exercises.forEach(exercise => {
+      exercise.exercise_items.forEach(item => {
+        totalCount++;
+        const userAnswer = answers.get(item.id);
+        if (userAnswer !== undefined) {
+          const selectedOption = item.options[userAnswer];
+          if (selectedOption && selectedOption.is_correct) {
+            correctCount++;
+          }
+        }
+      });
+    });
+
+    const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+    return { correctCount, totalCount, score };
+  };
+
   // 選擇要顯示的 user_paper
   // 優先順序: in_progress > pending > 最新的 completed/abandoned
   const selectActiveUserPaper = (userPapers: UserPaperResponse[]): UserPaperResponse | null => {
@@ -405,11 +429,23 @@ export default function PaperDetailPage() {
     // 將 {{blank}} 或 {{blank_N}} 替換成底線
     const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
 
+    const isUnanswered = userAnswer === undefined;
+
     return (
       <div className="space-y-4">
         {item.question && (
           <div className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg border-l-4 border-blue-400">
-            {displayQuestion}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1">
+                {displayQuestion}
+              </div>
+              {/* 未作答標記 */}
+              {mode === 'completed' && isUnanswered && (
+                <span className="px-3 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
+                  ⚠️ 未作答
+                </span>
+              )}
+            </div>
             {/* 顯示題目翻譯 */}
             {mode === 'completed' && item.metadata?.translation && (
               <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-normal">
@@ -424,7 +460,6 @@ export default function PaperDetailPage() {
             const isSelected = userAnswer === idx;
             const isCorrect = option.is_correct;
             const showCorrect = mode === 'completed';
-            const isUnanswered = userAnswer === undefined;
 
             return (
               <div key={idx}>
@@ -453,9 +488,6 @@ export default function PaperDetailPage() {
                   )}
                   {showCorrect && isSelected && !isCorrect && (
                     <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 ml-3 flex-shrink-0" />
-                  )}
-                  {showCorrect && isUnanswered && (
-                    <span className="ml-3 px-2 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">未作答</span>
                   )}
                 </label>
                 {/* 顯示選項解析 */}
@@ -505,13 +537,59 @@ export default function PaperDetailPage() {
                 {asset.menu.beverages.map((item: any, idx: number) => (
                   <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                     <div className="flex justify-between items-start">
-                      <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                        {mode === 'completed' && item.name?.translation && (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
+                        )}
+                      </div>
                       <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
                     </div>
                     {item.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {item.description?.content || item.description}
-                      </p>
+                      <div className="text-sm mt-1">
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {item.description?.content || item.description}
+                        </p>
+                        {mode === 'completed' && item.description?.translation && (
+                          <p className="text-gray-500 dark:text-gray-500 mt-1">
+                            {item.description.translation}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 開胃菜 */}
+            {asset.menu.appetizers && (
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-amber-500 rounded"></span>
+                  Appetizers
+                </h4>
+                {asset.menu.appetizers.map((item: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                        {mode === 'completed' && item.name?.translation && (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                    </div>
+                    {item.description && (
+                      <div className="text-sm mt-1">
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {item.description?.content || item.description}
+                        </p>
+                        {mode === 'completed' && item.description?.translation && (
+                          <p className="text-gray-500 dark:text-gray-500 mt-1">
+                            {item.description.translation}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -526,16 +604,136 @@ export default function PaperDetailPage() {
                 {asset.menu.main_courses.map((item: any, idx: number) => (
                   <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                     <div className="flex justify-between items-start">
-                      <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                        {mode === 'completed' && item.name?.translation && (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
+                        )}
+                      </div>
                       <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
                     </div>
                     {item.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {item.description?.content || item.description}
+                      <div className="text-sm mt-1">
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {item.description?.content || item.description}
+                        </p>
+                        {mode === 'completed' && item.description?.translation && (
+                          <p className="text-gray-500 dark:text-gray-500 mt-1">
+                            {item.description.translation}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 甜點 */}
+            {asset.menu.desserts && (
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-amber-500 rounded"></span>
+                  Desserts
+                </h4>
+                {asset.menu.desserts.map((item: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                        {mode === 'completed' && item.name?.translation && (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                    </div>
+                    {item.description && (
+                      <div className="text-sm mt-1">
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {item.description?.content || item.description}
+                        </p>
+                        {mode === 'completed' && item.description?.translation && (
+                          <p className="text-gray-500 dark:text-gray-500 mt-1">
+                            {item.description.translation}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 套餐組合 */}
+            {asset.menu.set_meals && (
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-amber-500 rounded"></span>
+                  Set Meals
+                </h4>
+                {asset.menu.set_meals.map((meal: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{meal.name?.content || meal.name}</span>
+                        {mode === 'completed' && meal.name?.translation && (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({meal.name.translation})</span>
+                        )}
+                      </div>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{meal.price}</span>
+                    </div>
+                    {meal.items && (
+                      <div className="mt-2 ml-2">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {meal.items.map((item: any, itemIdx: number) => (
+                            <div key={itemIdx}>
+                              • {item?.content || item}
+                              {mode === 'completed' && item?.translation && (
+                                <span className="text-gray-500 dark:text-gray-500 ml-1">({item.translation})</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 優惠方案 */}
+            {asset.menu.promotions && (
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg border-2 border-amber-400 dark:border-amber-600">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="text-xl">🎉</span>
+                  Promotions
+                </h4>
+                {asset.menu.promotions.map((promo: any, idx: number) => (
+                  <div key={idx} className="ml-4 mb-2 last:mb-0">
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {promo.description?.content || promo.description}
+                    </p>
+                    {mode === 'completed' && promo.description?.translation && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {promo.description.translation}
                       </p>
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+            {/* 營業時間 */}
+            {asset.menu.business_hours && (
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-2 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="text-xl">🕒</span>
+                  Business Hours
+                </h4>
+                <p className="ml-4 text-gray-700 dark:text-gray-300">
+                  {asset.menu.business_hours?.content || asset.menu.business_hours}
+                </p>
+                {mode === 'completed' && asset.menu.business_hours?.translation && (
+                  <p className="ml-4 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {asset.menu.business_hours.translation}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -551,29 +749,109 @@ export default function PaperDetailPage() {
             <h3 className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">
               {asset.notice.title?.content || asset.notice.title}
             </h3>
+            {mode === 'completed' && asset.notice.title?.translation && (
+              <p className="text-base text-indigo-600 dark:text-indigo-400 mt-1">
+                {asset.notice.title.translation}
+              </p>
+            )}
           </div>
           <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg space-y-3">
             {asset.notice.date_time && (
               <div className="flex items-start gap-2">
                 <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📅 日期時間:</span>
-                <span className="text-gray-700 dark:text-gray-300">{asset.notice.date_time?.content || asset.notice.date_time}</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.date_time?.content || asset.notice.date_time}</span>
+                  {mode === 'completed' && asset.notice.date_time?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.date_time.translation}</span>
+                  )}
+                </div>
               </div>
             )}
             {asset.notice.location && (
               <div className="flex items-start gap-2">
                 <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📍 地點:</span>
-                <span className="text-gray-700 dark:text-gray-300">{asset.notice.location?.content || asset.notice.location}</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.location?.content || asset.notice.location}</span>
+                  {mode === 'completed' && asset.notice.location?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.location.translation}</span>
+                  )}
+                </div>
               </div>
             )}
             <div className="pt-3 border-t border-indigo-100 dark:border-indigo-900">
               <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                 {asset.notice.description?.content || asset.notice.description || asset.notice.content?.content || asset.notice.content}
               </p>
+              {mode === 'completed' && (asset.notice.description?.translation || asset.notice.content?.translation) && (
+                <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed mt-2">
+                  {asset.notice.description?.translation || asset.notice.content?.translation}
+                </p>
+              )}
             </div>
+            {asset.notice.participant_info && (
+              <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👥 參加資訊:</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.participant_info?.content || asset.notice.participant_info}</span>
+                  {mode === 'completed' && asset.notice.participant_info?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.participant_info.translation}</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {asset.notice.fee_info && (
+              <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">💰 費用資訊:</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.fee_info?.content || asset.notice.fee_info}</span>
+                  {mode === 'completed' && asset.notice.fee_info?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.fee_info.translation}</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {asset.notice.contact_info && (
+              <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📞 聯絡資訊:</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.contact_info?.content || asset.notice.contact_info}</span>
+                  {mode === 'completed' && asset.notice.contact_info?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.contact_info.translation}</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {asset.notice.requirements && (
+              <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">✅ 參加條件:</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.requirements?.content || asset.notice.requirements}</span>
+                  {mode === 'completed' && asset.notice.requirements?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.requirements.translation}</span>
+                  )}
+                </div>
+              </div>
+            )}
+            {asset.notice.deadline && (
+              <div className="flex items-start gap-2 pt-3 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">⏰ 報名截止:</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.notice.deadline?.content || asset.notice.deadline}</span>
+                  {mode === 'completed' && asset.notice.deadline?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.notice.deadline.translation}</span>
+                  )}
+                </div>
+              </div>
+            )}
             {asset.organizer && (
               <div className="flex items-start gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900">
                 <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👤 主辦單位:</span>
-                <span className="text-gray-700 dark:text-gray-300">{asset.organizer?.content || asset.organizer}</span>
+                <div className="flex-1">
+                  <span className="text-gray-700 dark:text-gray-300">{asset.organizer?.content || asset.organizer}</span>
+                  {mode === 'completed' && asset.organizer?.translation && (
+                    <span className="block text-sm text-gray-500 dark:text-gray-400 mt-1">{asset.organizer.translation}</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -589,34 +867,109 @@ export default function PaperDetailPage() {
 
       return (
         <div className="p-5 bg-gradient-to-br from-sky-50/80 to-blue-50/80 dark:from-sky-950/30 dark:to-blue-950/30 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
-          <h3 className="text-2xl font-bold mb-2 text-sky-900 dark:text-sky-100">
-            {asset.title?.content || asset.title || 'Schedule'}
-          </h3>
+          <div className="mb-2">
+            <h3 className="text-2xl font-bold text-sky-900 dark:text-sky-100">
+              {asset.title?.content || asset.title || 'Schedule'}
+            </h3>
+            {mode === 'completed' && asset.title?.translation && (
+              <p className="text-base text-sky-600 dark:text-sky-400 mt-1">
+                {asset.title.translation}
+              </p>
+            )}
+          </div>
           {routeName && (
-            <p className="text-sm text-sky-600 dark:text-sky-400 mb-4 flex items-center gap-2">
+            <div className="text-sm mb-4 flex items-center gap-2">
               <span className="text-lg">🚌</span>
-              {routeName}
-            </p>
+              <div>
+                <span className="text-sky-600 dark:text-sky-400">{routeName}</span>
+                {mode === 'completed' && asset.timetable.route_name?.translation && (
+                  <span className="block text-gray-500 dark:text-gray-400 text-xs mt-0.5">{asset.timetable.route_name.translation}</span>
+                )}
+              </div>
+            </div>
           )}
+
+          {/* 注意事項 */}
+          {asset.timetable.notes && (
+            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-amber-500">
+              <div className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>Notes</span>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {asset.timetable.notes?.content || asset.timetable.notes}
+              </p>
+              {mode === 'completed' && asset.timetable.notes?.translation && (
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                  {asset.timetable.notes.translation}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-3">
             {schedule.map((trip: any, idx: number) => (
               <div key={idx} className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border-l-4 border-sky-500">
                 <div className="font-bold text-sky-700 dark:text-sky-300 mb-2 flex items-center gap-2">
                   <span className="bg-sky-500 text-white px-2 py-0.5 rounded text-sm">{trip.time}</span>
+                  {/* 價格 */}
+                  {trip.price && (
+                    <span className="ml-auto text-sm font-semibold text-sky-600 dark:text-sky-400">
+                      💵 {trip.price?.content || trip.price}
+                      {mode === 'completed' && trip.price?.translation && (
+                        <span className="text-gray-500 dark:text-gray-400 ml-2">({trip.price.translation})</span>
+                      )}
+                    </span>
+                  )}
                 </div>
+
+                {/* 總行程時間 */}
+                {trip.duration && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+                    <span>⏱️</span>
+                    <span>{trip.duration?.content || trip.duration}</span>
+                    {mode === 'completed' && trip.duration?.translation && (
+                      <span className="text-gray-500 dark:text-gray-400">({trip.duration.translation})</span>
+                    )}
+                  </div>
+                )}
+
                 {trip.stops && trip.stops.map((stop: any, stopIdx: number) => {
                   const location = locations[stop.location_index];
                   return (
                     <div key={stopIdx} className="flex items-center gap-3 ml-2 mb-2 last:mb-0">
                       <div className="w-2 h-2 rounded-full bg-sky-400"></div>
                       <span className="text-sm font-medium text-sky-600 dark:text-sky-400 min-w-[80px]">{stop.arrival_time}</span>
-                      <span className="text-gray-700 dark:text-gray-300">{location?.name?.content || location?.name}</span>
+                      <div className="flex-1">
+                        <span className="text-gray-700 dark:text-gray-300">{location?.name?.content || location?.name}</span>
+                        {mode === 'completed' && location?.name?.translation && (
+                          <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{location.name.translation}</span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             ))}
           </div>
+
+          {/* 轉乘資訊 */}
+          {asset.timetable.transfer_info && (
+            <div className="mt-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-sky-500">
+              <div className="text-sm font-semibold text-sky-700 dark:text-sky-300 mb-1 flex items-center gap-2">
+                <span>🔄</span>
+                <span>Transfer Information</span>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {asset.timetable.transfer_info?.content || asset.timetable.transfer_info}
+              </p>
+              {mode === 'completed' && asset.timetable.transfer_info?.translation && (
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                  {asset.timetable.transfer_info.translation}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       );
     }
@@ -626,25 +979,126 @@ export default function PaperDetailPage() {
       return (
         <div className="p-5 bg-gradient-to-br from-rose-50/80 to-pink-50/80 dark:from-rose-950/30 dark:to-pink-950/30 rounded-xl border border-rose-200/50 dark:border-rose-800/50">
           <div className="text-center mb-4">
-            <h3 className="text-2xl font-bold text-rose-900 dark:text-rose-100 mb-2">
-              {asset.product_name?.content || asset.product_name || asset.advertisement.headline?.content || asset.advertisement.headline}
-            </h3>
+            {/* 產品名稱 */}
+            {asset.product_name && (
+              <div className="mb-2">
+                <h3 className="text-2xl font-bold text-rose-900 dark:text-rose-100">
+                  {asset.product_name?.content || asset.product_name}
+                </h3>
+                {mode === 'completed' && asset.product_name?.translation && (
+                  <p className="text-base text-rose-600 dark:text-rose-400 mt-1">
+                    {asset.product_name.translation}
+                  </p>
+                )}
+              </div>
+            )}
+            {/* 廣告標語 */}
+            {asset.advertisement.headline && (
+              <div className="mb-3">
+                <p className="text-lg font-semibold text-rose-700 dark:text-rose-300 italic">
+                  {asset.advertisement.headline?.content || asset.advertisement.headline}
+                </p>
+                {mode === 'completed' && asset.advertisement.headline?.translation && (
+                  <p className="text-sm text-rose-500 dark:text-rose-400 mt-1 italic">
+                    {asset.advertisement.headline.translation}
+                  </p>
+                )}
+              </div>
+            )}
             {asset.advertisement.price && (
-              <div className="inline-block bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2 rounded-full">
+              <div className="inline-block bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2 rounded-full mt-2">
                 <span className="text-3xl font-bold">{asset.advertisement.price}</span>
               </div>
             )}
           </div>
-          <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
-            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+          <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg space-y-3">
+            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
               {asset.advertisement.description?.content || asset.advertisement.description}
             </p>
+            {mode === 'completed' && asset.advertisement.description?.translation && (
+              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed">
+                {asset.advertisement.description.translation}
+              </p>
+            )}
+
+            {/* 時間資訊 */}
+            {asset.advertisement.time_info && (
+              <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
+                <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">🕒</span>
+                <div className="flex-1">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">
+                    {asset.advertisement.time_info?.content || asset.advertisement.time_info}
+                  </p>
+                  {mode === 'completed' && asset.advertisement.time_info?.translation && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                      {asset.advertisement.time_info.translation}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 地點 */}
+            {asset.advertisement.location && (
+              <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
+                <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">📍</span>
+                <div className="flex-1">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">
+                    {asset.advertisement.location?.content || asset.advertisement.location}
+                  </p>
+                  {mode === 'completed' && asset.advertisement.location?.translation && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                      {asset.advertisement.location.translation}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 聯絡資訊 */}
+            {asset.advertisement.contact_info && (
+              <div className="flex items-start gap-2 pt-2 border-t border-rose-100 dark:border-rose-900">
+                <span className="text-rose-600 dark:text-rose-400 font-semibold min-w-[24px]">📞</span>
+                <div className="flex-1">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">
+                    {asset.advertisement.contact_info?.content || asset.advertisement.contact_info}
+                  </p>
+                  {mode === 'completed' && asset.advertisement.contact_info?.translation && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                      {asset.advertisement.contact_info.translation}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 折扣資訊 */}
+            {asset.advertisement.discount_info && (
+              <div className="mt-3 p-3 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-lg border-l-4 border-amber-500">
+                <p className="font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                  <span className="text-xl">💰</span>
+                  {asset.advertisement.discount_info?.content || asset.advertisement.discount_info}
+                </p>
+                {mode === 'completed' && asset.advertisement.discount_info?.translation && (
+                  <p className="text-amber-600 dark:text-amber-400 ml-7 mt-1">
+                    {asset.advertisement.discount_info.translation}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* 宣傳文字 */}
             {asset.advertisement.promotional_text && (
-              <div className="mt-4 p-3 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-l-4 border-orange-500">
+              <div className="mt-3 p-3 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-l-4 border-orange-500">
                 <p className="font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-2">
                   <span className="text-xl">🎉</span>
                   {asset.advertisement.promotional_text?.content || asset.advertisement.promotional_text}
                 </p>
+                {mode === 'completed' && asset.advertisement.promotional_text?.translation && (
+                  <p className="text-orange-600 dark:text-orange-400 ml-7 mt-1">
+                    {asset.advertisement.promotional_text.translation}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -659,21 +1113,55 @@ export default function PaperDetailPage() {
 
       return (
         <div className="p-5 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
+          {/* 情境描述 */}
+          {asset.scenario && (
+            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-emerald-500">
+              <div className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">💬 情境</div>
+              <p className="text-gray-700 dark:text-gray-300">
+                {asset.scenario?.content || asset.scenario}
+              </p>
+              {mode === 'completed' && asset.scenario?.translation && (
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                  {asset.scenario.translation}
+                </p>
+              )}
+            </div>
+          )}
           <div className="space-y-3">
             {turns.map((turn: any, idx: number) => {
               const speaker = speakers[turn.speaker_index];
               const speakerName = speaker?.name?.content || speaker?.name || `Speaker ${turn.speaker_index + 1}`;
+              const speakerNameTranslation = speaker?.name?.translation;
+              const speakerRole = speaker?.role?.content || speaker?.role;
+              const speakerRoleTranslation = speaker?.role?.translation;
               const text = turn.text?.content || turn.text || turn.message?.content || turn.message;
+              const textTranslation = turn.text?.translation || turn.message?.translation;
 
               return (
                 <div key={idx} className={`flex gap-3 ${turn.speaker_index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
                   <div className={`max-w-[80%] ${turn.speaker_index % 2 === 0 ? 'bg-white/70 dark:bg-gray-800/70' : 'bg-emerald-100/70 dark:bg-emerald-900/30'} p-3 rounded-lg`}>
                     <div className={`font-semibold text-sm mb-1 ${turn.speaker_index % 2 === 0 ? 'text-gray-600 dark:text-gray-400' : 'text-emerald-700 dark:text-emerald-300'}`}>
                       {speakerName}
+                      {mode === 'completed' && speakerNameTranslation && (
+                        <span className="font-normal text-xs ml-1">({speakerNameTranslation})</span>
+                      )}
+                      {speakerRole && (
+                        <span className="font-normal text-xs ml-2 opacity-70">
+                          - {speakerRole}
+                          {mode === 'completed' && speakerRoleTranslation && (
+                            <span> ({speakerRoleTranslation})</span>
+                          )}
+                        </span>
+                      )}
                     </div>
                     <div className="text-gray-800 dark:text-gray-200">
                       {text}
                     </div>
+                    {mode === 'completed' && textTranslation && (
+                      <div className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                        {textTranslation}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -732,6 +1220,12 @@ export default function PaperDetailPage() {
             <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
               {passageText}
             </div>
+            {/* 顯示段落翻譯（克漏字、聽力測驗） */}
+            {mode === 'completed' && exercise.asset_json?.translation && (
+              <div className="mt-4 pt-4 border-t border-slate-300/50 dark:border-slate-600/50 whitespace-pre-wrap text-gray-600 dark:text-gray-400 leading-relaxed">
+                {exercise.asset_json.translation}
+              </div>
+            )}
           </div>
         )}
 
@@ -751,7 +1245,15 @@ export default function PaperDetailPage() {
                     {itemIdx + 1}
                   </span>
                   <div className="flex-1">
-                    <div>{displayQuestion}</div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex-1">{displayQuestion}</div>
+                      {/* 未作答標記 */}
+                      {mode === 'completed' && isUnanswered && (
+                        <span className="px-2 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
+                          ⚠️ 未作答
+                        </span>
+                      )}
+                    </div>
                     {/* 顯示題目翻譯 */}
                     {mode === 'completed' && item.metadata?.translation && (
                       <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 font-normal">
@@ -795,23 +1297,13 @@ export default function PaperDetailPage() {
                           {showCorrect && isSelected && !isCorrect && (
                             <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
                           )}
-                          {showCorrect && isUnanswered && (
-                            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">未作答</span>
-                          )}
                         </label>
-                        {/* 顯示選項解析 */}
-                        {showCorrect && (option.why_correct || option.why_incorrect) && (
+                        {/* 顯示選項解析（克漏字只顯示正確答案的解析） */}
+                        {showCorrect && option.is_correct && option.why_correct && (
                           <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
-                            {option.is_correct && option.why_correct && (
-                              <div className="text-green-700 dark:text-green-300">
-                                <span className="font-semibold">✓ </span>{option.why_correct}
-                              </div>
-                            )}
-                            {!option.is_correct && option.why_incorrect && (
-                              <div className="text-gray-600 dark:text-gray-400">
-                                <span className="font-semibold">✗ </span>{option.why_incorrect}
-                              </div>
-                            )}
+                            <div className="text-green-700 dark:text-green-300">
+                              <span className="font-semibold">✓ </span>{option.why_correct}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -865,7 +1357,7 @@ export default function PaperDetailPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
                 試卷 #{paper.id}
               </h1>
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-4 text-sm flex-wrap">
                 <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium">
                   總題數: {paper.total_items}
                 </span>
@@ -882,6 +1374,20 @@ export default function PaperDetailPage() {
                     {mode === 'abandoned' && '❌ 已放棄'}
                   </span>
                 )}
+                {/* 分數統計（completed 模式） */}
+                {mode === 'completed' && (() => {
+                  const { correctCount, totalCount, score } = calculateStats();
+                  return (
+                    <>
+                      <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 text-blue-700 dark:text-blue-300 rounded-full font-bold">
+                        分數: {score}
+                      </span>
+                      <span className="px-3 py-1 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/40 dark:to-green-800/40 text-green-700 dark:text-green-300 rounded-full font-medium">
+                        答對: {correctCount}/{totalCount}
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
@@ -947,25 +1453,7 @@ export default function PaperDetailPage() {
 
           {/* Completed mode: show stats */}
           {mode === 'completed' && (() => {
-            // 計算分數
-            let correctCount = 0;
-            let totalCount = 0;
-
-            paper.exercises.forEach(exercise => {
-              exercise.exercise_items.forEach(item => {
-                totalCount++;
-                const userAnswer = answers.get(item.id);
-                if (userAnswer !== undefined) {
-                  const selectedOption = item.options[userAnswer];
-                  if (selectedOption && selectedOption.is_correct) {
-                    correctCount++;
-                  }
-                }
-              });
-            });
-
-            const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
-
+            const { correctCount, totalCount, score } = calculateStats();
             return (
               <div className="mt-8 p-8 bg-gradient-to-br from-green-50/90 to-emerald-50/90 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-sm border-2 border-green-300 dark:border-green-700 rounded-2xl shadow-lg">
                 <div className="text-center">
