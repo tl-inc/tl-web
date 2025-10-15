@@ -68,22 +68,36 @@ export default function PaperDetailPage() {
               const exerciseItem = exercise.exercise_items[0];
               items.push({
                 id: exerciseItem.id,
+                item_id: exerciseItem.id,
                 exercise_id: exercise.id,
                 sequence: exerciseItem.sequence,
                 content: exerciseItem.question || exercise.passage,
+                content_json: exerciseItem,  // For compatibility
                 options: exerciseItem.options,
-                item_type: exercise.exercise_type.name
+                item_type: {
+                  id: exercise.exercise_type_id,
+                  name: exercise.exercise_type.name
+                }
               });
             } else {
               // Multi-item exercise or has passage/audio -> convert to V2 item_set format
               item_sets.push({
                 id: exercise.id,
+                item_set_id: exercise.id,
+                sequence: 1,  // Will be sorted later
                 type: exercise.exercise_type.name,
+                item_set_type: {
+                  id: exercise.exercise_type_id,
+                  name: exercise.exercise_type.name
+                },
                 passage: exercise.passage,
                 audio_url: exercise.audio_url,
                 image_url: exercise.image_url,
                 asset_json: exercise.asset_json,
-                items: exercise.exercise_items
+                items: exercise.exercise_items.map((item: any) => ({
+                  ...item,
+                  content_json: item
+                }))
               });
             }
           });
@@ -476,9 +490,10 @@ export default function PaperDetailPage() {
 
   const renderItem = (item: any, displaySequence: number) => {
     const itemTypeName = item.item_type?.name || '';
+    const itemTypeId = item.item_type?.id;
 
-    // Check if it's a cloze type (ID 1 or name '克漏字')
-    if (item.item_type?.id === 1 || itemTypeName === '克漏字') {
+    // V3 Schema: ID 4 = 克漏字
+    if (itemTypeId === 4 || itemTypeName === '克漏字') {
       return (
         <EngCloze
           key={`item-${item.item_id}`}
@@ -491,8 +506,8 @@ export default function PaperDetailPage() {
       );
     }
 
-    // All MCQ types (文法題, 字彙題, 片語題, etc.)
-    if (item.item_type?.id && [2, 3, 4].includes(item.item_type.id)) {
+    // V3 Schema: ID 1, 2, 3 = 單字題, 片語題, 文法題 (all MCQ)
+    if (itemTypeId && [1, 2, 3].includes(itemTypeId)) {
       return (
         <EngMcqText
           key={`item-${item.item_id}`}
@@ -508,7 +523,7 @@ export default function PaperDetailPage() {
     // Default case for unknown types
     return (
       <div key={`item-${item.item_id}`} className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-        Unknown item type: {itemTypeName} (ID: {item.item_type?.id})
+        Unknown item type: {itemTypeName} (ID: {itemTypeId})
       </div>
     );
   };
@@ -533,8 +548,8 @@ export default function PaperDetailPage() {
       ));
     };
 
-    // Listening (ID: 5)
-    if (itemSetTypeId === 5 || itemSetTypeName === '聽力測驗') {
+    // V3 Schema: ID 7 = 聽力測驗
+    if (itemSetTypeId === 7 || itemSetTypeName === '聽力測驗') {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngListening
@@ -551,8 +566,8 @@ export default function PaperDetailPage() {
       );
     }
 
-    // Image MCQ (ID: 1)
-    if (itemSetTypeId === 1 || itemSetTypeName === '圖片理解') {
+    // V3 Schema: ID 5 = 圖片理解
+    if (itemSetTypeId === 5 || itemSetTypeName === '圖片理解') {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngImageMcq sequence={displaySequence} asset={itemSet.asset_json as any} />
@@ -561,8 +576,8 @@ export default function PaperDetailPage() {
       );
     }
 
-    // Narrative Reading (ID: 6)
-    if (itemSetTypeId === 6 || itemSetTypeName === '敘事閱讀') {
+    // V3 Schema: ID 6 = 閱讀理解
+    if (itemSetTypeId === 6 || itemSetTypeName === '閱讀理解') {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
@@ -571,8 +586,8 @@ export default function PaperDetailPage() {
       );
     }
 
-    // Menu Reading (ID: 2)
-    if (itemSetTypeId === 2 || itemSetTypeName === '菜單閱讀') {
+    // V3 Schema: ID 8 = 資訊理解題—菜單
+    if (itemSetTypeId === 8 || itemSetTypeName.includes('菜單')) {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngInfoReadingMenu sequence={displaySequence} asset={itemSet.asset_json as any} />
@@ -581,8 +596,8 @@ export default function PaperDetailPage() {
       );
     }
 
-    // Notice Reading (ID: 3)
-    if (itemSetTypeId === 3 || itemSetTypeName === '公告閱讀') {
+    // V3 Schema: ID 9 = 資訊理解題—通知單
+    if (itemSetTypeId === 9 || itemSetTypeName.includes('通知')) {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
@@ -591,11 +606,31 @@ export default function PaperDetailPage() {
       );
     }
 
-    // Schedule Reading (ID: 4)
-    if (itemSetTypeId === 4 || itemSetTypeName === '時程閱讀') {
+    // V3 Schema: ID 10 = 資訊理解題—時刻表
+    if (itemSetTypeId === 10 || itemSetTypeName.includes('時刻表')) {
       return (
         <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
           <EngInfoReadingSchedule sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // V3 Schema: ID 11 = 資訊理解題—廣告
+    if (itemSetTypeId === 11 || itemSetTypeName.includes('廣告')) {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngInfoReadingNotice sequence={displaySequence} asset={itemSet.asset_json as any} />
+          {renderSubItems()}
+        </div>
+      );
+    }
+
+    // V3 Schema: ID 12 = 資訊理解題—對話
+    if (itemSetTypeId === 12 || itemSetTypeName.includes('對話')) {
+      return (
+        <div key={`itemset-${itemSet.item_set_id}`} className="space-y-6">
+          <EngNarrativeReadingSet sequence={displaySequence} asset={itemSet.asset_json as any} />
           {renderSubItems()}
         </div>
       );
