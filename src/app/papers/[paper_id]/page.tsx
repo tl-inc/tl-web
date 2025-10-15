@@ -305,10 +305,12 @@ export default function PaperDetailPage() {
 
   // 渲染克漏字
   const renderCloze = (exercise: Exercise) => {
-    if (!exercise.passage) return null;
+    // 克漏字的文章可能在 passage 或 asset_json.passage 中
+    const passageText = exercise.passage || exercise.asset_json?.passage;
+    if (!passageText) return null;
 
     let parts: React.ReactNode[] = [];
-    let text = exercise.passage;
+    let text = passageText;
 
     // 按照 sequence 排序
     const sortedItems = [...exercise.exercise_items].sort((a, b) => a.sequence - b.sequence);
@@ -467,13 +469,17 @@ export default function PaperDetailPage() {
   const renderItemSet = (exercise: Exercise) => {
     // TODO: 根據不同的 exercise_type_id 使用對應的組件
     // 目前先簡單顯示
+
+    // 題組的文章可能在 passage 或 asset_json.passage 中
+    const passageText = exercise.passage || exercise.asset_json?.passage;
+
     return (
       <div className="space-y-4">
         {/* 顯示 passage/audio/image */}
-        {exercise.passage && (
+        {passageText && (
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <div className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
-              {exercise.passage}
+              {passageText}
             </div>
           </div>
         )}
