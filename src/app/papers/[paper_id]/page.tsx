@@ -30,10 +30,8 @@ export default function PaperDetailPage() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
 
-  // Answer states
-  const [itemAnswers, setItemAnswers] = useState<Map<number, number>>(new Map());
-  const [clozeAnswers, setClozeAnswers] = useState<Map<number, Map<number, number>>>(new Map());
-  const [itemSetAnswers, setItemSetAnswers] = useState<Map<number, number>>(new Map());
+  // Answer states (V3: use exercise_item_id as key)
+  const [exerciseItemAnswers, setExerciseItemAnswers] = useState<Map<number, number>>(new Map());
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -44,16 +42,11 @@ export default function PaperDetailPage() {
         // Fetch paper data with full exercise details (V3 schema)
         const paperResponse = await fetch(`${apiUrl}/papers/${paper_id}/detail`);
         if (!paperResponse.ok) throw new Error('無法載入考卷資料');
-        const paperData = await paperResponse.json();
+        const paperData: PaperData = await paperResponse.json();
 
-        // Convert V3 schema (exercises) to V2 format (items + item_sets) for compatibility
-        // TODO: Refactor frontend to use V3 schema directly
-        const items: any[] = [];
-        const item_sets: any[] = [];
-
+        // Parse asset_json if it's a string
         if (paperData.exercises) {
-          paperData.exercises.forEach((exercise: any) => {
-            // Parse asset_json if needed
+          paperData.exercises.forEach((exercise) => {
             if (exercise.asset_json && typeof exercise.asset_json === 'string') {
               try {
                 exercise.asset_json = JSON.parse(exercise.asset_json);
@@ -61,50 +54,9 @@ export default function PaperDetailPage() {
                 console.error('Failed to parse asset_json:', e);
               }
             }
-
-            // Check if it's a single-item exercise (V2 "item") or multi-item (V2 "item_set")
-            if (exercise.exercise_items && exercise.exercise_items.length === 1 && !exercise.passage && !exercise.audio_url) {
-              // Single item exercise -> convert to V2 item format
-              const exerciseItem = exercise.exercise_items[0];
-              items.push({
-                id: exerciseItem.id,
-                item_id: exerciseItem.id,
-                exercise_id: exercise.id,
-                sequence: exerciseItem.sequence,
-                content: exerciseItem.question || exercise.passage,
-                content_json: exerciseItem,  // For compatibility
-                options: exerciseItem.options,
-                item_type: {
-                  id: exercise.exercise_type_id,
-                  name: exercise.exercise_type.name
-                }
-              });
-            } else {
-              // Multi-item exercise or has passage/audio -> convert to V2 item_set format
-              item_sets.push({
-                id: exercise.id,
-                item_set_id: exercise.id,
-                sequence: 1,  // Will be sorted later
-                type: exercise.exercise_type.name,
-                item_set_type: {
-                  id: exercise.exercise_type_id,
-                  name: exercise.exercise_type.name
-                },
-                passage: exercise.passage,
-                audio_url: exercise.audio_url,
-                image_url: exercise.image_url,
-                asset_json: exercise.asset_json,
-                items: exercise.exercise_items.map((item: any) => ({
-                  ...item,
-                  content_json: item
-                }))
-              });
-            }
           });
         }
 
-        paperData.items = items;
-        paperData.item_sets = item_sets;
         setPaper(paperData);
 
         // Fetch user_papers for this paper
