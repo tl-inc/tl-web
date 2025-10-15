@@ -195,6 +195,9 @@ export default function PaperDetailPage() {
       const data = await response.json();
       setActiveUserPaper({ ...activeUserPaper, status: 'completed', finished_at: data.finished_at });
       setMode('completed');
+
+      // 捲回頂部
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       alert(err instanceof Error ? err.message : '完成作答失敗');
     } finally {
@@ -224,6 +227,9 @@ export default function PaperDetailPage() {
       const data = await response.json();
       setActiveUserPaper({ ...activeUserPaper, status: 'abandoned', finished_at: data.finished_at });
       setMode('abandoned');
+
+      // 捲回頂部
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       alert(err instanceof Error ? err.message : '放棄作答失敗');
     } finally {
@@ -284,9 +290,9 @@ export default function PaperDetailPage() {
     // 5-12: 各種題組 (閱讀、聽力、圖片理解等)
 
     return (
-      <div key={exercise.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div key={exercise.id} className="p-6 rounded-xl border shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30 border-orange-200/50 dark:border-orange-700/50">
         <div className="mb-4">
-          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+          <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-700 dark:text-gray-300">
             題目 {index + 1} - {exerciseTypeName}
           </span>
         </div>
@@ -402,65 +408,75 @@ export default function PaperDetailPage() {
     return (
       <div className="space-y-4">
         {item.question && (
-          <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg border-l-4 border-blue-400">
             {displayQuestion}
+            {/* 顯示題目翻譯 */}
+            {mode === 'completed' && item.metadata?.translation && (
+              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-normal">
+                {item.metadata.translation}
+              </div>
+            )}
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {item.options.map((option, idx) => {
             const isSelected = userAnswer === idx;
             const isCorrect = option.is_correct;
             const showCorrect = mode === 'completed';
+            const isUnanswered = userAnswer === undefined;
 
             return (
-              <label
-                key={idx}
-                className={`
-                  flex items-center p-3 rounded-lg border cursor-pointer transition-colors
-                  ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
-                  ${isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}
-                  ${showCorrect && isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''}
-                  ${showCorrect && isSelected && !isCorrect ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : ''}
-                `}
-              >
-                <input
-                  type="radio"
-                  name={`exercise-${exercise.id}`}
-                  value={idx}
-                  checked={isSelected}
-                  onChange={() => handleAnswerChange(exercise.id, item.id, idx)}
-                  disabled={mode !== 'in_progress'}
-                  className="mr-3"
-                />
-                <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
-                {showCorrect && isCorrect && (
-                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 ml-2" />
+              <div key={idx}>
+                <label
+                  className={`
+                    flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
+                    ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.02]'}
+                    ${isSelected && !showCorrect ? 'border-blue-400 bg-gradient-to-r from-blue-50/70 to-purple-50/70 dark:from-blue-900/30 dark:to-purple-900/30 shadow-md' : 'border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70'}
+                    ${showCorrect && isCorrect && !isUnanswered ? 'border-green-400 bg-gradient-to-r from-green-50/70 to-emerald-50/70 dark:from-green-900/30 dark:to-emerald-900/30 shadow-md' : ''}
+                    ${showCorrect && isSelected && !isCorrect ? 'border-red-400 bg-gradient-to-r from-red-50/70 to-rose-50/70 dark:from-red-900/30 dark:to-rose-900/30 shadow-md' : ''}
+                    ${showCorrect && isCorrect && isUnanswered ? 'border-green-400 bg-gradient-to-r from-green-50/70 to-emerald-50/70 dark:from-green-900/30 dark:to-emerald-900/30 shadow-md' : ''}
+                  `}
+                >
+                  <input
+                    type="radio"
+                    name={`exercise-${exercise.id}`}
+                    value={idx}
+                    checked={isSelected}
+                    onChange={() => handleAnswerChange(exercise.id, item.id, idx)}
+                    disabled={mode !== 'in_progress'}
+                    className="mr-4 w-5 h-5 accent-blue-500"
+                  />
+                  <span className="flex-1 text-gray-800 dark:text-gray-200 font-medium">{option.text}</span>
+                  {showCorrect && isCorrect && (
+                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 ml-3 flex-shrink-0" />
+                  )}
+                  {showCorrect && isSelected && !isCorrect && (
+                    <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 ml-3 flex-shrink-0" />
+                  )}
+                  {showCorrect && isUnanswered && (
+                    <span className="ml-3 px-2 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">未作答</span>
+                  )}
+                </label>
+                {/* 顯示選項解析 */}
+                {showCorrect && (option.why_correct || option.why_incorrect) && (
+                  <div className="mt-2 ml-4 p-3 bg-gray-50/80 dark:bg-gray-800/80 rounded-lg text-sm">
+                    {option.is_correct && option.why_correct && (
+                      <div className="text-green-700 dark:text-green-300">
+                        <span className="font-semibold">✓ </span>{option.why_correct}
+                      </div>
+                    )}
+                    {!option.is_correct && option.why_incorrect && (
+                      <div className="text-gray-600 dark:text-gray-400">
+                        <span className="font-semibold">✗ </span>{option.why_incorrect}
+                      </div>
+                    )}
+                  </div>
                 )}
-                {showCorrect && isSelected && !isCorrect && (
-                  <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
-                )}
-              </label>
+              </div>
             );
           })}
         </div>
-
-        {/* 在 completed 模式顯示解析 */}
-        {mode === 'completed' && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
-            {item.options.map((option, idx) => {
-              if (option.is_correct && option.why_correct) {
-                return (
-                  <div key={idx}>
-                    <div className="font-semibold text-blue-900 dark:text-blue-100 mb-1">正確答案解析：</div>
-                    <div className="text-gray-700 dark:text-gray-300">{option.why_correct}</div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
       </div>
     );
   };
@@ -475,22 +491,25 @@ export default function PaperDetailPage() {
     // 8: 資訊理解題—菜單
     if (typeId === 8 && asset.menu) {
       return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
-          <h3 className="text-xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100">
+        <div className="p-5 bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
+          <h3 className="text-2xl font-bold text-center mb-5 text-amber-900 dark:text-amber-100">
             {asset.restaurant_name?.content || asset.restaurant_name}
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {asset.menu.beverages && (
-              <div>
-                <h4 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">Beverages</h4>
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-amber-500 rounded"></span>
+                  Beverages
+                </h4>
                 {asset.menu.beverages.map((item: any, idx: number) => (
-                  <div key={idx} className="ml-4 mb-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{item.name?.content || item.name}</span>
-                      <span>{item.price}</span>
+                  <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
                     </div>
                     {item.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         {item.description?.content || item.description}
                       </p>
                     )}
@@ -499,16 +518,19 @@ export default function PaperDetailPage() {
               </div>
             )}
             {asset.menu.main_courses && (
-              <div>
-                <h4 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">Main Courses</h4>
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h4 className="font-semibold text-lg mb-3 text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-amber-500 rounded"></span>
+                  Main Courses
+                </h4>
                 {asset.menu.main_courses.map((item: any, idx: number) => (
-                  <div key={idx} className="ml-4 mb-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{item.name?.content || item.name}</span>
-                      <span>{item.price}</span>
+                  <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
                     </div>
                     {item.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         {item.description?.content || item.description}
                       </p>
                     )}
@@ -524,28 +546,37 @@ export default function PaperDetailPage() {
     // 9: 資訊理解題—通知單
     if (typeId === 9 && asset.notice) {
       return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            {asset.notice.title?.content || asset.notice.title}
-          </h3>
-          {asset.notice.date_time && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <strong>Date & Time:</strong> {asset.notice.date_time?.content || asset.notice.date_time}
-            </p>
-          )}
-          {asset.notice.location && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <strong>Location:</strong> {asset.notice.location?.content || asset.notice.location}
-            </p>
-          )}
-          <p className="mt-3 text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-            {asset.notice.description?.content || asset.notice.description || asset.notice.content?.content || asset.notice.content}
-          </p>
-          {asset.organizer && (
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              <strong>Organizer:</strong> {asset.organizer?.content || asset.organizer}
-            </p>
-          )}
+        <div className="p-5 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl border border-indigo-200/50 dark:border-indigo-800/50">
+          <div className="border-l-4 border-indigo-500 pl-4 mb-4">
+            <h3 className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">
+              {asset.notice.title?.content || asset.notice.title}
+            </h3>
+          </div>
+          <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg space-y-3">
+            {asset.notice.date_time && (
+              <div className="flex items-start gap-2">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📅 日期時間:</span>
+                <span className="text-gray-700 dark:text-gray-300">{asset.notice.date_time?.content || asset.notice.date_time}</span>
+              </div>
+            )}
+            {asset.notice.location && (
+              <div className="flex items-start gap-2">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">📍 地點:</span>
+                <span className="text-gray-700 dark:text-gray-300">{asset.notice.location?.content || asset.notice.location}</span>
+              </div>
+            )}
+            <div className="pt-3 border-t border-indigo-100 dark:border-indigo-900">
+              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                {asset.notice.description?.content || asset.notice.description || asset.notice.content?.content || asset.notice.content}
+              </p>
+            </div>
+            {asset.organizer && (
+              <div className="flex items-start gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold min-w-[100px]">👤 主辦單位:</span>
+                <span className="text-gray-700 dark:text-gray-300">{asset.organizer?.content || asset.organizer}</span>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -557,22 +588,29 @@ export default function PaperDetailPage() {
       const routeName = asset.timetable.route_name?.content || asset.timetable.route_name;
 
       return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+        <div className="p-5 bg-gradient-to-br from-sky-50/80 to-blue-50/80 dark:from-sky-950/30 dark:to-blue-950/30 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
+          <h3 className="text-2xl font-bold mb-2 text-sky-900 dark:text-sky-100">
             {asset.title?.content || asset.title || 'Schedule'}
           </h3>
           {routeName && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{routeName}</p>
+            <p className="text-sm text-sky-600 dark:text-sky-400 mb-4 flex items-center gap-2">
+              <span className="text-lg">🚌</span>
+              {routeName}
+            </p>
           )}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {schedule.map((trip: any, idx: number) => (
-              <div key={idx} className="border-l-4 border-blue-500 pl-3">
-                <div className="font-semibold mb-2">{trip.time}</div>
+              <div key={idx} className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border-l-4 border-sky-500">
+                <div className="font-bold text-sky-700 dark:text-sky-300 mb-2 flex items-center gap-2">
+                  <span className="bg-sky-500 text-white px-2 py-0.5 rounded text-sm">{trip.time}</span>
+                </div>
                 {trip.stops && trip.stops.map((stop: any, stopIdx: number) => {
                   const location = locations[stop.location_index];
                   return (
-                    <div key={stopIdx} className="text-sm ml-2 mb-1">
-                      {stop.arrival_time} - {location?.name?.content || location?.name}
+                    <div key={stopIdx} className="flex items-center gap-3 ml-2 mb-2 last:mb-0">
+                      <div className="w-2 h-2 rounded-full bg-sky-400"></div>
+                      <span className="text-sm font-medium text-sky-600 dark:text-sky-400 min-w-[80px]">{stop.arrival_time}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{location?.name?.content || location?.name}</span>
                     </div>
                   );
                 })}
@@ -586,23 +624,30 @@ export default function PaperDetailPage() {
     // 11: 資訊理解題—廣告
     if (typeId === 11 && asset.advertisement) {
       return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
-          <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            {asset.product_name?.content || asset.product_name || asset.advertisement.headline?.content || asset.advertisement.headline}
-          </h3>
-          {asset.advertisement.price && (
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-              {asset.advertisement.price}
+        <div className="p-5 bg-gradient-to-br from-rose-50/80 to-pink-50/80 dark:from-rose-950/30 dark:to-pink-950/30 rounded-xl border border-rose-200/50 dark:border-rose-800/50">
+          <div className="text-center mb-4">
+            <h3 className="text-2xl font-bold text-rose-900 dark:text-rose-100 mb-2">
+              {asset.product_name?.content || asset.product_name || asset.advertisement.headline?.content || asset.advertisement.headline}
+            </h3>
+            {asset.advertisement.price && (
+              <div className="inline-block bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2 rounded-full">
+                <span className="text-3xl font-bold">{asset.advertisement.price}</span>
+              </div>
+            )}
+          </div>
+          <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
+            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+              {asset.advertisement.description?.content || asset.advertisement.description}
             </p>
-          )}
-          <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap mb-3">
-            {asset.advertisement.description?.content || asset.advertisement.description}
-          </p>
-          {asset.advertisement.promotional_text && (
-            <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mt-2">
-              {asset.advertisement.promotional_text?.content || asset.advertisement.promotional_text}
-            </p>
-          )}
+            {asset.advertisement.promotional_text && (
+              <div className="mt-4 p-3 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-l-4 border-orange-500">
+                <p className="font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                  <span className="text-xl">🎉</span>
+                  {asset.advertisement.promotional_text?.content || asset.advertisement.promotional_text}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -613,23 +658,27 @@ export default function PaperDetailPage() {
       const speakers = asset.dialogue.speakers || [];
 
       return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded space-y-3">
-          {turns.map((turn: any, idx: number) => {
-            const speaker = speakers[turn.speaker_index];
-            const speakerName = speaker?.name?.content || speaker?.name || `Speaker ${turn.speaker_index + 1}`;
-            const text = turn.text?.content || turn.text || turn.message?.content || turn.message;
+        <div className="p-5 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
+          <div className="space-y-3">
+            {turns.map((turn: any, idx: number) => {
+              const speaker = speakers[turn.speaker_index];
+              const speakerName = speaker?.name?.content || speaker?.name || `Speaker ${turn.speaker_index + 1}`;
+              const text = turn.text?.content || turn.text || turn.message?.content || turn.message;
 
-            return (
-              <div key={idx}>
-                <div className="font-semibold text-gray-800 dark:text-gray-200">
-                  {speakerName}:
+              return (
+                <div key={idx} className={`flex gap-3 ${turn.speaker_index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`max-w-[80%] ${turn.speaker_index % 2 === 0 ? 'bg-white/70 dark:bg-gray-800/70' : 'bg-emerald-100/70 dark:bg-emerald-900/30'} p-3 rounded-lg`}>
+                    <div className={`font-semibold text-sm mb-1 ${turn.speaker_index % 2 === 0 ? 'text-gray-600 dark:text-gray-400' : 'text-emerald-700 dark:text-emerald-300'}`}>
+                      {speakerName}
+                    </div>
+                    <div className="text-gray-800 dark:text-gray-200">
+                      {text}
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4 text-gray-900 dark:text-gray-100">
-                  {text}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       );
     }
@@ -679,60 +728,93 @@ export default function PaperDetailPage() {
 
         {/* 顯示文章（聽力測驗的逐字稿只在結算模式顯示，資訊理解題不顯示） */}
         {!isInformationReading && shouldShowPassage && (
-          <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
-            <div className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
+          <div className="p-5 bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+            <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
               {passageText}
             </div>
           </div>
         )}
 
         {/* 顯示各個子題 */}
-        <div className="space-y-6">
+        <div className="space-y-5">
           {exercise.exercise_items.map((item, itemIdx) => {
             const userAnswer = answers.get(item.id);
             // 將 {{blank}} 或 {{blank_N}} 替換成底線
             const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
 
+            const isUnanswered = userAnswer === undefined;
+
             return (
-              <div key={item.id} className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="text-base font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  {itemIdx + 1}. {displayQuestion}
+              <div key={item.id} className="bg-white/40 dark:bg-gray-800/40 p-4 rounded-lg">
+                <div className="text-base font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-start gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white text-sm flex-shrink-0">
+                    {itemIdx + 1}
+                  </span>
+                  <div className="flex-1">
+                    <div>{displayQuestion}</div>
+                    {/* 顯示題目翻譯 */}
+                    {mode === 'completed' && item.metadata?.translation && (
+                      <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 font-normal">
+                        {item.metadata.translation}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 ml-8">
                   {item.options.map((option, optIdx) => {
                     const isSelected = userAnswer === optIdx;
                     const isCorrect = option.is_correct;
                     const showCorrect = mode === 'completed';
 
                     return (
-                      <label
-                        key={optIdx}
-                        className={`
-                          flex items-center p-3 rounded-lg border cursor-pointer transition-colors
-                          ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
-                          ${isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}
-                          ${showCorrect && isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''}
-                          ${showCorrect && isSelected && !isCorrect ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : ''}
-                        `}
-                      >
-                        <input
-                          type="radio"
-                          name={`item-${item.id}`}
-                          value={optIdx}
-                          checked={isSelected}
-                          onChange={() => handleAnswerChange(exercise.id, item.id, optIdx)}
-                          disabled={mode !== 'in_progress'}
-                          className="mr-3"
-                        />
-                        <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
-                        {showCorrect && isCorrect && (
-                          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 ml-2" />
+                      <div key={optIdx}>
+                        <label
+                          className={`
+                            flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all
+                            ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.01]'}
+                            ${isSelected && !showCorrect ? 'border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60'}
+                            ${showCorrect && isCorrect && !isUnanswered ? 'border-green-400 bg-green-50/50 dark:bg-green-900/20 shadow-sm' : ''}
+                            ${showCorrect && isSelected && !isCorrect ? 'border-red-400 bg-red-50/50 dark:bg-red-900/20 shadow-sm' : ''}
+                            ${showCorrect && isCorrect && isUnanswered ? 'border-green-400 bg-green-50/50 dark:bg-green-900/20 shadow-sm' : ''}
+                          `}
+                        >
+                          <input
+                            type="radio"
+                            name={`item-${item.id}`}
+                            value={optIdx}
+                            checked={isSelected}
+                            onChange={() => handleAnswerChange(exercise.id, item.id, optIdx)}
+                            disabled={mode !== 'in_progress'}
+                            className="mr-3"
+                          />
+                          <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
+                          {showCorrect && isCorrect && (
+                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 ml-2" />
+                          )}
+                          {showCorrect && isSelected && !isCorrect && (
+                            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
+                          )}
+                          {showCorrect && isUnanswered && (
+                            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">未作答</span>
+                          )}
+                        </label>
+                        {/* 顯示選項解析 */}
+                        {showCorrect && (option.why_correct || option.why_incorrect) && (
+                          <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
+                            {option.is_correct && option.why_correct && (
+                              <div className="text-green-700 dark:text-green-300">
+                                <span className="font-semibold">✓ </span>{option.why_correct}
+                              </div>
+                            )}
+                            {!option.is_correct && option.why_incorrect && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                <span className="font-semibold">✗ </span>{option.why_incorrect}
+                              </div>
+                            )}
+                          </div>
                         )}
-                        {showCorrect && isSelected && !isCorrect && (
-                          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
-                        )}
-                      </label>
+                      </div>
                     );
                   })}
                 </div>
@@ -776,61 +858,61 @@ export default function PaperDetailPage() {
   return (
     <ProtectedRoute>
       <SidebarLayout>
-        <div className="max-w-4xl mx-auto p-6">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              試卷 #{paper.id}
-            </h1>
-            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-              <span>總題數: {paper.total_items}</span>
-              {activeUserPaper && (
-                <>
-                  <span>•</span>
-                  <span className={`font-semibold ${
-                    mode === 'pending' ? 'text-gray-600' :
-                    mode === 'in_progress' ? 'text-blue-600' :
-                    mode === 'completed' ? 'text-green-600' :
-                    'text-red-600'
+        <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
+          <div className="max-w-4xl mx-auto p-6">
+            {/* Header */}
+            <div className="mb-8 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
+                試卷 #{paper.id}
+              </h1>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium">
+                  總題數: {paper.total_items}
+                </span>
+                {activeUserPaper && (
+                  <span className={`px-3 py-1 rounded-full font-semibold ${
+                    mode === 'pending' ? 'bg-gradient-to-r from-gray-100 to-slate-100 dark:from-gray-800 dark:to-slate-800 text-gray-700 dark:text-gray-300' :
+                    mode === 'in_progress' ? 'bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 text-blue-700 dark:text-blue-300' :
+                    mode === 'completed' ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-300' :
+                    'bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30 text-red-700 dark:text-red-300'
                   }`}>
-                    {mode === 'pending' && '未開始'}
-                    {mode === 'in_progress' && '作答中'}
-                    {mode === 'completed' && '已完成'}
-                    {mode === 'abandoned' && '已放棄'}
+                    {mode === 'pending' && '📋 未開始'}
+                    {mode === 'in_progress' && '✍️ 作答中'}
+                    {mode === 'completed' && '✅ 已完成'}
+                    {mode === 'abandoned' && '❌ 已放棄'}
                   </span>
-                </>
-              )}
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Mode-specific header buttons */}
-          <div className="mb-6">
-            {mode === 'pending' && (
-              <button
-                onClick={handleStart}
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Play className="w-5 h-5" />
-                開始作答
-              </button>
-            )}
+            {/* Mode-specific header buttons */}
+            <div className="mb-8">
+              {mode === 'pending' && (
+                <button
+                  onClick={handleStart}
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  <Play className="w-6 h-6" />
+                  開始作答
+                </button>
+              )}
 
-            {mode === 'abandoned' && (
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
-                    <AlertCircle className="w-5 h-5" />
-                    <span className="font-semibold">此試卷已放棄</span>
-                  </div>
-                  <button
-                    onClick={handleRenew}
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    重新作答
-                  </button>
+              {mode === 'abandoned' && (
+                <div className="p-5 bg-gradient-to-r from-amber-50/90 to-yellow-50/90 dark:from-amber-900/20 dark:to-yellow-900/20 backdrop-blur-sm border-2 border-amber-300 dark:border-amber-700 rounded-xl shadow-md">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-amber-800 dark:text-amber-200">
+                      <AlertCircle className="w-6 h-6" />
+                      <span className="font-bold text-lg">此試卷已放棄</span>
+                    </div>
+                    <button
+                      onClick={handleRenew}
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      重新作答
+                    </button>
                 </div>
               </div>
             )}
@@ -847,36 +929,77 @@ export default function PaperDetailPage() {
               <button
                 onClick={handleComplete}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-6 h-6" />
                 完成作答
               </button>
               <button
                 onClick={handleAbandon}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-400 to-rose-400 hover:from-red-500 hover:to-rose-500 text-white rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                <XCircle className="w-5 h-5" />
+                <XCircle className="w-6 h-6" />
                 放棄作答
               </button>
             </div>
           )}
 
           {/* Completed mode: show stats */}
-          {mode === 'completed' && (
-            <div className="mt-8 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <div className="text-center">
-                <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100 mb-2">
-                  作答完成！
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">
-                  已顯示正確答案與解析
+          {mode === 'completed' && (() => {
+            // 計算分數
+            let correctCount = 0;
+            let totalCount = 0;
+
+            paper.exercises.forEach(exercise => {
+              exercise.exercise_items.forEach(item => {
+                totalCount++;
+                const userAnswer = answers.get(item.id);
+                if (userAnswer !== undefined) {
+                  const selectedOption = item.options[userAnswer];
+                  if (selectedOption && selectedOption.is_correct) {
+                    correctCount++;
+                  }
+                }
+              });
+            });
+
+            const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+            return (
+              <div className="mt-8 p-8 bg-gradient-to-br from-green-50/90 to-emerald-50/90 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-sm border-2 border-green-300 dark:border-green-700 rounded-2xl shadow-lg">
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full mb-4">
+                    <CheckCircle className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-4">
+                    作答完成！
+                  </div>
+
+                  {/* 分數統計 */}
+                  <div className="mt-6 grid grid-cols-3 gap-4 max-w-md mx-auto">
+                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{score}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">分數</div>
+                    </div>
+                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                      <div className="text-3xl font-bold text-green-600 dark:text-green-400">{correctCount}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">答對數</div>
+                    </div>
+                    <div className="p-4 bg-white/70 dark:bg-gray-800/70 rounded-xl">
+                      <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{totalCount}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">總題數</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
+                    已顯示正確答案與解析
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
+        </div>
         </div>
       </SidebarLayout>
     </ProtectedRoute>

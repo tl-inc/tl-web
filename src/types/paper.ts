@@ -23,6 +23,9 @@ export interface ExerciseItem {
   sequence: number;
   question: string | null;
   options: ExerciseItemOption[];
+  metadata?: {
+    translation?: string;
+  } | null;
 }
 
 // Exercise (練習 / 題目)
