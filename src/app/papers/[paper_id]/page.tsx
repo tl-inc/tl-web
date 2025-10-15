@@ -473,25 +473,35 @@ export default function PaperDetailPage() {
     // 題組的文章可能在 passage 或 asset_json.passage 中
     const passageText = exercise.passage || exercise.asset_json?.passage;
 
+    // 圖片 URL 可能在 image_url 或 asset_json.image_url 中
+    const imageUrl = exercise.image_url || exercise.asset_json?.image_url;
+
+    // 音訊 URL 可能在 audio_url 或 asset_json.audio_url 中
+    const audioUrl = exercise.audio_url || exercise.asset_json?.audio_url;
+
     return (
       <div className="space-y-4">
-        {/* 顯示 passage/audio/image */}
+        {/* 顯示圖片 */}
+        {imageUrl && (
+          <div className="flex justify-center">
+            <img src={imageUrl} alt="Exercise" className="max-w-full rounded-lg shadow-lg" />
+          </div>
+        )}
+
+        {/* 顯示音訊 */}
+        {audioUrl && (
+          <audio controls className="w-full">
+            <source src={audioUrl} type="audio/mpeg" />
+          </audio>
+        )}
+
+        {/* 顯示文章 */}
         {passageText && (
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <div className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
               {passageText}
             </div>
           </div>
-        )}
-
-        {exercise.audio_url && (
-          <audio controls className="w-full">
-            <source src={exercise.audio_url} type="audio/mpeg" />
-          </audio>
-        )}
-
-        {exercise.image_url && (
-          <img src={exercise.image_url} alt="Exercise" className="max-w-full rounded" />
         )}
 
         {/* 顯示各個子題 */}
