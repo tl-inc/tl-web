@@ -175,10 +175,27 @@ export default function PaperDetailPage() {
     // 如果是 pending 狀態，自動開始考試
     if (mode === 'pending') {
       await handleStart();
-      // 等待狀態更新後再記錄答案
-      setTimeout(() => {
-        setAnswers(prev => new Map(prev).set(exerciseItemId, answerIndex));
-      }, 100);
+      // 開始考試後，立即記錄並送出答案
+      setAnswers(prev => new Map(prev).set(exerciseItemId, answerIndex));
+
+      // 送出答案到後端
+      try {
+        const token = localStorage.getItem('access_token');
+        await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/answer`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            exercise_id: exerciseId,
+            exercise_item_id: exerciseItemId,
+            answer_content: { selected_option: answerIndex }
+          })
+        });
+      } catch (error) {
+        console.error('答案送出失敗:', error);
+      }
       return;
     }
 
