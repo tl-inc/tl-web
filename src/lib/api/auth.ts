@@ -1,33 +1,18 @@
 /**
  * Authentication API client
  */
-import axios from 'axios';
+import { apiClient } from '@/lib/api';
 import type { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthRequest, User } from '@/types/auth';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
-const authApi = axios.create({
-  baseURL: `${API_URL}/auth`,
-  withCredentials: true, // Important for httpOnly cookies
-});
-
-// Add access token to requests
-authApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 export const authService = {
   /**
    * Register with email and password
    */
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await authApi.post<AuthResponse>('/register', data);
-    // Store access token
+    const response = await apiClient.post<AuthResponse>('/auth/register', data);
+    // Store tokens
     localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
     return response.data;
   },
 
@@ -35,9 +20,10 @@ export const authService = {
    * Login with email and password
    */
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await authApi.post<AuthResponse>('/login', data);
-    // Store access token
+    const response = await apiClient.post<AuthResponse>('/auth/login', data);
+    // Store tokens
     localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
     return response.data;
   },
 
@@ -45,9 +31,10 @@ export const authService = {
    * Login with Google OAuth
    */
   async googleLogin(data: GoogleAuthRequest): Promise<AuthResponse> {
-    const response = await authApi.post<AuthResponse>('/google', data);
-    // Store access token
+    const response = await apiClient.post<AuthResponse>('/auth/google', data);
+    // Store tokens
     localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
     return response.data;
   },
 
@@ -57,7 +44,12 @@ export const authService = {
   async logout(): Promise<void> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (refreshToken) {
-      await authApi.post('/logout', { refresh_token: refreshToken });
+      try {
+        await apiClient.post('/auth/logout', { refresh_token: refreshToken });
+      } catch (error) {
+        // Ignore logout errors, still clear local tokens
+        console.error('Logout error:', error);
+      }
     }
     // Clear tokens
     localStorage.removeItem('access_token');
@@ -68,23 +60,26 @@ export const authService = {
    * Get current user
    */
   async getCurrentUser(): Promise<User> {
-    const response = await authApi.get<User>('/me');
+    const response = await apiClient.get<User>('/auth/me');
     return response.data;
   },
 
   /**
-   * Refresh access token
+   * Refresh access token (handled automatically by apiClient interceptor)
    */
   async refreshToken(): Promise<AuthResponse> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    const response = await authApi.post<AuthResponse>('/refresh', {
+    const response = await apiClient.post<AuthResponse>('/auth/refresh', {
       refresh_token: refreshToken,
     });
-    // Update access token
+    // Update tokens
     localStorage.setItem('access_token', response.data.access_token);
+    if (response.data.refresh_token) {
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+    }
     return response.data;
   },
 };
