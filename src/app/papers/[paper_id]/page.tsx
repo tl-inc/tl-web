@@ -374,7 +374,7 @@ export default function PaperDetailPage() {
             key={item.id}
             value={answers.get(item.id) ?? -1}
             onChange={(e) => handleAnswerChange(exercise.id, item.id, Number(e.target.value))}
-            disabled={mode !== 'in_progress'}
+            disabled={mode !== 'in_progress' && mode !== 'pending'}
             className="mx-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value={-1}>請選擇</option>
@@ -479,7 +479,7 @@ export default function PaperDetailPage() {
                 <label
                   className={`
                     flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all
-                    ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.02]'}
+                    ${(mode !== 'in_progress' && mode !== 'pending') ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.02]'}
                     ${isSelected && !showCorrect ? 'border-blue-400 bg-gradient-to-r from-blue-50/70 to-purple-50/70 dark:from-blue-900/30 dark:to-purple-900/30 shadow-md' : 'border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70'}
                     ${showCorrect && isCorrect && !isUnanswered ? 'border-green-400 bg-gradient-to-r from-green-50/70 to-emerald-50/70 dark:from-green-900/30 dark:to-emerald-900/30 shadow-md' : ''}
                     ${showCorrect && isSelected && !isCorrect ? 'border-red-400 bg-gradient-to-r from-red-50/70 to-rose-50/70 dark:from-red-900/30 dark:to-rose-900/30 shadow-md' : ''}
@@ -492,7 +492,7 @@ export default function PaperDetailPage() {
                     value={idx}
                     checked={isSelected}
                     onChange={() => handleAnswerChange(exercise.id, item.id, idx)}
-                    disabled={mode !== 'in_progress'}
+                    disabled={mode !== 'in_progress' && mode !== 'pending'}
                     className="mr-4 w-5 h-5 accent-blue-500"
                   />
                   <span className="flex-1 text-gray-800 dark:text-gray-200 font-medium">{option.text}</span>
@@ -1287,7 +1287,7 @@ export default function PaperDetailPage() {
                         <label
                           className={`
                             flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all
-                            ${mode !== 'in_progress' ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.01]'}
+                            ${(mode !== 'in_progress' && mode !== 'pending') ? 'cursor-not-allowed' : 'hover:shadow-md hover:scale-[1.01]'}
                             ${isSelected && !showCorrect ? 'border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60'}
                             ${showCorrect && isCorrect && !isUnanswered ? 'border-green-400 bg-green-50/50 dark:bg-green-900/20 shadow-sm' : ''}
                             ${showCorrect && isSelected && !isCorrect ? 'border-red-400 bg-red-50/50 dark:bg-red-900/20 shadow-sm' : ''}
@@ -1300,7 +1300,7 @@ export default function PaperDetailPage() {
                             value={optIdx}
                             checked={isSelected}
                             onChange={() => handleAnswerChange(exercise.id, item.id, optIdx)}
-                            disabled={mode !== 'in_progress'}
+                            disabled={mode !== 'in_progress' && mode !== 'pending'}
                             className="mr-3"
                           />
                           <span className="flex-1 text-gray-900 dark:text-gray-100">{option.text}</span>
