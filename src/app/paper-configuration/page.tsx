@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { paperService } from '@/lib/api/paper';
+import toast, { Toaster } from 'react-hot-toast';
 
 const GRADES = [
   { value: 7, label: '七年級' },
@@ -138,7 +139,7 @@ export default function PaperConfigurationPage() {
       router.push(`/papers/${response.paper_id}`);
     } catch (error) {
       console.error('Error starting paper:', error);
-      alert('無法開始考卷，請稍後再試');
+      toast.error('無法開始考卷，請稍後再試');
     } finally {
       setStartingPaper(false);
     }
@@ -149,6 +150,7 @@ export default function PaperConfigurationPage() {
   return (
     <ProtectedRoute>
       <SidebarLayout>
+        <Toaster position="top-center" />
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
             {/* Header */}

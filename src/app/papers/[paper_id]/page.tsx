@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, Clock, Play, CheckCircle, XCircle, RotateCcw } fr
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { PaperData, UserPaperResponse, UserPaperStatus, Exercise } from '@/types/paper';
+import toast, { Toaster } from 'react-hot-toast';
 
 // 四種模式
 type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
@@ -162,7 +163,7 @@ export default function PaperDetailPage() {
       setActiveUserPaper({ ...activeUserPaper, status: 'in_progress', started_at: data.started_at });
       setMode('in_progress');
     } catch (err) {
-      alert(err instanceof Error ? err.message : '開始作答失敗');
+      toast.error(err instanceof Error ? err.message : '開始作答失敗');
     } finally {
       setIsSubmitting(false);
     }
@@ -253,7 +254,7 @@ export default function PaperDetailPage() {
       // 立即跳到頂部
       window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (err) {
-      alert(err instanceof Error ? err.message : '完成作答失敗');
+      toast.error(err instanceof Error ? err.message : '完成作答失敗');
     } finally {
       setIsSubmitting(false);
     }
@@ -285,7 +286,7 @@ export default function PaperDetailPage() {
       // 立即跳到頂部
       window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (err) {
-      alert(err instanceof Error ? err.message : '放棄作答失敗');
+      toast.error(err instanceof Error ? err.message : '放棄作答失敗');
     } finally {
       setIsSubmitting(false);
     }
@@ -326,7 +327,7 @@ export default function PaperDetailPage() {
       setMode('in_progress');
       setAnswers(new Map()); // 清空答案
     } catch (err) {
-      alert(err instanceof Error ? err.message : '重新作答失敗');
+      toast.error(err instanceof Error ? err.message : '重新作答失敗');
     } finally {
       setIsSubmitting(false);
     }
@@ -1380,6 +1381,7 @@ export default function PaperDetailPage() {
   return (
     <ProtectedRoute>
       <SidebarLayout>
+        <Toaster position="top-center" />
         <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
           <div className="max-w-4xl mx-auto p-6">
             {/* Header */}
