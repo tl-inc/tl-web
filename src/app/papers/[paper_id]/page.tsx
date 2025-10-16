@@ -10,6 +10,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { ClozeExercise } from '@/components/papers/exercises/ClozeExercise';
 import { MCQExercise } from '@/components/papers/exercises/MCQExercise';
 import { ItemSetExercise } from '@/components/papers/exercises/ItemSetExercise';
+import { ScoreCard } from '@/components/papers/ScoreCard';
 import { usePaperStore } from '@/stores/usePaperStore';
 
 export default function PaperDetailPage() {
@@ -202,9 +203,7 @@ export default function PaperDetailPage() {
                     {mode === 'completed' && (
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-green-600 dark:text-green-400 font-semibold">
-                          已完成 - 得分: {stats.score}% ({stats.correctCount}/{stats.totalCount})
-                        </span>
+                        <span className="text-green-600 dark:text-green-400 font-semibold">已完成</span>
                       </div>
                     )}
                     {mode === 'abandoned' && (
@@ -287,6 +286,17 @@ export default function PaperDetailPage() {
                 </div>
               </div>
             </div>
+
+            {/* Score Card - 只在已完成時顯示 */}
+            {mode === 'completed' && (
+              <div className="mb-6">
+                <ScoreCard
+                  score={stats.score}
+                  correctCount={stats.correctCount}
+                  totalCount={stats.totalCount}
+                />
+              </div>
+            )}
 
             {/* Exercises */}
             <div className="space-y-6">
