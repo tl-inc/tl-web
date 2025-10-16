@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { PaperData, UserPaperResponse, UserPaperStatus, Exercise } from '@/types/paper';
 import toast, { Toaster } from 'react-hot-toast';
+import { paperService } from '@/lib/api/paper';
 
 // 四種模式
 type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
@@ -29,8 +30,6 @@ export default function PaperDetailPage() {
 
   // Answer state: Map<exercise_item_id, answer_index>
   const [answers, setAnswers] = useState<Map<number, number>>(new Map());
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
   // 計算分數統計
   const calculateStats = () => {
@@ -79,9 +78,7 @@ export default function PaperDetailPage() {
     const fetchData = async () => {
       try {
         // 1. 載入試卷資料
-        const paperResponse = await fetch(`${apiUrl}/papers/${paper_id}/detail`);
-        if (!paperResponse.ok) throw new Error('無法載入試卷資料');
-        const paperData: PaperData = await paperResponse.json();
+        const paperData = await paperService.getPaperDetail(Number(paper_id));
 
         // Parse asset_json if it's a string
         if (paperData.exercises) {
@@ -99,34 +96,23 @@ export default function PaperDetailPage() {
         setPaper(paperData);
 
         // 2. 載入該 paper 的所有 user_papers
-        const token = localStorage.getItem('access_token');
-        const userPapersResponse = await fetch(`${apiUrl}/user-papers/by-paper/${paper_id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const userPapersData = await paperService.getUserPapersByPaper(Number(paper_id));
+        setUserPapers(userPapersData);
 
-        if (userPapersResponse.ok) {
-          const userPapersData: UserPaperResponse[] = await userPapersResponse.json();
-          setUserPapers(userPapersData);
+        // 3. 選擇要顯示的 user_paper
+        const active = selectActiveUserPaper(userPapersData);
+        setActiveUserPaper(active);
 
-          // 3. 選擇要顯示的 user_paper
-          const active = selectActiveUserPaper(userPapersData);
-          setActiveUserPaper(active);
+        // 4. 根據 status 決定模式
+        if (active) {
+          setMode(active.status as PageMode);
 
-          // 4. 根據 status 決定模式
-          if (active) {
-            setMode(active.status as PageMode);
-
-            // 5. 如果是 in_progress，載入已答題目
-            if (active.status === 'in_progress') {
-              const answersResponse = await fetch(`${apiUrl}/user-papers/${active.id}/answers`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-              });
-              if (answersResponse.ok) {
-                const savedAnswers: Array<{ exercise_item_id: number; answer_index: number }> = await answersResponse.json();
-                const answerMap = new Map(savedAnswers.map(a => [a.exercise_item_id, a.answer_index]));
-                setAnswers(answerMap);
-              }
-            }
+          // 5. 如果是 in_progress，載入已答題目
+          if (active.status === 'in_progress') {
+            const savedAnswers: Array<{ exercise_item_id: number; answer_index: number }> =
+              await paperService.getUserPaperAnswers(active.id);
+            const answerMap = new Map(savedAnswers.map(a => [a.exercise_item_id, a.answer_index]));
+            setAnswers(answerMap);
           }
         }
 
@@ -148,18 +134,7 @@ export default function PaperDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/start`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) throw new Error('無法開始作答');
-
-      const data = await response.json();
+      const data = await paperService.startUserPaper(activeUserPaper.id);
       setActiveUserPaper({ ...activeUserPaper, status: 'in_progress', started_at: data.started_at });
       setMode('in_progress');
     } catch (err) {
@@ -181,18 +156,11 @@ export default function PaperDetailPage() {
 
       // 送出答案到後端
       try {
-        const token = localStorage.getItem('access_token');
-        await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/answer`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            exercise_id: exerciseId,
-            exercise_item_id: exerciseItemId,
-            answer_content: { selected_option: answerIndex }
-          })
+        await paperService.submitAnswer(activeUserPaper.id, {
+          exercise_id: exerciseId,
+          exercise_item_id: exerciseItemId,
+          answer_content: { selected_option: answerIndex },
+          time_spent: 0,
         });
       } catch (error) {
         console.error('答案送出失敗:', error);
@@ -208,18 +176,11 @@ export default function PaperDetailPage() {
 
     // 2. 立即送出到 backend (背景執行)
     try {
-      const token = localStorage.getItem('access_token');
-      await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/answer`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          exercise_id: exerciseId,
-          exercise_item_id: exerciseItemId,
-          answer_content: { selected_option: answerIndex }
-        })
+      await paperService.submitAnswer(activeUserPaper.id, {
+        exercise_id: exerciseId,
+        exercise_item_id: exerciseItemId,
+        answer_content: { selected_option: answerIndex },
+        time_spent: 0,
       });
     } catch (error) {
       console.error('答案送出失敗:', error);
@@ -235,19 +196,7 @@ export default function PaperDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/complete`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ submit: true })
-      });
-
-      if (!response.ok) throw new Error('無法完成作答');
-
-      const data = await response.json();
+      const data = await paperService.completePaper(activeUserPaper.id);
       setActiveUserPaper({ ...activeUserPaper, status: 'completed', finished_at: data.finished_at });
       setMode('completed');
 
@@ -268,18 +217,7 @@ export default function PaperDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/abandon`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) throw new Error('無法放棄作答');
-
-      const data = await response.json();
+      const data = await paperService.abandonPaper(activeUserPaper.id);
       setActiveUserPaper({ ...activeUserPaper, status: 'abandoned', finished_at: data.finished_at });
       setMode('abandoned');
 
@@ -298,18 +236,7 @@ export default function PaperDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${apiUrl}/user-papers/${activeUserPaper.id}/renew`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) throw new Error('無法重新作答');
-
-      const data = await response.json();
+      const data = await paperService.renewPaper(activeUserPaper.id);
 
       // 建立新的 user_paper
       const newUserPaper: UserPaperResponse = {
