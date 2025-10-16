@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu } from 'lucide-react';
+import { themeStorage } from '@/lib/storage';
+import { Menu, Moon, Sun } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -13,6 +15,34 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [isDark, setIsDark] = useState(false);
+
+  // Initialize dark mode from storage
+  useEffect(() => {
+    const savedTheme = themeStorage.getTheme();
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+    setIsDark(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      themeStorage.setTheme('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      themeStorage.setTheme('light');
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -49,6 +79,19 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label={isDark ? '切換到淺色模式' : '切換到暗色模式'}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              )}
+            </button>
+
             {user ? (
               <>
                 <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:block">

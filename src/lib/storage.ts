@@ -7,6 +7,7 @@
 export enum StorageKey {
   ACCESS_TOKEN = 'access_token',
   REFRESH_TOKEN = 'refresh_token',
+  THEME = 'theme',
 }
 
 interface StorageService {
@@ -130,4 +131,11 @@ export const tokenStorage = {
     storage.remove(StorageKey.ACCESS_TOKEN);
     storage.remove(StorageKey.REFRESH_TOKEN);
   },
+};
+
+// Export convenience functions for theme management
+export const themeStorage = {
+  getTheme: () => storage.get(StorageKey.THEME) as 'light' | 'dark' | null,
+  setTheme: (theme: 'light' | 'dark') => storage.set(StorageKey.THEME, theme),
+  removeTheme: () => storage.remove(StorageKey.THEME),
 };
