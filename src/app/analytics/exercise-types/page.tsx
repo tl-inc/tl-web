@@ -95,27 +95,37 @@ export default function ExerciseTypesAnalyticsPage() {
                     </p>
                   </div>
                 ) : (
-                  analyticsData.groups.map((group) => (
-                    <Card
-                      key={group.id}
-                      className="border-2 hover:shadow-lg transition-shadow"
-                    >
-                      <CardHeader>
-                        <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">
-                          {group.name}
-                        </CardTitle>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          等級範圍: 1 (初級) ~ 10 (精通)
-                        </p>
-                      </CardHeader>
-                      <CardContent>
-                        <ExerciseTypeRadarChart
-                          group={group}
-                          onExerciseTypeClick={handleExerciseTypeClick}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))
+                  analyticsData.groups.map((group) => {
+                    // 計算該分組的最大 max_level
+                    const maxLevel =
+                      group.exercise_types.length > 0
+                        ? Math.max(
+                            ...group.exercise_types.map((et) => et.max_level)
+                          )
+                        : 5;
+
+                    return (
+                      <Card
+                        key={group.id}
+                        className="border-2 hover:shadow-lg transition-shadow"
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">
+                            {group.name}
+                          </CardTitle>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            等級範圍: 1 (初級) ~ {maxLevel} (精通)
+                          </p>
+                        </CardHeader>
+                        <CardContent>
+                          <ExerciseTypeRadarChart
+                            group={group}
+                            onExerciseTypeClick={handleExerciseTypeClick}
+                          />
+                        </CardContent>
+                      </Card>
+                    );
+                  })
                 )}
               </div>
             )}
