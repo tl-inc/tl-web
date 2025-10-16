@@ -7,6 +7,7 @@ import type {
   StartPaperResponse,
   PaperData,
   UserPaperResponse,
+  UserPaperWithAnswersResponse,
 } from '@/types/paper';
 
 export interface UserPaperAnswer {
@@ -38,10 +39,10 @@ export const paperService = {
   },
 
   /**
-   * Get all user papers for a specific paper
+   * Get all user papers for a specific paper (with answers for in_progress/completed)
    */
-  async getUserPapersByPaper(paperId: number): Promise<UserPaperResponse[]> {
-    const response = await apiClient.get<UserPaperResponse[]>(`/user-papers/by-paper/${paperId}`);
+  async getUserPapersByPaper(paperId: number): Promise<UserPaperWithAnswersResponse[]> {
+    const response = await apiClient.get<UserPaperWithAnswersResponse[]>(`/user-papers/by-paper/${paperId}`);
     return response.data;
   },
 

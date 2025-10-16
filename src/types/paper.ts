@@ -67,6 +67,16 @@ export interface UserPaperResponse {
   updated_at: string;
 }
 
+export interface UserPaperAnswer {
+  exercise_id: number;
+  exercise_item_id: number | null;
+  answer_index: number;
+}
+
+export interface UserPaperWithAnswersResponse extends UserPaperResponse {
+  answers: UserPaperAnswer[];
+}
+
 export interface StartPaperRequest {
   range_pack_id: number;
   subject_id: number;

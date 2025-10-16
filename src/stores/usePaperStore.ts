@@ -3,7 +3,7 @@
  * 管理試卷相關的狀態
  */
 import { create } from 'zustand';
-import type { PaperData, UserPaperResponse } from '@/types/paper';
+import type { PaperData, UserPaperResponse, UserPaperWithAnswersResponse } from '@/types/paper';
 import { paperService } from '@/lib/api/paper';
 
 export type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
@@ -11,8 +11,8 @@ export type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
 interface PaperState {
   // Data
   paper: PaperData | null;
-  userPapers: UserPaperResponse[];
-  activeUserPaper: UserPaperResponse | null;
+  userPapers: UserPaperWithAnswersResponse[];
+  activeUserPaper: UserPaperWithAnswersResponse | null;
   mode: PageMode;
   answers: Map<number, number>;  // exercise_item_id -> answer_index
 
@@ -23,8 +23,8 @@ interface PaperState {
 
   // Actions
   setPaper: (paper: PaperData) => void;
-  setUserPapers: (userPapers: UserPaperResponse[]) => void;
-  setActiveUserPaper: (userPaper: UserPaperResponse | null) => void;
+  setUserPapers: (userPapers: UserPaperWithAnswersResponse[]) => void;
+  setActiveUserPaper: (userPaper: UserPaperWithAnswersResponse | null) => void;
   setMode: (mode: PageMode) => void;
   setAnswers: (answers: Map<number, number>) => void;
   setAnswer: (itemId: number, answerIndex: number) => void;
@@ -45,7 +45,7 @@ interface PaperState {
   reset: () => void;
 }
 
-const selectActiveUserPaper = (userPapers: UserPaperResponse[]): UserPaperResponse | null => {
+const selectActiveUserPaper = (userPapers: UserPaperWithAnswersResponse[]): UserPaperWithAnswersResponse | null => {
   if (userPapers.length === 0) return null;
 
   const inProgress = userPapers.find(up => up.status === 'in_progress');
@@ -121,11 +121,15 @@ export const usePaperStore = create<PaperState>((set, get) => ({
       if (active) {
         mode = active.status as PageMode;
 
-        // 5. 如果是 in_progress，載入已答題目
-        if (active.status === 'in_progress') {
-          const savedAnswers: Array<{ exercise_item_id: number; answer_index: number }> =
-            await paperService.getUserPaperAnswers(active.id);
-          answers = new Map(savedAnswers.map(a => [a.exercise_item_id, a.answer_index]));
+        // 5. 如果是 in_progress 或 completed，載入已答題目（從 API 回傳的 answers 中取得）
+        if (active.status === 'in_progress' || active.status === 'completed') {
+          if (active.answers && active.answers.length > 0) {
+            answers = new Map(
+              active.answers
+                .filter(a => a.exercise_item_id !== null)
+                .map(a => [a.exercise_item_id!, a.answer_index])
+            );
+          }
         }
       }
 
