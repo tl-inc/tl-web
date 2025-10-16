@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 
 interface ClozeExerciseProps {
@@ -9,53 +10,64 @@ interface ClozeExerciseProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function ClozeExercise({ exercise, answers, onAnswerChange, mode }: ClozeExerciseProps) {
+export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, onAnswerChange, mode }: ClozeExerciseProps) {
   const passageText = exercise.passage || exercise.asset_json?.passage;
-  if (!passageText) return null;
 
-  const parts: React.ReactNode[] = [];
-  let text = passageText;
+  // Memoize sorted items to avoid re-sorting on every render
+  const sortedItems = useMemo(
+    () => [...exercise.exercise_items].sort((a, b) => a.sequence - b.sequence),
+    [exercise.exercise_items]
+  );
 
-  // Sort by sequence
-  const sortedItems = [...exercise.exercise_items].sort((a, b) => a.sequence - b.sequence);
+  // Memoize the parts generation
+  const parts = useMemo(() => {
+    if (!passageText) return null;
 
-  sortedItems.forEach((item) => {
-    const placeholder = `{{blank_${item.sequence}}}`;
-    const placeholderIndex = text.indexOf(placeholder);
+    const result: React.ReactNode[] = [];
+    let text = passageText;
 
-    if (placeholderIndex !== -1) {
-      // Add text before blank
-      if (placeholderIndex > 0) {
-        parts.push(text.substring(0, placeholderIndex));
+    sortedItems.forEach((item) => {
+      const placeholder = `{{blank_${item.sequence}}}`;
+      const placeholderIndex = text.indexOf(placeholder);
+
+      if (placeholderIndex !== -1) {
+        // Add text before blank
+        if (placeholderIndex > 0) {
+          result.push(text.substring(0, placeholderIndex));
+        }
+
+        // Add dropdown
+        result.push(
+          <select
+            key={item.id}
+            value={answers.get(item.id) ?? -1}
+            onChange={(e) => onAnswerChange(exercise.id, item.id, Number(e.target.value))}
+            disabled={mode !== 'in_progress' && mode !== 'pending'}
+            className="mx-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value={-1}>請選擇</option>
+            {item.options.map((opt, optIdx) => (
+              <option key={optIdx} value={optIdx}>
+                {opt.text}
+              </option>
+            ))}
+          </select>
+        );
+
+        // Update remaining text
+        text = text.substring(placeholderIndex + placeholder.length);
       }
+    });
 
-      // Add dropdown
-      parts.push(
-        <select
-          key={item.id}
-          value={answers.get(item.id) ?? -1}
-          onChange={(e) => onAnswerChange(exercise.id, item.id, Number(e.target.value))}
-          disabled={mode !== 'in_progress' && mode !== 'pending'}
-          className="mx-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <option value={-1}>請選擇</option>
-          {item.options.map((opt, optIdx) => (
-            <option key={optIdx} value={optIdx}>
-              {opt.text}
-            </option>
-          ))}
-        </select>
-      );
-
-      // Update remaining text
-      text = text.substring(placeholderIndex + placeholder.length);
+    // Add remaining text
+    if (text) {
+      result.push(text);
     }
-  });
 
-  // Add remaining text
-  if (text) {
-    parts.push(text);
-  }
+    return result;
+  }, [passageText, sortedItems, answers, onAnswerChange, exercise.id, mode]);
+
+  if (!passageText) return null;
 
   return (
     <div className="space-y-4">
@@ -90,4 +102,4 @@ export function ClozeExercise({ exercise, answers, onAnswerChange, mode }: Cloze
       )}
     </div>
   );
-}
+});

@@ -1,5 +1,7 @@
 'use client';
 
+import { memo } from 'react';
+
 import type { NoticeAssetData } from '@/types/paper';
 
 interface NoticeAssetProps {
@@ -7,7 +9,7 @@ interface NoticeAssetProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function NoticeAsset({ asset, mode }: NoticeAssetProps) {
+export const NoticeAsset = memo(function NoticeAsset({ asset, mode }: NoticeAssetProps) {
   if (!asset?.notice) return null;
 
   return (
@@ -124,4 +126,4 @@ export function NoticeAsset({ asset, mode }: NoticeAssetProps) {
       </div>
     </div>
   );
-}
+});

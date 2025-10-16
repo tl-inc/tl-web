@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { AdvertisementAssetData } from '@/types/paper';
 
 interface AdvertisementAssetProps {
@@ -7,7 +8,7 @@ interface AdvertisementAssetProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function AdvertisementAsset({ asset, mode }: AdvertisementAssetProps) {
+export const AdvertisementAsset = memo(function AdvertisementAsset({ asset, mode }: AdvertisementAssetProps) {
   if (!asset?.advertisement) return null;
 
   return (
@@ -138,4 +139,4 @@ export function AdvertisementAsset({ asset, mode }: AdvertisementAssetProps) {
       </div>
     </div>
   );
-}
+});

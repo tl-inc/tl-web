@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { MenuAsset } from '../assets/MenuAsset';
@@ -15,7 +16,7 @@ interface ItemSetExerciseProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: ItemSetExerciseProps) {
+export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: ItemSetExerciseProps) {
   const passageText = exercise.passage || exercise.asset_json?.passage;
   const imageUrl = exercise.image_url || exercise.asset_json?.image_url;
   const audioUrl = exercise.audio_url || exercise.asset_json?.audio_url;
@@ -27,7 +28,9 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
   // Information reading (8-12) renders asset_json
   const isInformationReading = exercise.exercise_type_id >= 8 && exercise.exercise_type_id <= 12;
 
-  const renderInformationAsset = () => {
+  // Memoize asset rendering to avoid re-rendering on every state change
+  const informationAsset = useMemo(() => {
+    if (!isInformationReading) return null;
     const asset = exercise.asset_json;
     if (!asset) return null;
 
@@ -40,7 +43,7 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
     if (typeId === 12) return <DialogueAsset asset={asset} mode={mode} />;
 
     return null;
-  };
+  }, [isInformationReading, exercise.asset_json, exercise.exercise_type_id, mode]);
 
   return (
     <div className="space-y-4">
@@ -59,7 +62,7 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
       )}
 
       {/* Information reading asset (8-12) */}
-      {isInformationReading && renderInformationAsset()}
+      {informationAsset}
 
       {/* Passage (show transcript only in completed mode for listening) */}
       {!isInformationReading && shouldShowPassage && (
@@ -82,6 +85,7 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
           const userAnswer = answers.get(item.id);
           const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
           const isUnanswered = userAnswer === undefined;
+          const showCorrect = mode === 'completed';
 
           return (
             <div key={item.id} className="bg-white/40 dark:bg-gray-800/40 p-4 rounded-lg">
@@ -93,14 +97,14 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1">{displayQuestion}</div>
                     {/* Unanswered badge */}
-                    {mode === 'completed' && isUnanswered && (
+                    {showCorrect && isUnanswered && (
                       <span className="px-2 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
                         ⚠️ 未作答
                       </span>
                     )}
                   </div>
                   {/* Show question translation */}
-                  {mode === 'completed' && item.metadata?.translation && (
+                  {showCorrect && item.metadata?.translation && (
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 font-normal">
                       {item.metadata.translation}
                     </div>
@@ -112,7 +116,6 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
                 {item.options.map((option, optIdx) => {
                   const isSelected = userAnswer === optIdx;
                   const isCorrect = option.is_correct;
-                  const showCorrect = mode === 'completed';
 
                   return (
                     <div key={optIdx}>
@@ -161,4 +164,4 @@ export function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: Ite
       </div>
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { TimetableAssetData } from '@/types/paper';
 
 interface TimetableAssetProps {
@@ -7,7 +8,7 @@ interface TimetableAssetProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function TimetableAsset({ asset, mode }: TimetableAssetProps) {
+export const TimetableAsset = memo(function TimetableAsset({ asset, mode }: TimetableAssetProps) {
   if (!asset?.timetable) return null;
 
   const schedule = asset.timetable.schedule || [];
@@ -121,4 +122,4 @@ export function TimetableAsset({ asset, mode }: TimetableAssetProps) {
       )}
     </div>
   );
-}
+});

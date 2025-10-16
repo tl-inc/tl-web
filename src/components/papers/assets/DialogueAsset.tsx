@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { DialogueAssetData } from '@/types/paper';
 
 interface DialogueAssetProps {
@@ -7,7 +8,7 @@ interface DialogueAssetProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function DialogueAsset({ asset, mode }: DialogueAssetProps) {
+export const DialogueAsset = memo(function DialogueAsset({ asset, mode }: DialogueAssetProps) {
   if (!asset?.dialogue) return null;
 
   const turns = asset.dialogue.turns || [];
@@ -71,4 +72,4 @@ export function DialogueAsset({ asset, mode }: DialogueAssetProps) {
       </div>
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import type { MenuAssetData } from '@/types/paper';
 
 interface MenuAssetProps {
@@ -7,7 +8,7 @@ interface MenuAssetProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function MenuAsset({ asset, mode }: MenuAssetProps) {
+export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps) {
   if (!asset?.menu) return null;
 
   return (
@@ -235,4 +236,4 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
       </div>
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
 
@@ -10,13 +11,20 @@ interface MCQExerciseProps {
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
-export function MCQExercise({ exercise, answers, onAnswerChange, mode }: MCQExerciseProps) {
+export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnswerChange, mode }: MCQExerciseProps) {
   const item = exercise.exercise_items[0];
+
+  // Memoize display question - must be before early return to follow hooks rules
+  const displayQuestion = useMemo(
+    () => item?.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '',
+    [item?.question]
+  );
+
   if (!item) return null;
 
   const userAnswer = answers.get(item.id);
-  const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
   const isUnanswered = userAnswer === undefined;
+  const showCorrect = mode === 'completed';
 
   return (
     <div className="space-y-4">
@@ -27,14 +35,14 @@ export function MCQExercise({ exercise, answers, onAnswerChange, mode }: MCQExer
               {displayQuestion}
             </div>
             {/* Unanswered badge */}
-            {mode === 'completed' && isUnanswered && (
+            {showCorrect && isUnanswered && (
               <span className="px-3 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
                 ⚠️ 未作答
               </span>
             )}
           </div>
           {/* Show translation */}
-          {mode === 'completed' && item.metadata?.translation && (
+          {showCorrect && item.metadata?.translation && (
             <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-normal">
               {item.metadata.translation}
             </div>
@@ -46,7 +54,6 @@ export function MCQExercise({ exercise, answers, onAnswerChange, mode }: MCQExer
         {item.options.map((option, idx) => {
           const isSelected = userAnswer === idx;
           const isCorrect = option.is_correct;
-          const showCorrect = mode === 'completed';
 
           return (
             <div key={idx}>
@@ -98,4 +105,4 @@ export function MCQExercise({ exercise, answers, onAnswerChange, mode }: MCQExer
       </div>
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -105,7 +105,8 @@ export default function PaperConfigurationPage() {
   };
 
   // Handle start practice
-  const handleStartPractice = async () => {
+  // Memoize to avoid re-creating function on every render
+  const handleStartPractice = useCallback(async () => {
     if (!selectedSubject || !selectedRange) return;
 
     setStartingPaper(true);
@@ -122,7 +123,7 @@ export default function PaperConfigurationPage() {
     } finally {
       setStartingPaper(false);
     }
-  };
+  }, [selectedSubject, selectedRange, router]);
 
   const isButtonEnabled = selectedGrade !== null && selectedSubject !== null && selectedRange !== null;
 

@@ -1,12 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card } from '@/components/ui/card';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import type { ItemType, ItemSetType } from '@/types/api';
 import { analyticsService } from '@/lib/api/analytics';
+
+// Dynamically import Recharts to reduce initial bundle size
+const Radar = dynamic(() => import('recharts').then(mod => mod.Radar), { ssr: false });
+const RadarChart = dynamic(() => import('recharts').then(mod => mod.RadarChart), { ssr: false });
+const PolarGrid = dynamic(() => import('recharts').then(mod => mod.PolarGrid), { ssr: false });
+const PolarAngleAxis = dynamic(() => import('recharts').then(mod => mod.PolarAngleAxis), { ssr: false });
+const PolarRadiusAxis = dynamic(() => import('recharts').then(mod => mod.PolarRadiusAxis), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+const Legend = dynamic(() => import('recharts').then(mod => mod.Legend), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
 
 interface ItemTypeLevel {
   item_type: ItemType;
@@ -48,7 +58,8 @@ export default function AnalyticsPage() {
     }
   };
 
-  const prepareRadarData = () => {
+  // Memoize radar data to avoid expensive recalculations on every render
+  const radarData = useMemo(() => {
     if (!analytics) return [];
 
     // Combine all types and calculate percentage
@@ -68,7 +79,7 @@ export default function AnalyticsPage() {
     ];
 
     return allTypes;
-  };
+  }, [analytics]);
 
   if (loading) {
     return (
@@ -93,8 +104,6 @@ export default function AnalyticsPage() {
       </ProtectedRoute>
     );
   }
-
-  const radarData = prepareRadarData();
 
   return (
     <ProtectedRoute>
