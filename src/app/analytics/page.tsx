@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { ItemType, ItemSetType } from '@/types/api';
+import { analyticsService } from '@/lib/api/analytics';
 
 interface ItemTypeLevel {
   item_type: ItemType;
@@ -31,8 +32,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
   useEffect(() => {
     fetchAnalytics();
   }, []);
@@ -40,20 +39,8 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-
-      const response = await fetch(`${apiUrl}/analytics/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAnalytics(data);
-      } else {
-        setError('無法載入分析資料');
-      }
+      const data = await analyticsService.getMyAnalytics();
+      setAnalytics(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '未知錯誤');
     } finally {
