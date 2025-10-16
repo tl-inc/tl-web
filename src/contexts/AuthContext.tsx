@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '@/lib/api/auth';
+import { tokenStorage } from '@/lib/storage';
 import type { User, LoginRequest, RegisterRequest } from '@/types/auth';
 
 interface AuthContextType {
@@ -27,14 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUser = useCallback(async () => {
     try {
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = tokenStorage.getAccessToken();
       if (accessToken) {
         const currentUser = await authService.getCurrentUser();
         setUser(currentUser);
       }
     } catch (error) {
       // Clear invalid token
-      localStorage.removeItem('access_token');
+      tokenStorage.removeAccessToken();
     } finally {
       setLoading(false);
     }

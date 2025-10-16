@@ -7,6 +7,7 @@
  * - Request retry after token refresh
  */
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { tokenStorage } from './storage';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -39,7 +40,7 @@ const processQueue = (error: unknown, token: string | null = null) => {
 // Request interceptor - Add access token to all requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = tokenStorage.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -84,12 +85,11 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
         // No refresh token, clear everything and redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        tokenStorage.clearTokens();
         window.location.href = '/login';
         return Promise.reject(error);
       }
@@ -103,9 +103,9 @@ apiClient.interceptors.response.use(
         const { access_token, refresh_token: newRefreshToken } = response.data;
 
         // Update tokens
-        localStorage.setItem('access_token', access_token);
+        tokenStorage.setAccessToken(access_token);
         if (newRefreshToken) {
-          localStorage.setItem('refresh_token', newRefreshToken);
+          tokenStorage.setRefreshToken(newRefreshToken);
         }
 
         // Update the failed request with new token
@@ -121,8 +121,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
         processQueue(refreshError, null);
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        tokenStorage.clearTokens();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {
