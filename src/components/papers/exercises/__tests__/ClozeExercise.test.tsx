@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@/__tests__/utils/test-utils';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-utils';
 import { ClozeExercise } from '../ClozeExercise';
+import userEvent from '@testing-library/user-event';
 
 describe('ClozeExercise', () => {
   const mockExercise = {
@@ -77,7 +78,8 @@ describe('ClozeExercise', () => {
     expect(selects).toHaveLength(2);
   });
 
-  it('should render options in dropdowns', () => {
+  it('should render options in dropdowns', async () => {
+    const user = userEvent.setup();
     render(
       <ClozeExercise
         exercise={mockExercise}
@@ -87,14 +89,23 @@ describe('ClozeExercise', () => {
       />
     );
 
-    const firstSelect = screen.getAllByRole('combobox')[0];
-    expect(firstSelect).toHaveTextContent('請選擇');
-    expect(firstSelect).toHaveTextContent('sits');
-    expect(firstSelect).toHaveTextContent('sitting');
-    expect(firstSelect).toHaveTextContent('sit');
+    // Check trigger shows placeholder
+    const firstTrigger = screen.getAllByRole('combobox')[0];
+    expect(firstTrigger).toHaveTextContent('請選擇');
+
+    // Click to open dropdown
+    await user.click(firstTrigger);
+
+    // Check options are visible after opening
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'sits' })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('option', { name: 'sitting' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'sit' })).toBeInTheDocument();
   });
 
-  it('should call onAnswerChange when option is selected', () => {
+  it('should call onAnswerChange when option is selected', async () => {
+    const user = userEvent.setup();
     render(
       <ClozeExercise
         exercise={mockExercise}
@@ -104,8 +115,15 @@ describe('ClozeExercise', () => {
       />
     );
 
-    const firstSelect = screen.getAllByRole('combobox')[0];
-    fireEvent.change(firstSelect, { target: { value: '0' } });
+    // Click trigger to open dropdown
+    const firstTrigger = screen.getAllByRole('combobox')[0];
+    await user.click(firstTrigger);
+
+    // Wait for options to appear and click the first one
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'sits' })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('option', { name: 'sits' }));
 
     expect(mockOnAnswerChange).toHaveBeenCalledWith(1, 101, 0);
   });
@@ -125,9 +143,10 @@ describe('ClozeExercise', () => {
       />
     );
 
-    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
-    expect(selects[0].value).toBe('0');
-    expect(selects[1].value).toBe('1');
+    // Radix Select displays the selected value text in the trigger
+    const triggers = screen.getAllByRole('combobox');
+    expect(triggers[0]).toHaveTextContent('sits');
+    expect(triggers[1]).toHaveTextContent('taking');
   });
 
   it('should disable dropdowns when mode is completed', () => {
@@ -277,8 +296,9 @@ describe('ClozeExercise', () => {
       />
     );
 
-    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
-    expect(selects[0].value).toBe('-1');
-    expect(selects[1].value).toBe('-1');
+    // Radix Select shows placeholder text when no value selected
+    const triggers = screen.getAllByRole('combobox');
+    expect(triggers[0]).toHaveTextContent('請選擇');
+    expect(triggers[1]).toHaveTextContent('請選擇');
   });
 });

@@ -3,10 +3,11 @@
  * 管理試卷相關的狀態
  */
 import { create } from 'zustand';
-import type { PaperData, UserPaperResponse, UserPaperWithAnswersResponse } from '@/types/paper';
+import type { PaperData, UserPaperWithAnswersResponse } from '@/types/paper';
 import { paperService } from '@/lib/api/paper';
 
 export type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
+export type ViewMode = 'scroll' | 'card';
 
 interface PaperState {
   // Data
@@ -21,6 +22,13 @@ interface PaperState {
   error: string | null;
   isSubmitting: boolean;
 
+  // Card view states
+  viewMode: ViewMode;
+  currentExerciseIndex: number;
+  markedExercises: Set<number>;
+  isNavigationPanelOpen: boolean;
+  navigationDirection: 'left' | 'right';
+
   // Actions
   setPaper: (paper: PaperData) => void;
   setUserPapers: (userPapers: UserPaperWithAnswersResponse[]) => void;
@@ -31,6 +39,15 @@ interface PaperState {
   setIsLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setIsSubmitting: (submitting: boolean) => void;
+
+  // Card view actions
+  setViewMode: (mode: ViewMode) => void;
+  setCurrentExerciseIndex: (index: number) => void;
+  nextExercise: () => void;
+  previousExercise: () => void;
+  jumpToExercise: (index: number) => void;
+  toggleMarkExercise: (exerciseId: number) => void;
+  toggleNavigationPanel: () => void;
 
   // Complex actions
   loadPaper: (paperId: number) => Promise<void>;
@@ -72,6 +89,13 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   error: null,
   isSubmitting: false,
 
+  // Card view initial state
+  viewMode: 'scroll',
+  currentExerciseIndex: 0,
+  markedExercises: new Set(),
+  isNavigationPanelOpen: false,
+  navigationDirection: 'right',
+
   // Simple setters
   setPaper: (paper) => set({ paper }),
   setUserPapers: (userPapers) => set({ userPapers }),
@@ -88,9 +112,64 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   setError: (error) => set({ error }),
   setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
 
+  // Card view actions
+  setViewMode: (viewMode) => {
+    set({ viewMode });
+    // Note: viewMode persistence could be added with zustand persist middleware if needed
+  },
+  setCurrentExerciseIndex: (currentExerciseIndex) => set({ currentExerciseIndex }),
+  nextExercise: () => {
+    const { paper, currentExerciseIndex } = get();
+    if (!paper) return;
+    const maxIndex = paper.exercises.length - 1;
+    if (currentExerciseIndex < maxIndex) {
+      set({
+        currentExerciseIndex: currentExerciseIndex + 1,
+        navigationDirection: 'right'
+      });
+    }
+  },
+  previousExercise: () => {
+    const { currentExerciseIndex } = get();
+    if (currentExerciseIndex > 0) {
+      set({
+        currentExerciseIndex: currentExerciseIndex - 1,
+        navigationDirection: 'left'
+      });
+    }
+  },
+  jumpToExercise: (index) => {
+    const { paper, currentExerciseIndex } = get();
+    if (!paper) return;
+    const maxIndex = paper.exercises.length - 1;
+    if (index >= 0 && index <= maxIndex) {
+      set({
+        currentExerciseIndex: index,
+        navigationDirection: index > currentExerciseIndex ? 'right' : 'left'
+      });
+    }
+  },
+  toggleMarkExercise: (exerciseId) => {
+    const { markedExercises } = get();
+    const newMarked = new Set(markedExercises);
+    if (newMarked.has(exerciseId)) {
+      newMarked.delete(exerciseId);
+    } else {
+      newMarked.add(exerciseId);
+    }
+    set({ markedExercises: newMarked });
+  },
+  toggleNavigationPanel: () => {
+    set({ isNavigationPanelOpen: !get().isNavigationPanelOpen });
+  },
+
   // Load paper and user papers
   loadPaper: async (paperId: number) => {
     set({ isLoading: true, error: null });
+
+    // Default viewMode (could be restored from persist middleware if configured)
+    const savedViewMode: ViewMode = 'scroll';
+
     try {
       // 1. 載入試卷資料
       const paperData = await paperService.getPaperDetail(paperId);
@@ -101,7 +180,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
           if (exercise.asset_json && typeof exercise.asset_json === 'string') {
             try {
               exercise.asset_json = JSON.parse(exercise.asset_json);
-            } catch (e) {
+            } catch {
               // Failed to parse asset_json, skip
             }
           }
@@ -139,6 +218,11 @@ export const usePaperStore = create<PaperState>((set, get) => ({
         activeUserPaper: active,
         mode,
         answers,
+        viewMode: savedViewMode,
+        currentExerciseIndex: 0,
+        markedExercises: new Set(),
+        isNavigationPanelOpen: false,
+        navigationDirection: 'right',
         isLoading: false,
       });
     } catch (err) {
@@ -290,5 +374,10 @@ export const usePaperStore = create<PaperState>((set, get) => ({
     isLoading: true,
     error: null,
     isSubmitting: false,
+    viewMode: 'scroll',
+    currentExerciseIndex: 0,
+    markedExercises: new Set(),
+    isNavigationPanelOpen: false,
+    navigationDirection: 'right',
   }),
 }));

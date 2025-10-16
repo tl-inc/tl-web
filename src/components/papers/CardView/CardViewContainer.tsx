@@ -1,0 +1,105 @@
+'use client';
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { Suspense, lazy } from 'react';
+import { Loader2 } from 'lucide-react';
+import { usePaperStore } from '@/stores/usePaperStore';
+import ExerciseCard from './ExerciseCard';
+import NavigationControls from './NavigationControls';
+import ProgressBar from './ProgressBar';
+import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
+
+// 懶加載 NavigationPanel
+const NavigationPanel = lazy(() => import('./NavigationPanel'));
+
+/**
+ * CardViewContainer 組件
+ * 卡片式檢閱模式的主容器
+ */
+export default function CardViewContainer() {
+  const paper = usePaperStore((state) => state.paper);
+  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
+  const isNavigationPanelOpen = usePaperStore((state) => state.isNavigationPanelOpen);
+
+  // 啟用鍵盤快捷鍵
+  useKeyboardNavigation();
+
+  if (!paper || paper.exercises.length === 0) {
+    return (
+      <div className="flex h-96 items-center justify-center text-gray-500">
+        <p>無題目可顯示</p>
+      </div>
+    );
+  }
+
+  const currentExercise = paper.exercises[currentExerciseIndex];
+
+  return (
+    <div className="relative flex h-full w-full bg-gray-50 dark:bg-gray-900">
+      {/* 左側：卡片區域 */}
+      <div className="flex flex-1 flex-col bg-gray-50 dark:bg-gray-900">
+        {/* 進度條 */}
+        <ProgressBar />
+
+        {/* 題目卡片 */}
+        <div className="flex-1 overflow-hidden">
+          <ExerciseCard exercise={currentExercise} index={currentExerciseIndex} />
+        </div>
+
+        {/* 導航控制 */}
+        <NavigationControls />
+
+        {/* 快捷鍵提示 - 桌面版 */}
+        <div className="hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-2 text-center text-xs text-gray-500 dark:text-gray-400 md:block">
+          <span>快捷鍵: </span>
+          <kbd className="rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-1.5 py-0.5">←</kbd>
+          <span> / </span>
+          <kbd className="rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-1.5 py-0.5">→</kbd>
+          <span> 切換題目</span>
+          <span className="mx-2">|</span>
+          <kbd className="rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-1.5 py-0.5">M</kbd>
+          <span> 標記</span>
+          <span className="mx-2">|</span>
+          <kbd className="rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-1.5 py-0.5">N</kbd>
+          <span> 目錄</span>
+        </div>
+      </div>
+
+      {/* 右側：導航面板 - 桌面版固定，手機版抽屜 */}
+      <AnimatePresence>
+        {isNavigationPanelOpen && (
+          <>
+            {/* 手機版遮罩 */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+              onClick={() => usePaperStore.getState().toggleNavigationPanel()}
+            />
+
+            {/* 導航面板 */}
+            <motion.div
+              initial={{ x: 320 }}
+              animate={{ x: 0 }}
+              exit={{ x: 320 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed right-0 top-0 z-50 h-full w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl md:static md:z-auto md:shadow-none"
+            >
+              <Suspense
+                fallback={
+                  <div className="flex h-full items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500 dark:text-blue-400" />
+                  </div>
+                }
+              >
+                <NavigationPanel />
+              </Suspense>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

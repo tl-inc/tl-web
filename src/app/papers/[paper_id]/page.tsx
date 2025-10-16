@@ -12,6 +12,8 @@ import { MCQExercise } from '@/components/papers/exercises/MCQExercise';
 import { ItemSetExercise } from '@/components/papers/exercises/ItemSetExercise';
 import { ScoreCard } from '@/components/papers/ScoreCard';
 import { usePaperStore } from '@/stores/usePaperStore';
+import ViewModeToggle from '@/components/papers/CardView/ViewModeToggle';
+import CardViewContainer from '@/components/papers/CardView/CardViewContainer';
 
 export default function PaperDetailPage() {
   const params = useParams();
@@ -23,6 +25,7 @@ export default function PaperDetailPage() {
     paper,
     mode,
     answers,
+    viewMode,
     isLoading,
     error,
     isSubmitting,
@@ -189,101 +192,103 @@ export default function PaperDetailPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    試卷 #{paper.id}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>題數: {paper.total_items}</span>
-                    </div>
-                    {mode === 'completed' && (
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-green-600 dark:text-green-400 font-semibold">已完成</span>
-                      </div>
-                    )}
-                    {mode === 'abandoned' && (
-                      <div className="flex items-center gap-2">
-                        <XCircle className="w-4 h-4 text-red-500" />
-                        <span className="text-red-600 dark:text-red-400 font-semibold">已放棄</span>
-                      </div>
-                    )}
-                    {mode === 'in_progress' && (
-                      <div className="flex items-center gap-2">
-                        <Play className="w-4 h-4 text-blue-500" />
-                        <span className="text-blue-600 dark:text-blue-400 font-semibold">
-                          作答中 ({stats.correctCount}/{stats.totalCount})
-                        </span>
-                      </div>
-                    )}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
+              {/* 第一列：標題 + ViewModeToggle */}
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  試卷 #{paper.id}
+                </h1>
+                <ViewModeToggle />
+              </div>
+
+              {/* 第二列：狀態資訊 */}
+              <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  <span>題數: {paper.total_items}</span>
+                </div>
+                {mode === 'completed' && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-green-600 dark:text-green-400 font-semibold">已完成</span>
                   </div>
-                </div>
+                )}
+                {mode === 'abandoned' && (
+                  <div className="flex items-center gap-2">
+                    <XCircle className="w-4 h-4 text-red-500" />
+                    <span className="text-red-600 dark:text-red-400 font-semibold">已放棄</span>
+                  </div>
+                )}
+                {mode === 'in_progress' && (
+                  <div className="flex items-center gap-2">
+                    <Play className="w-4 h-4 text-blue-500" />
+                    <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                      作答中 ({stats.correctCount}/{stats.totalCount})
+                    </span>
+                  </div>
+                )}
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 ml-4">
-                  {mode === 'pending' && (
+              {/* 第三列：操作按鈕 */}
+              <div className="flex flex-wrap gap-2">
+                {mode === 'pending' && (
+                  <button
+                    onClick={handleStart}
+                    disabled={isSubmitting}
+                    className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                    <span>開始作答</span>
+                  </button>
+                )}
+
+                {mode === 'in_progress' && (
+                  <>
                     <button
-                      onClick={handleStart}
+                      onClick={handleComplete}
                       disabled={isSubmitting}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <Play className="w-4 h-4" />
+                        <CheckCircle className="w-4 h-4" />
                       )}
-                      開始作答
+                      <span>完成作答</span>
                     </button>
-                  )}
-
-                  {mode === 'in_progress' && (
-                    <>
-                      <button
-                        onClick={handleComplete}
-                        disabled={isSubmitting}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                      >
-                        {isSubmitting ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <CheckCircle className="w-4 h-4" />
-                        )}
-                        完成作答
-                      </button>
-                      <button
-                        onClick={handleAbandon}
-                        disabled={isSubmitting}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                      >
-                        {isSubmitting ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <XCircle className="w-4 h-4" />
-                        )}
-                        放棄作答
-                      </button>
-                    </>
-                  )}
-
-                  {(mode === 'completed' || mode === 'abandoned') && (
                     <button
-                      onClick={handleRenew}
+                      onClick={handleAbandon}
                       disabled={isSubmitting}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <RotateCcw className="w-4 h-4" />
+                        <XCircle className="w-4 h-4" />
                       )}
-                      重新作答
+                      <span>放棄作答</span>
                     </button>
-                  )}
-                </div>
+                  </>
+                )}
+
+                {(mode === 'completed' || mode === 'abandoned') && (
+                  <button
+                    onClick={handleRenew}
+                    disabled={isSubmitting}
+                    className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4" />
+                    )}
+                    <span>重新作答</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -298,10 +303,16 @@ export default function PaperDetailPage() {
               </div>
             )}
 
-            {/* Exercises */}
-            <div className="space-y-6">
-              {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
-            </div>
+            {/* Exercises - 根據 viewMode 切換顯示 */}
+            {viewMode === 'scroll' ? (
+              <div className="space-y-6">
+                {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ minHeight: '500px', height: '70vh', maxHeight: '900px' }}>
+                <CardViewContainer />
+              </div>
+            )}
 
             {/* Bottom Actions */}
             {mode === 'in_progress' && (

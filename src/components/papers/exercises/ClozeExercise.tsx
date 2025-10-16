@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ClozeExerciseProps {
   exercise: Exercise;
@@ -36,22 +37,36 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
           result.push(text.substring(0, placeholderIndex));
         }
 
-        // Add dropdown
+        // Add custom select dropdown with proper positioning
+        const currentAnswer = answers.get(item.id);
+        const valueToDisplay = currentAnswer !== undefined && currentAnswer !== -1
+          ? String(currentAnswer)
+          : undefined;
+
         result.push(
-          <select
-            key={item.id}
-            value={answers.get(item.id) ?? -1}
-            onChange={(e) => onAnswerChange(exercise.id, item.id, Number(e.target.value))}
-            disabled={mode !== 'in_progress' && mode !== 'pending'}
-            className="mx-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <option value={-1}>請選擇</option>
-            {item.options.map((opt, optIdx) => (
-              <option key={optIdx} value={optIdx}>
-                {opt.text}
-              </option>
-            ))}
-          </select>
+          <span key={item.id} className="inline-block align-baseline mx-0.5">
+            <Select
+              value={valueToDisplay}
+              onValueChange={(value) => {
+                onAnswerChange(exercise.id, item.id, Number(value));
+              }}
+              disabled={mode !== 'in_progress' && mode !== 'pending'}
+            >
+              <SelectTrigger
+                size="sm"
+                className="min-w-[120px] max-w-[180px] sm:min-w-[140px] sm:max-w-[220px] md:min-w-[160px] md:max-w-[280px] h-auto py-1 text-sm"
+              >
+                <SelectValue placeholder="請選擇" />
+              </SelectTrigger>
+              <SelectContent>
+                {item.options.map((opt, optIdx) => (
+                  <SelectItem key={optIdx} value={String(optIdx)}>
+                    {opt.text}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </span>
         );
 
         // Update remaining text
