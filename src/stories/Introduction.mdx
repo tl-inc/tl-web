@@ -1,0 +1,102 @@
+<Meta title="介紹/歡迎" />
+
+# TL-Web 元件庫
+
+歡迎來到 TL-Web 的 Storybook 元件庫!
+
+這裡包含了專案中所有可重用元件的完整文檔和範例。
+
+## 📚 元件分類
+
+### UI 元件 (`components/ui`)
+基礎 UI 元件,使用 Radix UI 和 Tailwind CSS 構建:
+- **Button** - 各種樣式和尺寸的按鈕元件
+- **Card** - 卡片容器元件,用於內容展示
+- **Select** - 下拉選單元件
+- **Collapsible** - 可折疊內容元件
+
+### Papers 元件 (`components/papers`)
+
+#### 練習題元件 (`exercises`)
+- **ClozeExercise** - 克漏字練習題
+- **MCQExercise** - 選擇題 (Multiple Choice Question)
+- **ItemSetExercise** - 題組 (包含多個子題目)
+
+#### Asset 元件 (`assets`)
+用於顯示考試資訊的各種素材元件:
+- **MenuAsset** - 菜單素材 (餐廳菜單、價目表等)
+- **NoticeAsset** - 通知素材 (公告、海報等)
+- **DialogueAsset** - 對話素材 (雙人或多人對話)
+- **TimetableAsset** - 時間表素材 (課表、行程表等)
+- **AdvertisementAsset** - 廣告素材
+
+## 🎨 設計系統
+
+### 顏色
+專案使用 Tailwind CSS 的顏色系統,並支援深色模式。
+
+### 字型
+- 預設字體: Inter (英文) + Noto Sans TC (中文)
+- 等寬字體: Fira Code (程式碼)
+
+### 間距
+遵循 Tailwind 的間距系統 (4px 基準)
+
+## 🚀 使用指南
+
+### 如何使用元件
+
+1. 從對應的模組匯入元件
+2. 傳入必要的 props
+3. 根據需要自訂樣式
+
+範例:
+```tsx
+import { Button } from '@/components/ui/button';
+
+function MyComponent() {
+  return (
+    <Button variant="default" size="lg">
+      點擊我
+    </Button>
+  );
+}
+```
+
+### 主題模式
+
+所有元件都支援深色模式,會自動根據系統設定切換。
+
+在 Storybook 中,你可以使用工具列的主題切換按鈕來測試不同模式。
+
+## 📖 開發規範
+
+### 元件設計原則
+1. **單一職責** - 每個元件只做一件事
+2. **可組合性** - 元件可以組合使用
+3. **可訪問性** - 遵循 WCAG 2.1 AA 標準
+4. **效能優化** - 使用 React.memo 和 useMemo
+
+### Props 命名規範
+- 布林值: `is*`, `has*`, `can*`
+- 事件處理: `on*`
+- 渲染函數: `render*`
+
+## 🔗 相關資源
+
+- [專案 README](../README.md)
+- [API 文檔](../../docs/API.md)
+- [重構計劃](../../TL_WEB_REFACTOR.md)
+
+## 🤝 貢獻
+
+如需新增或修改元件,請:
+1. 在對應目錄建立元件檔案
+2. 新增對應的 `.stories.tsx` 檔案
+3. 新增單元測試 (`.test.tsx`)
+4. 更新此文檔
+
+---
+
+**最後更新**: 2025-10-16
+**維護者**: TL-Web Team
