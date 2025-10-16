@@ -50,7 +50,7 @@ export interface Exercise {
   passage: string | null;       // 克漏字段落、閱讀文章
   audio_url: string | null;      // 聽力音檔 URL
   image_url: string | null;      // 圖片理解圖片 URL
-  asset_json: Record<string, any> | null;  // 彈性資產 (menu, notice, timetable, etc.)
+  asset_json: Record<string, unknown> | null;  // 彈性資產 (menu, notice, timetable, etc.)
 
   // Exercise items (所有選項/小題)
   exercise_items: ExerciseItem[];
@@ -72,7 +72,7 @@ export interface ExerciseListResponse {
   };
 }
 
-export interface ExerciseResponse extends Exercise {}
+export type ExerciseResponse = Exercise;
 
 // ============================================================================
 // Asset JSON 的具體類型 (可選，用於 type safety)
