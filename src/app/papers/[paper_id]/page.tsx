@@ -90,7 +90,7 @@ export default function PaperDetailPage() {
               try {
                 exercise.asset_json = JSON.parse(exercise.asset_json);
               } catch (e) {
-                console.error('Failed to parse asset_json:', e);
+                // Failed to parse asset_json, skip
               }
             }
           });
@@ -166,7 +166,7 @@ export default function PaperDetailPage() {
           time_spent: 0,
         });
       } catch (error) {
-        console.error('答案送出失敗:', error);
+        // Submit failed silently in review mode
       }
       return;
     }
@@ -186,8 +186,7 @@ export default function PaperDetailPage() {
         time_spent: 0,
       });
     } catch (error) {
-      console.error('答案送出失敗:', error);
-      // 不阻斷操作,但可以顯示提示
+      // Submit failed, but don't block user interaction
     }
   };
 

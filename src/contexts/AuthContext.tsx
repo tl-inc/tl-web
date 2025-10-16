@@ -33,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentUser);
       }
     } catch (error) {
-      console.error('Failed to load user:', error);
       // Clear invalid token
       localStorage.removeItem('access_token');
     } finally {

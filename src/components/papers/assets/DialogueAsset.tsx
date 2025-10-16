@@ -1,7 +1,9 @@
 'use client';
 
+import { DialogueAssetData } from '@/types/paper';
+
 interface DialogueAssetProps {
-  asset: any;
+  asset: DialogueAssetData;
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
@@ -28,7 +30,7 @@ export function DialogueAsset({ asset, mode }: DialogueAssetProps) {
         </div>
       )}
       <div className="space-y-3">
-        {turns.map((turn: any, idx: number) => {
+        {turns.map((turn, idx: number) => {
           const speaker = speakers[turn.speaker_index];
           const speakerName = speaker?.name?.content || speaker?.name || `Speaker ${turn.speaker_index + 1}`;
           const speakerNameTranslation = speaker?.name?.translation;

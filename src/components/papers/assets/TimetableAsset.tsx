@@ -1,7 +1,9 @@
 'use client';
 
+import { TimetableAssetData } from '@/types/paper';
+
 interface TimetableAssetProps {
-  asset: any;
+  asset: TimetableAssetData;
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
@@ -55,7 +57,7 @@ export function TimetableAsset({ asset, mode }: TimetableAssetProps) {
       )}
 
       <div className="space-y-3">
-        {schedule.map((trip: any, idx: number) => (
+        {schedule.map((trip, idx: number) => (
           <div key={idx} className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border-l-4 border-sky-500">
             <div className="font-bold text-sky-700 dark:text-sky-300 mb-2 flex items-center gap-2">
               <span className="bg-sky-500 text-white px-2 py-0.5 rounded text-sm">{trip.time}</span>
@@ -81,7 +83,7 @@ export function TimetableAsset({ asset, mode }: TimetableAssetProps) {
               </div>
             )}
 
-            {trip.stops && trip.stops.map((stop: any, stopIdx: number) => {
+            {trip.stops && trip.stops.map((stop, stopIdx: number) => {
               const location = locations[stop.location_index];
               return (
                 <div key={stopIdx} className="flex items-center gap-3 ml-2 mb-2 last:mb-0">

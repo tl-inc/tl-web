@@ -37,7 +37,7 @@ export interface Exercise {
   passage: string | null;
   audio_url: string | null;
   image_url: string | null;
-  asset_json: any;
+  asset_json: AssetJsonData | null;
   exercise_type: ExerciseType;
   exercise_items: ExerciseItem[];
   created_at: string;
@@ -103,37 +103,88 @@ export interface ReadingAsset {
   genre?: string;
 }
 
-export interface MenuCategory {
-  name: string;
-  items: Array<{
-    name: string;
-    price: string;
-    description?: string;
-  }>;
+// Menu Asset types
+export interface MenuItemContent {
+  content?: string;
+  translation?: string;
 }
 
-export interface MenuAsset {
-  restaurant_name: string;
-  categories: MenuCategory[];
+export interface MenuItem {
+  name: string | MenuItemContent;
+  price?: string | MenuItemContent;
+  description?: string | MenuItemContent;
+  items?: MenuItem[];
 }
 
-export interface NoticeAsset {
-  title: string;
-  content: string;
-  date?: string;
-  location?: string;
+export interface MenuData {
+  beverages?: MenuItem[];
+  appetizers?: MenuItem[];
+  main_courses?: MenuItem[];
+  desserts?: MenuItem[];
+  set_meals?: MenuItem[];
+  promotions?: MenuItem[];
 }
 
-export interface ScheduleEntry {
-  time: string;
-  activity: string;
-  location?: string;
+export interface MenuAssetData {
+  restaurant_name: string | MenuItemContent;
+  menu: MenuData;
 }
 
-export interface ScheduleAsset {
-  title: string;
-  date?: string;
-  entries: ScheduleEntry[];
+// Notice Asset types
+export interface NoticeAssetData {
+  title: string | MenuItemContent;
+  content: string | MenuItemContent;
+  date?: string | MenuItemContent;
+  location?: string | MenuItemContent;
+  organizer?: string | MenuItemContent;
 }
 
-export type AssetContent = ImageAsset | AudioAsset | ReadingAsset | MenuAsset | NoticeAsset | ScheduleAsset;
+// Dialogue Asset types
+export interface DialogueTurn {
+  speaker: string | MenuItemContent;
+  text: string | MenuItemContent;
+}
+
+export interface DialogueAssetData {
+  title?: string | MenuItemContent;
+  setting?: string | MenuItemContent;
+  turns: DialogueTurn[];
+}
+
+// Advertisement Asset types
+export interface AdvertisementAssetData {
+  title: string | MenuItemContent;
+  company?: string | MenuItemContent;
+  content: string | MenuItemContent;
+  contact?: string | MenuItemContent;
+}
+
+// Timetable Asset types
+export interface TimetableStop {
+  station: string | MenuItemContent;
+  arrival?: string;
+  departure?: string;
+}
+
+export interface TimetableTrip {
+  train_number: string;
+  departure_time: string;
+  arrival_time: string;
+  duration?: string;
+  platform?: string;
+  stops?: TimetableStop[];
+}
+
+export interface TimetableAssetData {
+  title: string | MenuItemContent;
+  route?: string | MenuItemContent;
+  schedule: TimetableTrip[];
+}
+
+export type AssetJsonData =
+  | MenuAssetData
+  | NoticeAssetData
+  | DialogueAssetData
+  | AdvertisementAssetData
+  | TimetableAssetData
+  | Record<string, unknown>;  // Fallback for unknown asset types

@@ -228,7 +228,6 @@ describe('Header', () => {
       created_at: '2025-01-01',
     };
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockLogout.mockRejectedValue(new Error('Logout failed'));
 
     vi.mocked(usePathname).mockReturnValue('/dashboard');
@@ -248,7 +247,7 @@ describe('Header', () => {
     const logoutButton = screen.getByText('登出');
     await user.click(logoutButton);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Logout failed:', expect.any(Error));
-    consoleErrorSpy.mockRestore();
+    // Should still redirect to login even on error
+    expect(mockPush).toHaveBeenCalledWith('/login');
   });
 });

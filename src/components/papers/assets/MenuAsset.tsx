@@ -1,7 +1,9 @@
 'use client';
 
+import { MenuAssetData } from '@/types/paper';
+
 interface MenuAssetProps {
-  asset: any;
+  asset: MenuAssetData;
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 
@@ -21,7 +23,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="w-1 h-5 bg-amber-500 rounded"></span>
               Beverages
             </h4>
-            {asset.menu.beverages.map((item: any, idx: number) => (
+            {asset.menu.beverages.map((item, idx: number) => (
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -56,7 +58,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="w-1 h-5 bg-amber-500 rounded"></span>
               Appetizers
             </h4>
-            {asset.menu.appetizers.map((item: any, idx: number) => (
+            {asset.menu.appetizers.map((item, idx: number) => (
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -91,7 +93,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="w-1 h-5 bg-amber-500 rounded"></span>
               Main Courses
             </h4>
-            {asset.menu.main_courses.map((item: any, idx: number) => (
+            {asset.menu.main_courses.map((item, idx: number) => (
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -126,7 +128,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="w-1 h-5 bg-amber-500 rounded"></span>
               Desserts
             </h4>
-            {asset.menu.desserts.map((item: any, idx: number) => (
+            {asset.menu.desserts.map((item, idx: number) => (
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -161,7 +163,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="w-1 h-5 bg-amber-500 rounded"></span>
               Set Meals
             </h4>
-            {asset.menu.set_meals.map((meal: any, idx: number) => (
+            {asset.menu.set_meals.map((meal, idx: number) => (
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -175,7 +177,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
                 {meal.items && (
                   <div className="mt-2 ml-2">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {meal.items.map((item: any, itemIdx: number) => (
+                      {meal.items && meal.items.map((item, itemIdx: number) => (
                         <div key={itemIdx}>
                           • {item?.content || item}
                           {mode === 'completed' && item?.translation && (
@@ -198,7 +200,7 @@ export function MenuAsset({ asset, mode }: MenuAssetProps) {
               <span className="text-xl">🎉</span>
               Promotions
             </h4>
-            {asset.menu.promotions.map((promo: any, idx: number) => (
+            {asset.menu.promotions.map((promo, idx: number) => (
               <div key={idx} className="ml-4 mb-2 last:mb-0">
                 <p className="text-gray-700 dark:text-gray-300">
                   {promo.description?.content || promo.description}

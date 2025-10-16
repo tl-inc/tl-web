@@ -19,7 +19,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
       await logout();
       router.push('/login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Logout failed, but redirect anyway
+      router.push('/login');
     }
   };
 

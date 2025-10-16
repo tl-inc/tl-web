@@ -1,7 +1,9 @@
 'use client';
 
+import { AdvertisementAssetData } from '@/types/paper';
+
 interface AdvertisementAssetProps {
-  asset: any;
+  asset: AdvertisementAssetData;
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 

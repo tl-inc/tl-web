@@ -1,7 +1,9 @@
 'use client';
 
+import { NoticeAssetData } from '@/types/paper';
+
 interface NoticeAssetProps {
-  asset: any;
+  asset: NoticeAssetData;
   mode: 'pending' | 'in_progress' | 'completed' | 'abandoned';
 }
 

@@ -22,21 +22,36 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || '登入失敗，請檢查您的帳號和密碼');
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err && err.response &&
+        typeof err.response === 'object' && 'data' in err.response && err.response.data &&
+        typeof err.response.data === 'object' && 'detail' in err.response.data
+          ? String(err.response.data.detail)
+          : '登入失敗，請檢查您的帳號和密碼';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
     try {
       setLoading(true);
       setError('');
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received');
+      }
       await googleLogin(credentialResponse.credential);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Google 登入失敗');
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err && err.response &&
+        typeof err.response === 'object' && 'data' in err.response && err.response.data &&
+        typeof err.response.data === 'object' && 'detail' in err.response.data
+          ? String(err.response.data.detail)
+          : 'Google 登入失敗';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

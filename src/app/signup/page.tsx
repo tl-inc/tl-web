@@ -40,21 +40,36 @@ export default function SignupPage() {
         full_name: fullName || undefined,
       });
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || '註冊失敗，請稍後再試');
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err && err.response &&
+        typeof err.response === 'object' && 'data' in err.response && err.response.data &&
+        typeof err.response.data === 'object' && 'detail' in err.response.data
+          ? String(err.response.data.detail)
+          : '註冊失敗，請稍後再試';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
     try {
       setLoading(true);
       setError('');
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received');
+      }
       await googleLogin(credentialResponse.credential);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Google 註冊失敗');
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err && err.response &&
+        typeof err.response === 'object' && 'data' in err.response && err.response.data &&
+        typeof err.response.data === 'object' && 'detail' in err.response.data
+          ? String(err.response.data.detail)
+          : 'Google 註冊失敗';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

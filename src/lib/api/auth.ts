@@ -48,7 +48,6 @@ export const authService = {
         await apiClient.post('/auth/logout', { refresh_token: refreshToken });
       } catch (error) {
         // Ignore logout errors, still clear local tokens
-        console.error('Logout error:', error);
       }
     }
     // Clear tokens

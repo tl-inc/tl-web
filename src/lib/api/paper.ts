@@ -9,6 +9,17 @@ import type {
   UserPaperResponse,
 } from '@/types/paper';
 
+export interface UserPaperAnswer {
+  id: number;
+  user_paper_id: number;
+  exercise_id: number;
+  exercise_item_id: number;
+  answer_content: Record<string, unknown>;
+  is_correct: boolean;
+  time_spent: number;
+  created_at: string;
+}
+
 export const paperService = {
   /**
    * Create a new paper
@@ -37,8 +48,8 @@ export const paperService = {
   /**
    * Get answers for a user paper
    */
-  async getUserPaperAnswers(userPaperId: number): Promise<any[]> {
-    const response = await apiClient.get(`/user-papers/${userPaperId}/answers`);
+  async getUserPaperAnswers(userPaperId: number): Promise<UserPaperAnswer[]> {
+    const response = await apiClient.get<UserPaperAnswer[]>(`/user-papers/${userPaperId}/answers`);
     return response.data;
   },
 
@@ -58,7 +69,7 @@ export const paperService = {
     data: {
       exercise_id: number;
       exercise_item_id: number;
-      answer_content: Record<string, any>;
+      answer_content: Record<string, unknown>;
       time_spent: number;
     }
   ): Promise<{ is_correct: boolean }> {

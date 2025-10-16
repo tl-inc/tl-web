@@ -55,7 +55,6 @@ export default function PaperConfigurationPage() {
         const data = await rangePackService.getAvailableSubjects(selectedGrade);
         setSubjects(data.subjects || []);
       } catch (error) {
-        console.error('Error fetching subjects:', error);
         setSubjects([]);
       } finally {
         setLoadingSubjects(false);
@@ -75,7 +74,6 @@ export default function PaperConfigurationPage() {
         const data = await rangePackService.getRangePacks(parseInt(selectedSubject), selectedGrade);
         setRangePacks(data.data || []);
       } catch (error) {
-        console.error('Error fetching range packs:', error);
         setRangePacks([]);
       } finally {
         setLoadingRanges(false);
@@ -120,7 +118,6 @@ export default function PaperConfigurationPage() {
       // Navigate to paper page using paper_id (not user_paper_id)
       router.push(`/papers/${response.paper_id}`);
     } catch (error) {
-      console.error('Error starting paper:', error);
       toast.error('無法開始考卷，請稍後再試');
     } finally {
       setStartingPaper(false);
