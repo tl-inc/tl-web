@@ -47,7 +47,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
       </p>
       <div className="space-y-1 text-sm">
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">等級:</span> {data.level} / 10
+          <span className="font-medium">等級:</span> {data.level} / {data.max_level}
         </p>
         <p className="text-gray-700 dark:text-gray-300">
           <span className="font-medium">最近嘗試:</span> {data.recent_attempts} 次
@@ -63,7 +63,8 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 /**
  * Exercise Type Radar Chart Component
  *
- * 顯示題型分組的雷達圖,展示使用者在各題型的等級 (1-10)
+ * 顯示題型分組的雷達圖,展示使用者在各題型的等級
+ * 每個雷達圖的刻度範圍動態調整為該分組內最大的 max_level
  */
 export const ExerciseTypeRadarChart = memo(
   ({ group, onExerciseTypeClick }: ExerciseTypeRadarChartProps) => {
@@ -75,12 +76,21 @@ export const ExerciseTypeRadarChart = memo(
       return group.exercise_types.map((et) => ({
         subject: et.name,
         level: et.level,
-        fullMark: 10,
+        max_level: et.max_level,
+        fullMark: et.max_level,
         id: et.id,
         recent_attempts: et.recent_attempts,
         recent_correct_rate: et.recent_correct_rate,
       }));
     }, [group.exercise_types]);
+
+    // 計算該分組的最大 max_level (用於雷達圖的 domain)
+    const maxLevelInGroup = useMemo(() => {
+      if (radarData.length === 0) {
+        return 5; // 預設值
+      }
+      return Math.max(...radarData.map((data) => data.max_level));
+    }, [radarData]);
 
     // 處理點擊事件
     const handleClick = (data: RadarChartData) => {
@@ -112,7 +122,7 @@ export const ExerciseTypeRadarChart = memo(
           />
           <PolarRadiusAxis
             angle={90}
-            domain={[0, 10]}
+            domain={[0, maxLevelInGroup]}
             tick={{ fill: '#9ca3af', fontSize: 12 }}
             className="dark:fill-gray-500"
           />

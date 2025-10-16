@@ -14,6 +14,8 @@ export interface ExerciseTypeStats {
   name: string;
   /** 使用者在此題型的等級 (1-10) */
   level: number;
+  /** 此題型的最大等級 (從 difficulty_bundles 取得) */
+  max_level: number;
   /** 最近嘗試次數 (0-10) */
   recent_attempts: number;
   /** 最近答對率 (0.0-1.0) */
@@ -50,6 +52,8 @@ export interface RadarChartData {
   subject: string;
   /** 等級數值 (1-10) */
   level: number;
+  /** 此題型的最大等級 */
+  max_level: number;
   /** 最大值 (用於雷達圖範圍) */
   fullMark: number;
   /** 題型 ID (用於點擊事件) */
