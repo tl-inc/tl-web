@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { paperService } from '@/lib/api/paper';
+import { rangePackService } from '@/lib/api/rangePack';
 import toast, { Toaster } from 'react-hot-toast';
 
 const GRADES = [
@@ -44,8 +45,6 @@ export default function PaperConfigurationPage() {
   const [loadingRanges, setLoadingRanges] = useState(false);
   const [startingPaper, setStartingPaper] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
   // Fetch subjects when grade is selected
   useEffect(() => {
     if (selectedGrade === null) return;
@@ -53,14 +52,7 @@ export default function PaperConfigurationPage() {
     const fetchSubjects = async () => {
       setLoadingSubjects(true);
       try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(`${apiUrl}/range-packs/available_subjects?grade=${selectedGrade}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error('Failed to fetch subjects');
-        const data = await response.json();
+        const data = await rangePackService.getAvailableSubjects(selectedGrade);
         setSubjects(data.subjects || []);
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -71,7 +63,7 @@ export default function PaperConfigurationPage() {
     };
 
     fetchSubjects();
-  }, [selectedGrade, apiUrl]);
+  }, [selectedGrade]);
 
   // Fetch range packs when subject is selected
   useEffect(() => {
@@ -80,17 +72,7 @@ export default function PaperConfigurationPage() {
     const fetchRangePacks = async () => {
       setLoadingRanges(true);
       try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(
-          `${apiUrl}/range-packs?subject_id=${selectedSubject}&grade=${selectedGrade}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) throw new Error('Failed to fetch range packs');
-        const data = await response.json();
+        const data = await rangePackService.getRangePacks(parseInt(selectedSubject), selectedGrade);
         setRangePacks(data.data || []);
       } catch (error) {
         console.error('Error fetching range packs:', error);
@@ -101,7 +83,7 @@ export default function PaperConfigurationPage() {
     };
 
     fetchRangePacks();
-  }, [selectedGrade, selectedSubject, apiUrl]);
+  }, [selectedGrade, selectedSubject]);
 
   // Handle grade change - reset dependent selections
   const handleGradeChange = (value: string) => {
