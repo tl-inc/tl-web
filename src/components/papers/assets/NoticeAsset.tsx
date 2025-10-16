@@ -1,6 +1,6 @@
 'use client';
 
-import { NoticeAssetData } from '@/types/paper';
+import type { NoticeAssetData } from '@/types/paper';
 
 interface NoticeAssetProps {
   asset: NoticeAssetData;

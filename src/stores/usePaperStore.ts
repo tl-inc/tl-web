@@ -3,7 +3,7 @@
  * 管理試卷相關的狀態
  */
 import { create } from 'zustand';
-import { PaperData, UserPaperResponse } from '@/types/paper';
+import type { PaperData, UserPaperResponse } from '@/types/paper';
 import { paperService } from '@/lib/api/paper';
 
 export type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';

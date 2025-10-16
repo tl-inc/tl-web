@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Loader2, AlertCircle, Clock, Play, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
-import { Exercise } from '@/types/paper';
+import type { Exercise } from '@/types/paper';
 import toast, { Toaster } from 'react-hot-toast';
 import { ClozeExercise } from '@/components/papers/exercises/ClozeExercise';
 import { MCQExercise } from '@/components/papers/exercises/MCQExercise';

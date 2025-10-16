@@ -5,7 +5,7 @@ import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { ItemType, ItemSetType } from '@/types/api';
+import type { ItemType, ItemSetType } from '@/types/api';
 import { analyticsService } from '@/lib/api/analytics';
 
 interface ItemTypeLevel {

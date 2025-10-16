@@ -1,6 +1,6 @@
 'use client';
 
-import { TimetableAssetData } from '@/types/paper';
+import type { TimetableAssetData } from '@/types/paper';
 
 interface TimetableAssetProps {
   asset: TimetableAssetData;

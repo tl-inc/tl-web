@@ -1,6 +1,6 @@
 'use client';
 
-import { Exercise } from '@/types/paper';
+import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 interface MCQExerciseProps {

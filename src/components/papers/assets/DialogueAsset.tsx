@@ -1,6 +1,6 @@
 'use client';
 
-import { DialogueAssetData } from '@/types/paper';
+import type { DialogueAssetData } from '@/types/paper';
 
 interface DialogueAssetProps {
   asset: DialogueAssetData;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Exercise } from '@/types/paper';
+import type { Exercise } from '@/types/paper';
 
 interface ClozeExerciseProps {
   exercise: Exercise;
@@ -13,7 +13,7 @@ export function ClozeExercise({ exercise, answers, onAnswerChange, mode }: Cloze
   const passageText = exercise.passage || exercise.asset_json?.passage;
   if (!passageText) return null;
 
-  let parts: React.ReactNode[] = [];
+  const parts: React.ReactNode[] = [];
   let text = passageText;
 
   // Sort by sequence

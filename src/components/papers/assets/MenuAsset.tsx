@@ -1,6 +1,6 @@
 'use client';
 
-import { MenuAssetData } from '@/types/paper';
+import type { MenuAssetData } from '@/types/paper';
 
 interface MenuAssetProps {
   asset: MenuAssetData;

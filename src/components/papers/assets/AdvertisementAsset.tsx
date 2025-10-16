@@ -1,6 +1,6 @@
 'use client';
 
-import { AdvertisementAssetData } from '@/types/paper';
+import type { AdvertisementAssetData } from '@/types/paper';
 
 interface AdvertisementAssetProps {
   asset: AdvertisementAssetData;
