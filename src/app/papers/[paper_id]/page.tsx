@@ -204,10 +204,10 @@ export default function PaperDetailPage() {
         {viewMode === 'scroll' ? (
           // 整頁模式 - 固定 header，可捲動內容
           <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 py-8 shadow-lg dark:shadow-gray-950/50 relative z-10">
+            <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 pt-8 pb-4 shadow-lg dark:shadow-gray-950/50 relative z-10">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-3">
                   {/* 第一列：標題 + ViewModeToggle */}
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
@@ -310,7 +310,7 @@ export default function PaperDetailPage() {
 
                 {/* Score Card - 只在已完成時顯示 */}
                 {mode === 'completed' && (
-                  <div className="mb-6">
+                  <div className="mb-3">
                     <ScoreCard
                       score={stats.score}
                       correctCount={stats.correctCount}
@@ -326,7 +326,7 @@ export default function PaperDetailPage() {
               {/* 頂部漸層淡入效果 */}
               <div className="sticky top-0 h-8 bg-gradient-to-b from-gray-50 dark:from-gray-900 to-transparent pointer-events-none z-10"></div>
 
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 -mt-8">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-6">
                 <div className="space-y-6">
                   {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
                 </div>
