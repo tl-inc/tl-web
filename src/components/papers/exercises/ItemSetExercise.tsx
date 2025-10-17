@@ -146,7 +146,7 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                           <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 ml-2" />
                         )}
                       </label>
-                      {/* Show why_correct for correct answer */}
+                      {/* Show why_correct for correct answer (always show in completed mode) */}
                       {showCorrect && option.is_correct && option.why_correct && (
                         <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
                           <div className="text-green-700 dark:text-green-300">
@@ -159,6 +159,14 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                         <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
                           <div className="text-red-700 dark:text-red-300">
                             <span className="font-semibold">✗ </span>{option.why_incorrect}
+                          </div>
+                        </div>
+                      )}
+                      {/* Show why_incorrect for correct answer if unanswered (to show what would be wrong) */}
+                      {showCorrect && isUnanswered && !option.is_correct && option.why_incorrect && (
+                        <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
+                          <div className="text-gray-600 dark:text-gray-400">
+                            <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
                           </div>
                         </div>
                       )}

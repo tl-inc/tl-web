@@ -251,6 +251,12 @@ export default function NavigationPanel() {
                   {status.icon}
                   <span className="text-sm text-gray-600 dark:text-gray-400">{status.label}</span>
                   {isMarked && <Bookmark className="h-3 w-3 fill-yellow-500 dark:fill-yellow-400 text-yellow-500 dark:text-yellow-400" />}
+                  {/* Show unanswered badge in completed mode */}
+                  {(mode === 'completed' || mode === 'abandoned') && status.status === 'unanswered' && (
+                    <span className="px-1.5 py-0.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded border border-amber-300 dark:border-amber-700">
+                      ⚠️
+                    </span>
+                  )}
                 </div>
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-500">{exercise.exercise_items.length}小題</span>
