@@ -64,6 +64,7 @@ export default function ProgressBar() {
               onClick={handleComplete}
               disabled={isSubmitting}
               size="sm"
+              className="bg-green-600 hover:bg-green-700"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
