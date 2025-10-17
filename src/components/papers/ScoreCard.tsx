@@ -1,4 +1,7 @@
-import { CheckCircle, XCircle, Target, TrendingUp } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { CheckCircle, XCircle, Target, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ScoreCardProps {
   score: number; // 0-100
@@ -7,6 +10,7 @@ interface ScoreCardProps {
 }
 
 export function ScoreCard({ score, correctCount, totalCount }: ScoreCardProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
   // 計算答錯數
   const incorrectCount = totalCount - correctCount;
 
@@ -58,59 +62,73 @@ export function ScoreCard({ score, correctCount, totalCount }: ScoreCardProps) {
   };
 
   return (
-    <div className={`rounded-xl border shadow-md p-8 bg-gradient-to-br ${theme.bg} ${theme.border}`}>
-      <div className="flex items-center justify-between">
-        {/* 左側：總分 */}
-        <div className="flex items-center gap-6">
-          <div className={`p-4 rounded-2xl ${theme.iconBg}`}>
-            <Target className={`w-12 h-12 ${theme.icon}`} />
+    <div className={`rounded-xl border shadow-md bg-gradient-to-br ${theme.bg} ${theme.border}`}>
+      {/* Header - 可點擊收合 */}
+      <div
+        className="flex items-center justify-between p-4 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors rounded-t-xl"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-4">
+          <div className={`p-3 rounded-xl ${theme.iconBg}`}>
+            <Target className={`w-8 h-8 ${theme.icon}`} />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">總分</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">總分</p>
             <div className="flex items-baseline gap-2">
-              <span className={`text-5xl font-bold ${theme.text}`}>{score}</span>
-              <span className="text-2xl font-semibold text-gray-500 dark:text-gray-400">分</span>
+              <span className={`text-3xl font-bold ${theme.text}`}>{score}</span>
+              <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">分</span>
+              <span className={`text-sm font-semibold ml-2 ${theme.text}`}>{getScoreLabel(score)}</span>
             </div>
-            <p className={`text-sm font-semibold mt-1 ${theme.text}`}>{getScoreLabel(score)}</p>
           </div>
         </div>
-
-        {/* 右側：答題統計 */}
-        <div className="flex gap-8">
-          {/* 答對數 */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/50">
-                <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{correctCount}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">答對</p>
-          </div>
-
-          {/* 答錯數 */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50">
-                <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{incorrectCount}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">答錯</p>
-          </div>
-
-          {/* 總題數 */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
-                <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{totalCount}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">總題數</p>
-          </div>
-        </div>
+        <button className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg transition-colors">
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          )}
+        </button>
       </div>
+
+      {/* Expandable content */}
+      {isExpanded && (
+        <div className="px-8 pb-8 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex gap-8 justify-center">
+            {/* 答對數 */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/50">
+                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">{correctCount}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">答對</p>
+            </div>
+
+            {/* 答錯數 */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50">
+                  <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-red-600 dark:text-red-400">{incorrectCount}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">答錯</p>
+            </div>
+
+            {/* 總題數 */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                  <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{totalCount}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">總題數</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

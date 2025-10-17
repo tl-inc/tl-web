@@ -55,10 +55,10 @@ describe('SidebarLayout', () => {
     expect(sidebar.getAttribute('data-mobile-open')).toBe('false');
   });
 
-  it('should have relative positioning wrapper', () => {
+  it('should have relative positioning wrapper when lockScroll is true', () => {
     const { container } = render(
       <SidebarProvider>
-        <SidebarLayout>
+        <SidebarLayout lockScroll={true}>
           <div>Test Content</div>
         </SidebarLayout>
       </SidebarProvider>
@@ -66,5 +66,18 @@ describe('SidebarLayout', () => {
 
     const wrapper = container.querySelector('.relative');
     expect(wrapper).toBeInTheDocument();
+  });
+
+  it('should not have relative positioning wrapper when lockScroll is false', () => {
+    const { container } = render(
+      <SidebarProvider>
+        <SidebarLayout lockScroll={false}>
+          <div>Test Content</div>
+        </SidebarLayout>
+      </SidebarProvider>
+    );
+
+    const wrapper = container.querySelector('.relative');
+    expect(wrapper).not.toBeInTheDocument();
   });
 });
