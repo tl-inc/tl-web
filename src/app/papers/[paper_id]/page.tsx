@@ -204,7 +204,7 @@ export default function PaperDetailPage() {
         {viewMode === 'scroll' ? (
           // 整頁模式 - 固定 header，可捲動內容
           <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 py-8">
+            <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 py-8 shadow-lg dark:shadow-gray-950/50 relative z-10">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Card */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
@@ -322,8 +322,11 @@ export default function PaperDetailPage() {
             </div>
 
             {/* 可捲動的題目區域 */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 relative">
+              {/* 頂部漸層淡入效果 */}
+              <div className="sticky top-0 h-8 bg-gradient-to-b from-gray-50 dark:from-gray-900 to-transparent pointer-events-none z-10"></div>
+
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 -mt-8">
                 <div className="space-y-6">
                   {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
                 </div>
