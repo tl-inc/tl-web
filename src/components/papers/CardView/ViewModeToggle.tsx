@@ -15,7 +15,7 @@ export default function ViewModeToggle() {
     <div className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1">
       <button
         onClick={() => setViewMode('scroll')}
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
           viewMode === 'scroll'
             ? 'bg-blue-500 dark:bg-blue-600 text-white shadow-sm'
             : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -27,7 +27,7 @@ export default function ViewModeToggle() {
       </button>
       <button
         onClick={() => setViewMode('card')}
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
           viewMode === 'card'
             ? 'bg-blue-500 dark:bg-blue-600 text-white shadow-sm'
             : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'

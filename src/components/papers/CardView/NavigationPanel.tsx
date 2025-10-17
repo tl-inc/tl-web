@@ -182,7 +182,7 @@ export default function NavigationPanel() {
         <h3 className="font-semibold text-gray-800 dark:text-gray-100">題目導航</h3>
         <button
           onClick={toggleNavigationPanel}
-          className="rounded-lg p-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          className="cursor-pointer rounded-lg p-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           aria-label="關閉導航面板"
         >
           <X className="h-5 w-5" />
@@ -217,7 +217,7 @@ export default function NavigationPanel() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded px-2 py-1 transition-colors ${
+              className={`cursor-pointer rounded px-2 py-1 transition-colors ${
                 filter === f
                   ? 'bg-blue-500 dark:bg-blue-600 text-white'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -236,7 +236,7 @@ export default function NavigationPanel() {
             <button
               key={exercise.id}
               onClick={() => jumpToExercise(index)}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+              className={`cursor-pointer flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                 index === currentExerciseIndex
                   ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-700'

@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { themeStorage } from '@/lib/storage';
 import { Menu, Moon, Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -65,7 +66,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             {showMenuButton && (
               <button
                 onClick={onMenuClick}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="cursor-pointer lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 aria-label="開啟選單"
               >
                 <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
@@ -82,7 +83,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="cursor-pointer p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label={isDark ? '切換到淺色模式' : '切換到暗色模式'}
             >
               {isDark ? (
@@ -99,7 +100,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   登出
                 </button>

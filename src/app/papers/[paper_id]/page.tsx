@@ -14,6 +14,7 @@ import { ScoreCard } from '@/components/papers/ScoreCard';
 import { usePaperStore } from '@/stores/usePaperStore';
 import ViewModeToggle from '@/components/papers/CardView/ViewModeToggle';
 import CardViewContainer from '@/components/papers/CardView/CardViewContainer';
+import { Button } from '@/components/ui/button';
 
 export default function PaperDetailPage() {
   const params = useParams();
@@ -158,12 +159,9 @@ export default function PaperDetailPage() {
               <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">載入失敗</h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-              <button
-                onClick={() => router.back()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <Button onClick={() => router.back()}>
                 返回
-              </button>
+              </Button>
             </div>
           </div>
         </SidebarLayout>
@@ -232,10 +230,10 @@ export default function PaperDetailPage() {
               {/* 第三列：操作按鈕 */}
               <div className="flex flex-wrap gap-2">
                 {mode === 'pending' && (
-                  <button
+                  <Button
                     onClick={handleStart}
                     disabled={isSubmitting}
-                    className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -243,15 +241,15 @@ export default function PaperDetailPage() {
                       <Play className="w-4 h-4" />
                     )}
                     <span>開始作答</span>
-                  </button>
+                  </Button>
                 )}
 
                 {mode === 'in_progress' && (
                   <>
-                    <button
+                    <Button
                       onClick={handleComplete}
                       disabled={isSubmitting}
-                      className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[120px] sm:flex-initial"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -259,11 +257,12 @@ export default function PaperDetailPage() {
                         <CheckCircle className="w-4 h-4" />
                       )}
                       <span>完成作答</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleAbandon}
                       disabled={isSubmitting}
-                      className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      variant="destructive"
+                      className="flex-1 min-w-[120px] sm:flex-initial"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -271,15 +270,15 @@ export default function PaperDetailPage() {
                         <XCircle className="w-4 h-4" />
                       )}
                       <span>放棄作答</span>
-                    </button>
+                    </Button>
                   </>
                 )}
 
                 {(mode === 'completed' || mode === 'abandoned') && (
-                  <button
+                  <Button
                     onClick={handleRenew}
                     disabled={isSubmitting}
-                    className="flex-1 min-w-[120px] sm:flex-initial px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 min-w-[120px] sm:flex-initial bg-purple-600 hover:bg-purple-700"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -287,7 +286,7 @@ export default function PaperDetailPage() {
                       <RotateCcw className="w-4 h-4" />
                     )}
                     <span>重新作答</span>
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -317,10 +316,11 @@ export default function PaperDetailPage() {
             {/* Bottom Actions */}
             {mode === 'in_progress' && (
               <div className="mt-8 flex justify-center gap-4">
-                <button
+                <Button
                   onClick={handleComplete}
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-lg font-semibold"
+                  size="lg"
+                  className="text-lg font-semibold"
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -328,7 +328,7 @@ export default function PaperDetailPage() {
                     <CheckCircle className="w-5 h-5" />
                   )}
                   完成作答
-                </button>
+                </Button>
               </div>
             )}
           </div>

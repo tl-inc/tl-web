@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Menu, Bookmark } from 'lucide-react';
 import { usePaperStore } from '@/stores/usePaperStore';
+import { Button } from '@/components/ui/button';
 
 /**
  * NavigationControls 組件
@@ -33,7 +34,7 @@ export default function NavigationControls() {
           className={`flex items-center gap-1 rounded-lg px-3 py-2 font-medium transition-colors md:gap-2 md:px-4 ${
             isFirstExercise
               ? 'cursor-not-allowed bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300 dark:active:bg-gray-500'
+              : 'cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300 dark:active:bg-gray-500'
           }`}
           aria-label="前一題"
         >
@@ -45,7 +46,7 @@ export default function NavigationControls() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleMarkExercise(currentExercise.id)}
-            className={`rounded-lg p-2 transition-colors active:scale-95 ${
+            className={`cursor-pointer rounded-lg p-2 transition-colors active:scale-95 ${
               isMarked
                 ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-900/70'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -56,7 +57,7 @@ export default function NavigationControls() {
           </button>
           <button
             onClick={toggleNavigationPanel}
-            className="rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95"
+            className="cursor-pointer rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95"
             aria-label="開啟目錄"
           >
             <Menu className="h-5 w-5" />
@@ -70,7 +71,7 @@ export default function NavigationControls() {
           className={`flex items-center gap-1 rounded-lg px-3 py-2 font-medium transition-colors md:gap-2 md:px-4 ${
             isLastExercise
               ? 'cursor-not-allowed bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-              : 'bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-700 active:bg-blue-700 dark:active:bg-blue-800'
+              : 'cursor-pointer bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-700 active:bg-blue-700 dark:active:bg-blue-800'
           }`}
           aria-label="下一題"
         >

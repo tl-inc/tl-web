@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import React, { Component } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   children: ReactNode;
@@ -83,12 +84,12 @@ function DefaultErrorFallback({ error }: { error?: Error }) {
           </div>
         )}
 
-        <button
+        <Button
           onClick={() => window.location.reload()}
-          className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          size="lg"
         >
           重新整理頁面
-        </button>
+        </Button>
       </div>
     </div>
   );

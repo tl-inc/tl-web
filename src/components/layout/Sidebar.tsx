@@ -71,7 +71,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         {/* Desktop Toggle Button */}
         <button
           onClick={handleToggle}
-          className="hidden lg:block absolute -right-3 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="cursor-pointer hidden lg:block absolute -right-3 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           {collapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -83,7 +83,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         {/* Mobile Close Button */}
         <button
           onClick={onMobileClose}
-          className="lg:hidden absolute right-4 top-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="cursor-pointer lg:hidden absolute right-4 top-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
