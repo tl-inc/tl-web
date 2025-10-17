@@ -78,7 +78,7 @@ export default function ProgressBar() {
       </div>
 
       {/* 第二行：ViewModeToggle 和按鈕 */}
-      <div className="flex items-center justify-between gap-4" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
         <ViewModeToggle />
         {mode === 'in_progress' && (
           <div className="flex items-center gap-2 shrink-0">
@@ -93,7 +93,7 @@ export default function ProgressBar() {
               ) : (
                 <CheckCircle className="w-4 h-4" />
               )}
-              <span>完成作答</span>
+              <span>完成</span>
             </Button>
             <Button
               onClick={handleAbandon}
@@ -106,7 +106,7 @@ export default function ProgressBar() {
               ) : (
                 <XCircle className="w-4 h-4" />
               )}
-              <span>放棄作答</span>
+              <span>放棄</span>
             </Button>
           </div>
         )}
