@@ -2,7 +2,7 @@
 
 import { usePaperStore } from '@/stores/usePaperStore';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 /**
@@ -15,6 +15,7 @@ export default function ProgressBar() {
   const mode = usePaperStore((state) => state.mode);
   const isSubmitting = usePaperStore((state) => state.isSubmitting);
   const completePaper = usePaperStore((state) => state.completePaper);
+  const abandonPaper = usePaperStore((state) => state.abandonPaper);
 
   if (!paper) return null;
 
@@ -35,6 +36,19 @@ export default function ProgressBar() {
     }
   };
 
+  // 放棄作答
+  const handleAbandon = async () => {
+    if (!confirm('確定要放棄作答嗎？')) return;
+
+    try {
+      await abandonPaper();
+      // 立即跳到頂部
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '放棄作答失敗');
+    }
+  };
+
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
       <div className="mb-2 flex items-center justify-between gap-4 text-sm">
@@ -45,19 +59,33 @@ export default function ProgressBar() {
           <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
         </div>
         {mode === 'in_progress' && (
-          <Button
-            onClick={handleComplete}
-            disabled={isSubmitting}
-            size="sm"
-            className="shrink-0"
-          >
-            {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <CheckCircle className="w-4 h-4" />
-            )}
-            <span>完成作答</span>
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              onClick={handleComplete}
+              disabled={isSubmitting}
+              size="sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              )}
+              <span>完成作答</span>
+            </Button>
+            <Button
+              onClick={handleAbandon}
+              disabled={isSubmitting}
+              size="sm"
+              variant="destructive"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <XCircle className="w-4 h-4" />
+              )}
+              <span>放棄作答</span>
+            </Button>
+          </div>
         )}
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
