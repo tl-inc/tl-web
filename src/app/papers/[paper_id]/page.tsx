@@ -331,9 +331,9 @@ export default function PaperDetailPage() {
           </div>
         ) : (
           // 卡片模式
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+          <div className="min-h-[100dvh] bg-gray-50 dark:bg-gray-900 py-8">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ height: 'calc(100vh - 8rem)' }}>
+              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ height: 'calc(100dvh - 8rem)' }}>
                 <CardViewContainer />
               </div>
             </div>
