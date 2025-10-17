@@ -98,18 +98,27 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
             const correctIdx = item.options.findIndex(opt => opt.is_correct);
             const userAnswer = answers.get(item.id);
             const isCorrect = userAnswer === correctIdx;
+            const correctOption = item.options[correctIdx];
 
             return (
-              <div key={item.id} className="mb-2">
-                <span className="font-medium">空格 {item.sequence}:</span>{' '}
-                <span className={isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                  {item.options[correctIdx]?.text}
-                  {!isCorrect && userAnswer !== undefined && userAnswer !== -1 && (
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      (你的答案: {item.options[userAnswer]?.text})
-                    </span>
-                  )}
-                </span>
+              <div key={item.id} className="mb-3">
+                <div>
+                  <span className="font-medium">空格 {item.sequence}:</span>{' '}
+                  <span className={isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                    {correctOption?.text}
+                    {!isCorrect && userAnswer !== undefined && userAnswer !== -1 && (
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">
+                        (你的答案: {item.options[userAnswer]?.text})
+                      </span>
+                    )}
+                  </span>
+                </div>
+                {/* Show why_correct */}
+                {correctOption?.why_correct && (
+                  <div className="mt-1 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs text-green-700 dark:text-green-300">
+                    <span className="font-semibold">✓ </span>{correctOption.why_correct}
+                  </div>
+                )}
               </div>
             );
           })}
