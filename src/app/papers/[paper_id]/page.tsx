@@ -199,7 +199,7 @@ export default function PaperDetailPage() {
         <Toaster position="top-center" />
         {viewMode === 'scroll' ? (
           // 整頁模式 - 固定 header，可捲動內容
-          <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 overflow-hidden">
+          <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
             <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 pt-8 pb-4 shadow-lg dark:shadow-gray-950/50 relative z-10">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Card */}
@@ -331,8 +331,8 @@ export default function PaperDetailPage() {
           </div>
         ) : (
           // 卡片模式
-          <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8">
-            <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ height: 'calc(100vh - 8rem)' }}>
                 <CardViewContainer />
               </div>
