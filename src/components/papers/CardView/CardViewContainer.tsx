@@ -41,8 +41,8 @@ export default function CardViewContainer() {
         {/* 進度條 */}
         <ProgressBar />
 
-        {/* 題目卡片 */}
-        <div className="flex-1 overflow-hidden">
+        {/* 題目卡片 - 統一捲動區域 */}
+        <div className="flex-1 overflow-y-auto">
           <ExerciseCard exercise={currentExercise} index={currentExerciseIndex} />
         </div>
 

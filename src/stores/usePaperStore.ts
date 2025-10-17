@@ -254,7 +254,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
 
   // Submit answer
   submitAnswer: async (exerciseId: number, exerciseItemId: number, answerIndex: number) => {
-    const { activeUserPaper, mode } = get();
+    const { activeUserPaper, mode, paper, currentExerciseIndex, viewMode } = get();
     if (!activeUserPaper) return;
 
     // 如果是 pending 狀態，自動開始考試
@@ -278,6 +278,23 @@ export const usePaperStore = create<PaperState>((set, get) => ({
       });
     } catch (error) {
       // Submit failed, but don't block user interaction
+    }
+
+    // 3. 卡片模式下：檢查是否完成當前題目的所有子題，自動跳到下一題
+    if (viewMode === 'card' && paper) {
+      const currentExercise = paper.exercises[currentExerciseIndex];
+      if (currentExercise) {
+        const allItems = currentExercise.exercise_items;
+        const answeredItems = allItems.filter(item => get().answers.has(item.id));
+
+        // 如果所有子題都答完了，且不是最後一題，自動跳到下一題
+        if (answeredItems.length === allItems.length && currentExerciseIndex < paper.exercises.length - 1) {
+          // 延遲 500ms 後自動跳題，讓使用者看到答案已選取
+          setTimeout(() => {
+            get().nextExercise();
+          }, 500);
+        }
+      }
     }
   },
 

@@ -235,7 +235,10 @@ export default function NavigationPanel() {
           {filteredExercises.map(({ exercise, index, status, isMarked }) => (
             <button
               key={exercise.id}
-              onClick={() => jumpToExercise(index)}
+              onClick={() => {
+                jumpToExercise(index);
+                toggleNavigationPanel(); // 自動收起導覽面板
+              }}
               className={`cursor-pointer flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                 index === currentExerciseIndex
                   ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'

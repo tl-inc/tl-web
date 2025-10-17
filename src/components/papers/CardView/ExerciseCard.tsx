@@ -108,7 +108,7 @@ export default function ExerciseCard({ exercise, index }: ExerciseCardProps) {
         opacity: { duration: 0.2 },
       }}
       {...swipeHandlers}
-      className="h-full w-full overflow-y-auto bg-gray-50 dark:bg-gray-900 px-4 py-6 md:px-6 md:py-8"
+      className="h-full w-full bg-gray-50 dark:bg-gray-900 px-4 py-6 md:px-6 md:py-8"
     >
       <div className="mx-auto max-w-4xl">
         {/* 題號標題 */}
