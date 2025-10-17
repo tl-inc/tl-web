@@ -199,7 +199,7 @@ export default function PaperDetailPage() {
         <Toaster position="top-center" />
         {viewMode === 'scroll' ? (
           // 整頁模式 - 固定 header，可捲動內容
-          <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
             <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 pt-8 pb-4 shadow-lg dark:shadow-gray-950/50 relative z-10">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Card */}
@@ -326,25 +326,6 @@ export default function PaperDetailPage() {
                 <div className="space-y-6">
                   {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
                 </div>
-
-                {/* Bottom Actions */}
-                {mode === 'in_progress' && (
-                  <div className="mt-8 flex justify-center gap-4">
-                    <Button
-                      onClick={handleComplete}
-                      disabled={isSubmitting}
-                      size="lg"
-                      className="text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <CheckCircle className="w-5 h-5" />
-                      )}
-                      完成作答
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
