@@ -7,12 +7,14 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const { mobileOpen, setMobileOpen } = useSidebar();
 
   return (
-    <div className="relative">
+    <div className="relative h-screen overflow-hidden">
       <Sidebar
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
       />
-      {children}
+      <div className="h-full overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 }
