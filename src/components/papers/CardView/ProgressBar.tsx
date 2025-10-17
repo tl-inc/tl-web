@@ -16,6 +16,7 @@ export default function ProgressBar() {
   const isSubmitting = usePaperStore((state) => state.isSubmitting);
   const completePaper = usePaperStore((state) => state.completePaper);
   const abandonPaper = usePaperStore((state) => state.abandonPaper);
+  const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
 
   if (!paper) return null;
 
@@ -50,7 +51,10 @@ export default function ProgressBar() {
   };
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
+    <div
+      className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors"
+      onClick={toggleNavigationPanel}
+    >
       <div className="mb-2 flex items-center justify-between gap-4 text-sm">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <span className="font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
@@ -59,7 +63,7 @@ export default function ProgressBar() {
           <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
         </div>
         {mode === 'in_progress' && (
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
             <Button
               onClick={handleComplete}
               disabled={isSubmitting}
