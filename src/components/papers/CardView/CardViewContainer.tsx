@@ -65,17 +65,17 @@ export default function CardViewContainer() {
         </div>
       </div>
 
-      {/* 右側：導航面板 - 桌面版固定，手機版抽屜 */}
+      {/* 右側：導航面板 - 覆蓋在題卡上 */}
       <AnimatePresence>
         {isNavigationPanelOpen && (
           <>
-            {/* 手機版遮罩 */}
+            {/* 遮罩 - 所有尺寸 */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+              className="fixed inset-0 z-40 bg-black bg-opacity-50"
               onClick={() => usePaperStore.getState().toggleNavigationPanel()}
             />
 
@@ -85,7 +85,7 @@ export default function CardViewContainer() {
               animate={{ x: 0 }}
               exit={{ x: 320 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed right-0 top-0 z-50 h-full w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl md:static md:z-auto md:shadow-none"
+              className="fixed right-0 top-0 z-50 h-full w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl"
             >
               <Suspense
                 fallback={
