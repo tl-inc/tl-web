@@ -1,6 +1,9 @@
 'use client';
 
 import { usePaperStore } from '@/stores/usePaperStore';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 /**
  * ProgressBar 組件
@@ -9,6 +12,9 @@ import { usePaperStore } from '@/stores/usePaperStore';
 export default function ProgressBar() {
   const paper = usePaperStore((state) => state.paper);
   const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
+  const mode = usePaperStore((state) => state.mode);
+  const isSubmitting = usePaperStore((state) => state.isSubmitting);
+  const completePaper = usePaperStore((state) => state.completePaper);
 
   if (!paper) return null;
 
@@ -16,13 +22,43 @@ export default function ProgressBar() {
   const currentNumber = currentExerciseIndex + 1;
   const progress = (currentNumber / totalExercises) * 100;
 
+  // 完成作答
+  const handleComplete = async () => {
+    if (!confirm('確定要完成作答嗎？完成後將無法修改答案。')) return;
+
+    try {
+      await completePaper();
+      // 立即跳到頂部
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '完成作答失敗');
+    }
+  };
+
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="font-medium text-gray-700 dark:text-gray-200">
-          題目 {currentNumber} / {totalExercises}
-        </span>
-        <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
+      <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <span className="font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+            題目 {currentNumber} / {totalExercises}
+          </span>
+          <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
+        </div>
+        {mode === 'in_progress' && (
+          <Button
+            onClick={handleComplete}
+            disabled={isSubmitting}
+            size="sm"
+            className="shrink-0"
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <CheckCircle className="w-4 h-4" />
+            )}
+            <span>完成作答</span>
+          </Button>
+        )}
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
         <div

@@ -50,6 +50,20 @@ export default function PaperDetailPage() {
     return () => reset();
   }, [paper_id, loadPaper, reset]);
 
+  // 卡片模式下禁止 body 捲動
+  useEffect(() => {
+    if (viewMode === 'card') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    // Cleanup
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [viewMode]);
+
   // 開始作答
   const handleStart = async () => {
     try {
