@@ -114,17 +114,27 @@ export const ExerciseTypeRadarChart = memo(
     return (
       <ResponsiveContainer width="100%" height={400}>
         <RadarChart data={radarData}>
-          <PolarGrid stroke="#e5e7eb" className="dark:stroke-gray-700" />
+          <PolarGrid
+            stroke="#e5e7eb"
+            strokeWidth={1}
+            className="dark:!stroke-gray-600"
+          />
           <PolarAngleAxis
             dataKey="subject"
-            tick={{ fill: '#6b7280', fontSize: 14 }}
-            className="dark:fill-gray-400"
+            tick={{
+              fill: '#6b7280',
+              fontSize: 14,
+              className: 'dark:!fill-gray-300'
+            }}
           />
           <PolarRadiusAxis
             angle={90}
             domain={[0, maxLevelInGroup]}
-            tick={{ fill: '#9ca3af', fontSize: 12 }}
-            className="dark:fill-gray-500"
+            tick={{
+              fill: '#9ca3af',
+              fontSize: 12,
+              className: 'dark:!fill-gray-400'
+            }}
           />
           <Radar
             name="等級"
@@ -132,7 +142,8 @@ export const ExerciseTypeRadarChart = memo(
             stroke="#3b82f6"
             fill="#3b82f6"
             fillOpacity={0.6}
-            className="cursor-pointer hover:fill-opacity-80 transition-opacity"
+            strokeWidth={2}
+            className="cursor-pointer hover:fill-opacity-80 transition-opacity dark:!stroke-blue-400 dark:!fill-blue-400"
             onClick={handleClick}
           />
           <Tooltip content={<CustomTooltip />} />
