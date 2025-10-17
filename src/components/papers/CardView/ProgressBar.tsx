@@ -53,63 +53,64 @@ export default function ProgressBar() {
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
-      {/* 第一行：進度資訊 */}
-      <div
-        className="mb-2 flex items-center justify-between gap-4 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors rounded px-2 py-1 -mx-2"
-        onClick={toggleNavigationPanel}
-      >
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+      {/* 進度資訊和按鈕 */}
+      <div className="mb-2 flex items-center justify-between gap-2 text-sm">
+        {/* 左側：進度資訊（可點擊開啟目錄） */}
+        <div
+          className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors rounded px-2 py-1 -ml-2"
+          onClick={toggleNavigationPanel}
+        >
           <span className="font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
             題目 {currentNumber} / {totalExercises}
           </span>
           <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
         </div>
+
+        {/* 右側：操作按鈕 */}
+        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {mode === 'in_progress' && (
+            <>
+              <Button
+                onClick={handleComplete}
+                disabled={isSubmitting}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                <span>完成</span>
+              </Button>
+              <Button
+                onClick={handleAbandon}
+                disabled={isSubmitting}
+                size="sm"
+                variant="destructive"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <XCircle className="w-4 h-4" />
+                )}
+                <span>放棄</span>
+              </Button>
+            </>
+          )}
+          <ViewModeToggle />
+        </div>
       </div>
 
       {/* 進度條 */}
       <div
-        className="mb-3 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 cursor-pointer"
+        className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 cursor-pointer"
         onClick={toggleNavigationPanel}
       >
         <div
           className="h-full rounded-full bg-blue-500 dark:bg-blue-600 transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
-      </div>
-
-      {/* 第二行：ViewModeToggle 和按鈕 */}
-      <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-        <ViewModeToggle />
-        {mode === 'in_progress' && (
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              onClick={handleComplete}
-              disabled={isSubmitting}
-              size="sm"
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <CheckCircle className="w-4 h-4" />
-              )}
-              <span>完成</span>
-            </Button>
-            <Button
-              onClick={handleAbandon}
-              disabled={isSubmitting}
-              size="sm"
-              variant="destructive"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <XCircle className="w-4 h-4" />
-              )}
-              <span>放棄</span>
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
