@@ -310,13 +310,13 @@ export default function PaperDetailPage() {
                 {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ minHeight: '500px', height: '70vh', maxHeight: '900px' }}>
+              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ height: 'calc(100vh - 8rem)' }}>
                 <CardViewContainer />
               </div>
             )}
 
-            {/* Bottom Actions */}
-            {mode === 'in_progress' && (
+            {/* Bottom Actions - 只在整頁模式顯示 */}
+            {mode === 'in_progress' && viewMode === 'scroll' && (
               <div className="mt-8 flex justify-center gap-4">
                 <Button
                   onClick={handleComplete}
