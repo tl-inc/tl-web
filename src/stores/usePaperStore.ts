@@ -167,8 +167,9 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   loadPaper: async (paperId: number) => {
     set({ isLoading: true, error: null });
 
-    // Default viewMode (could be restored from persist middleware if configured)
-    const savedViewMode: ViewMode = 'scroll';
+    // Default viewMode based on screen size: mobile uses card, desktop uses scroll
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024; // lg breakpoint
+    const savedViewMode: ViewMode = isMobile ? 'card' : 'scroll';
 
     try {
       // 1. 載入試卷資料

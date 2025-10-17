@@ -2,7 +2,7 @@
 
 import { usePaperStore } from '@/stores/usePaperStore';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle, Loader2, XCircle, RotateCcw, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ViewModeToggle from './ViewModeToggle';
 
@@ -15,8 +15,10 @@ export default function ProgressBar() {
   const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
   const mode = usePaperStore((state) => state.mode);
   const isSubmitting = usePaperStore((state) => state.isSubmitting);
+  const startPaper = usePaperStore((state) => state.startPaper);
   const completePaper = usePaperStore((state) => state.completePaper);
   const abandonPaper = usePaperStore((state) => state.abandonPaper);
+  const retryPaper = usePaperStore((state) => state.retryPaper);
   const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
 
   if (!paper) return null;
@@ -24,6 +26,15 @@ export default function ProgressBar() {
   const totalExercises = paper.exercises.length;
   const currentNumber = currentExerciseIndex + 1;
   const progress = (currentNumber / totalExercises) * 100;
+
+  // 開始作答
+  const handleStart = async () => {
+    try {
+      await startPaper();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '開始作答失敗');
+    }
+  };
 
   // 完成作答
   const handleComplete = async () => {
@@ -51,6 +62,15 @@ export default function ProgressBar() {
     }
   };
 
+  // 重新作答
+  const handleRenew = async () => {
+    try {
+      await retryPaper();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '重新作答失敗');
+    }
+  };
+
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
       {/* 進度資訊和按鈕 */}
@@ -63,11 +83,25 @@ export default function ProgressBar() {
           <span className="font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
             題目 {currentNumber} / {totalExercises}
           </span>
-          <span className="text-gray-500 dark:text-gray-400">{Math.round(progress)}%</span>
         </div>
 
         {/* 右側：操作按鈕 */}
         <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {mode === 'pending' && (
+            <Button
+              onClick={handleStart}
+              disabled={isSubmitting}
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              <span>開始</span>
+            </Button>
+          )}
           {mode === 'in_progress' && (
             <>
               <Button
@@ -97,6 +131,21 @@ export default function ProgressBar() {
                 <span>放棄</span>
               </Button>
             </>
+          )}
+          {(mode === 'completed' || mode === 'abandoned') && (
+            <Button
+              onClick={handleRenew}
+              disabled={isSubmitting}
+              size="sm"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RotateCcw className="w-4 h-4" />
+              )}
+              <span>重新</span>
+            </Button>
           )}
           <ViewModeToggle />
         </div>
