@@ -154,20 +154,25 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                           </div>
                         </div>
                       )}
-                      {/* Show why_incorrect for selected wrong answer */}
-                      {showCorrect && isSelected && !isCorrect && option.why_incorrect && (
+                      {/* Show why_incorrect for incorrect options */}
+                      {showCorrect && !option.is_correct && option.why_incorrect && (
                         <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
-                          <div className="text-red-700 dark:text-red-300">
-                            <span className="font-semibold">✗ </span>{option.why_incorrect}
-                          </div>
-                        </div>
-                      )}
-                      {/* Show why_incorrect for correct answer if unanswered (to show what would be wrong) */}
-                      {showCorrect && isUnanswered && !option.is_correct && option.why_incorrect && (
-                        <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
-                          <div className="text-gray-600 dark:text-gray-400">
-                            <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
-                          </div>
+                          {isSelected ? (
+                            // Selected wrong answer - red
+                            <div className="text-red-700 dark:text-red-300">
+                              <span className="font-semibold">✗ </span>{option.why_incorrect}
+                            </div>
+                          ) : isUnanswered ? (
+                            // Unanswered - gray info
+                            <div className="text-gray-600 dark:text-gray-400">
+                              <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
+                            </div>
+                          ) : (
+                            // Answered but not selected - gray info
+                            <div className="text-gray-600 dark:text-gray-400">
+                              <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
