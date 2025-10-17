@@ -189,8 +189,9 @@ export default function PaperDetailPage() {
         <Toaster position="top-center" />
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
+            {/* Header Card - 卡片模式下隱藏 */}
+            {viewMode === 'scroll' && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
               {/* 第一列：標題 + ViewModeToggle */}
               <div className="mb-4 flex items-center justify-between gap-4">
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
@@ -289,10 +290,11 @@ export default function PaperDetailPage() {
                   </Button>
                 )}
               </div>
-            </div>
+              </div>
+            )}
 
-            {/* Score Card - 只在已完成時顯示 */}
-            {mode === 'completed' && (
+            {/* Score Card - 只在已完成時顯示，且在整頁模式下 */}
+            {mode === 'completed' && viewMode === 'scroll' && (
               <div className="mb-6">
                 <ScoreCard
                   score={stats.score}
