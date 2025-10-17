@@ -201,154 +201,164 @@ export default function PaperDetailPage() {
     <ProtectedRoute>
       <SidebarLayout>
         <Toaster position="top-center" />
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header Card - 卡片模式下隱藏 */}
-            {viewMode === 'scroll' && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
-              {/* 第一列：標題 + ViewModeToggle */}
-              <div className="mb-4 flex items-center justify-between gap-4">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  試卷 #{paper.id}
-                </h1>
-                <ViewModeToggle />
-              </div>
+        {viewMode === 'scroll' ? (
+          // 整頁模式 - 固定 header，可捲動內容
+          <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 py-8">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                  {/* 第一列：標題 + ViewModeToggle */}
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                      試卷 #{paper.id}
+                    </h1>
+                    <ViewModeToggle />
+                  </div>
 
-              {/* 第二列：狀態資訊 */}
-              <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>題數: {paper.total_items}</span>
-                </div>
-                {mode === 'completed' && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-green-600 dark:text-green-400 font-semibold">已完成</span>
-                  </div>
-                )}
-                {mode === 'abandoned' && (
-                  <div className="flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-red-600 dark:text-red-400 font-semibold">已放棄</span>
-                  </div>
-                )}
-                {mode === 'in_progress' && (
-                  <div className="flex items-center gap-2">
-                    <Play className="w-4 h-4 text-blue-500" />
-                    <span className="text-blue-600 dark:text-blue-400 font-semibold">
-                      作答中 ({stats.correctCount}/{stats.totalCount})
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 第三列：操作按鈕 */}
-              <div className="flex flex-wrap gap-2">
-                {mode === 'pending' && (
-                  <Button
-                    onClick={handleStart}
-                    disabled={isSubmitting}
-                    className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Play className="w-4 h-4" />
+                  {/* 第二列：狀態資訊 */}
+                  <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>題數: {paper.total_items}</span>
+                    </div>
+                    {mode === 'completed' && (
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-green-600 dark:text-green-400 font-semibold">已完成</span>
+                      </div>
                     )}
-                    <span>開始作答</span>
-                  </Button>
-                )}
+                    {mode === 'abandoned' && (
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-red-500" />
+                        <span className="text-red-600 dark:text-red-400 font-semibold">已放棄</span>
+                      </div>
+                    )}
+                    {mode === 'in_progress' && (
+                      <div className="flex items-center gap-2">
+                        <Play className="w-4 h-4 text-blue-500" />
+                        <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                          作答中 ({stats.correctCount}/{stats.totalCount})
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
+                  {/* 第三列：操作按鈕 */}
+                  <div className="flex flex-wrap gap-2">
+                    {mode === 'pending' && (
+                      <Button
+                        onClick={handleStart}
+                        disabled={isSubmitting}
+                        className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                        <span>開始作答</span>
+                      </Button>
+                    )}
+
+                    {mode === 'in_progress' && (
+                      <>
+                        <Button
+                          onClick={handleComplete}
+                          disabled={isSubmitting}
+                          className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
+                        >
+                          {isSubmitting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
+                          <span>完成作答</span>
+                        </Button>
+                        <Button
+                          onClick={handleAbandon}
+                          disabled={isSubmitting}
+                          variant="destructive"
+                          className="flex-1 min-w-[120px] sm:flex-initial"
+                        >
+                          {isSubmitting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <XCircle className="w-4 h-4" />
+                          )}
+                          <span>放棄作答</span>
+                        </Button>
+                      </>
+                    )}
+
+                    {(mode === 'completed' || mode === 'abandoned') && (
+                      <Button
+                        onClick={handleRenew}
+                        disabled={isSubmitting}
+                        className="flex-1 min-w-[120px] sm:flex-initial bg-purple-600 hover:bg-purple-700"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <RotateCcw className="w-4 h-4" />
+                        )}
+                        <span>重新作答</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Score Card - 只在已完成時顯示 */}
+                {mode === 'completed' && (
+                  <div className="mb-6">
+                    <ScoreCard
+                      score={stats.score}
+                      correctCount={stats.correctCount}
+                      totalCount={stats.totalCount}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 可捲動的題目區域 */}
+            <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                <div className="space-y-6">
+                  {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
+                </div>
+
+                {/* Bottom Actions */}
                 {mode === 'in_progress' && (
-                  <>
+                  <div className="mt-8 flex justify-center gap-4">
                     <Button
                       onClick={handleComplete}
                       disabled={isSubmitting}
-                      className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
+                      size="lg"
+                      className="text-lg font-semibold bg-green-600 hover:bg-green-700"
                     >
                       {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle className="w-5 h-5" />
                       )}
-                      <span>完成作答</span>
+                      完成作答
                     </Button>
-                    <Button
-                      onClick={handleAbandon}
-                      disabled={isSubmitting}
-                      variant="destructive"
-                      className="flex-1 min-w-[120px] sm:flex-initial"
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <XCircle className="w-4 h-4" />
-                      )}
-                      <span>放棄作答</span>
-                    </Button>
-                  </>
-                )}
-
-                {(mode === 'completed' || mode === 'abandoned') && (
-                  <Button
-                    onClick={handleRenew}
-                    disabled={isSubmitting}
-                    className="flex-1 min-w-[120px] sm:flex-initial bg-purple-600 hover:bg-purple-700"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <RotateCcw className="w-4 h-4" />
-                    )}
-                    <span>重新作答</span>
-                  </Button>
+                  </div>
                 )}
               </div>
-              </div>
-            )}
-
-            {/* Score Card - 只在已完成時顯示，且在整頁模式下 */}
-            {mode === 'completed' && viewMode === 'scroll' && (
-              <div className="mb-6">
-                <ScoreCard
-                  score={stats.score}
-                  correctCount={stats.correctCount}
-                  totalCount={stats.totalCount}
-                />
-              </div>
-            )}
-
-            {/* Exercises - 根據 viewMode 切換顯示 */}
-            {viewMode === 'scroll' ? (
-              <div className="space-y-6">
-                {paper.exercises.map((exercise, index) => renderExercise(exercise, index))}
-              </div>
-            ) : (
+            </div>
+          </div>
+        ) : (
+          // 卡片模式
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md" style={{ height: 'calc(100vh - 8rem)' }}>
                 <CardViewContainer />
               </div>
-            )}
-
-            {/* Bottom Actions - 只在整頁模式顯示 */}
-            {mode === 'in_progress' && viewMode === 'scroll' && (
-              <div className="mt-8 flex justify-center gap-4">
-                <Button
-                  onClick={handleComplete}
-                  disabled={isSubmitting}
-                  size="lg"
-                  className="text-lg font-semibold bg-green-600 hover:bg-green-700"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-5 h-5" />
-                  )}
-                  完成作答
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </SidebarLayout>
     </ProtectedRoute>
   );
