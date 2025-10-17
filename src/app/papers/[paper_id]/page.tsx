@@ -264,7 +264,7 @@ export default function PaperDetailPage() {
                     <Button
                       onClick={handleComplete}
                       disabled={isSubmitting}
-                      className="flex-1 min-w-[120px] sm:flex-initial"
+                      className="flex-1 min-w-[120px] sm:flex-initial bg-green-600 hover:bg-green-700"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -336,7 +336,7 @@ export default function PaperDetailPage() {
                   onClick={handleComplete}
                   disabled={isSubmitting}
                   size="lg"
-                  className="text-lg font-semibold"
+                  className="text-lg font-semibold bg-green-600 hover:bg-green-700"
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
