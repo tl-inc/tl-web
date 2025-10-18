@@ -30,7 +30,7 @@
 
 ```bash
 # 複製專案
-git clone <repository-url>
+git clone https://github.com/tl-inc/tl-web.git
 cd tl-web
 
 # 安裝依賴
@@ -304,9 +304,9 @@ npm run test:coverage
 
 此專案已針對 Vercel 優化,可一鍵部署:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=<your-repo-url>)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tl-inc/tl-web)
 
-詳細部署步驟請參考 [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+詳細部署步驟請參考 [Vercel 部署指南](./docs/VERCEL_DEPLOYMENT.md)
 
 ### 自行部署
 
