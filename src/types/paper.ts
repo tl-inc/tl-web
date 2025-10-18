@@ -92,12 +92,6 @@ export interface StartPaperResponse {
 }
 
 // Asset types for different exercise types
-export interface ImageAssetData {
-  caption: string;
-  image_url: string;
-  image_prompt?: string;
-}
-
 export interface AudioAsset {
   url: string;
   text: string;
@@ -192,7 +186,6 @@ export interface TimetableAssetData {
 }
 
 export type AssetJsonData =
-  | ImageAssetData
   | MenuAssetData
   | NoticeAssetData
   | DialogueAssetData
