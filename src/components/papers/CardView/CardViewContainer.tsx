@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { usePaperStore } from '@/stores/usePaperStore';
 import ExerciseCard from './ExerciseCard';
@@ -20,9 +20,17 @@ export default function CardViewContainer() {
   const paper = usePaperStore((state) => state.paper);
   const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
   const isNavigationPanelOpen = usePaperStore((state) => state.isNavigationPanelOpen);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 啟用鍵盤快捷鍵
   useKeyboardNavigation();
+
+  // 切換題目時，自動捲動到頂部
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentExerciseIndex]);
 
   if (!paper || paper.exercises.length === 0) {
     return (
@@ -42,7 +50,7 @@ export default function CardViewContainer() {
         <ProgressBar />
 
         {/* 題目卡片 - 統一捲動區域 */}
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <ExerciseCard exercise={currentExercise} index={currentExerciseIndex} />
         </div>
 

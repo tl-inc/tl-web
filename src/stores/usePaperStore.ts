@@ -301,7 +301,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
 
   // Complete paper
   completePaper: async () => {
-    const { activeUserPaper } = get();
+    const { activeUserPaper, viewMode } = get();
     if (!activeUserPaper) return;
 
     set({ isSubmitting: true });
@@ -311,6 +311,8 @@ export const usePaperStore = create<PaperState>((set, get) => ({
         activeUserPaper: { ...activeUserPaper, status: 'completed', finished_at: data.finished_at },
         mode: 'completed',
         isSubmitting: false,
+        // 題卡模式：回到第一題；整頁模式會在 page.tsx 處理捲動
+        currentExerciseIndex: viewMode === 'card' ? 0 : get().currentExerciseIndex,
       });
     } catch (err) {
       set({ isSubmitting: false });
@@ -320,7 +322,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
 
   // Abandon paper
   abandonPaper: async () => {
-    const { activeUserPaper } = get();
+    const { activeUserPaper, viewMode } = get();
     if (!activeUserPaper) return;
 
     set({ isSubmitting: true });
@@ -331,6 +333,8 @@ export const usePaperStore = create<PaperState>((set, get) => ({
         activeUserPaper: abandonedPaper,
         mode: 'abandoned',
         isSubmitting: false,
+        // 題卡模式：回到第一題；整頁模式會在 page.tsx 處理捲動
+        currentExerciseIndex: viewMode === 'card' ? 0 : get().currentExerciseIndex,
       });
     } catch (err) {
       set({ isSubmitting: false });

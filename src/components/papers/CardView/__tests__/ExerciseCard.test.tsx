@@ -98,20 +98,12 @@ describe('ExerciseCard', () => {
       expect(screen.getByText('Type 1')).toBeInTheDocument();
     });
 
-    it('有 asset 時應該顯示 AssetDisplay', () => {
+    it('題卡模式不顯示 asset（asset 已移除）', () => {
       const exercise = createMockExercise(1, true);
 
       render(<ExerciseCard exercise={exercise} index={0} />);
 
-      expect(screen.getByTestId('asset-display')).toBeInTheDocument();
-      expect(screen.getByText('Asset: menu')).toBeInTheDocument();
-    });
-
-    it('沒有 asset 時不應該顯示 AssetDisplay', () => {
-      const exercise = createMockExercise(1, false);
-
-      render(<ExerciseCard exercise={exercise} index={0} />);
-
+      // 題卡模式已移除 asset 顯示區域
       expect(screen.queryByTestId('asset-display')).not.toBeInTheDocument();
     });
   });
@@ -228,7 +220,7 @@ describe('ExerciseCard', () => {
   });
 
   describe('整合測試', () => {
-    it('應該完整渲染所有元素 (MCQ 題型 + 有 asset)', () => {
+    it('應該完整渲染所有元素 (MCQ 題型)', () => {
       const exercise = createMockExercise(1, true);
 
       render(<ExerciseCard exercise={exercise} index={5} />);
@@ -239,8 +231,8 @@ describe('ExerciseCard', () => {
       // 題型標籤
       expect(screen.getByText('Type 1')).toBeInTheDocument();
 
-      // Asset
-      expect(screen.getByTestId('asset-display')).toBeInTheDocument();
+      // Asset 已移除
+      expect(screen.queryByTestId('asset-display')).not.toBeInTheDocument();
 
       // 題目內容
       expect(screen.getByTestId('mcq-exercise')).toBeInTheDocument();

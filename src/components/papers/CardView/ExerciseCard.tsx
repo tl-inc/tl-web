@@ -7,7 +7,6 @@ import { usePaperStore } from '@/stores/usePaperStore';
 import { MCQExercise } from '../exercises/MCQExercise';
 import { ClozeExercise } from '../exercises/ClozeExercise';
 import { ItemSetExercise } from '../exercises/ItemSetExercise';
-import AssetDisplay from '../assets/AssetDisplay';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -118,13 +117,6 @@ export default function ExerciseCard({ exercise, index }: ExerciseCardProps) {
             {exercise.exercise_type.name}
           </span>
         </div>
-
-        {/* 素材顯示 */}
-        {exercise.asset_json && (
-          <div className="mb-4 md:mb-6">
-            <AssetDisplay asset={exercise.asset_json} />
-          </div>
-        )}
 
         {/* 題目內容 */}
         <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm md:p-6">

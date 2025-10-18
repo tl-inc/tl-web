@@ -92,10 +92,10 @@ export interface StartPaperResponse {
 }
 
 // Asset types for different exercise types
-export interface ImageAsset {
-  url: string;
-  prompt: string;
-  description: string;
+export interface ImageAssetData {
+  caption: string;
+  image_url: string;
+  image_prompt?: string;
 }
 
 export interface AudioAsset {
@@ -192,6 +192,7 @@ export interface TimetableAssetData {
 }
 
 export type AssetJsonData =
+  | ImageAssetData
   | MenuAssetData
   | NoticeAssetData
   | DialogueAssetData

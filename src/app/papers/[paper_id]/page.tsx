@@ -84,8 +84,10 @@ export default function PaperDetailPage() {
 
     try {
       await completePaper();
-      // 立即跳到頂部
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      // 整頁模式：捲到頂部（題卡模式已在 store 中處理）
+      if (viewMode === 'scroll') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '完成作答失敗');
     }
@@ -97,8 +99,10 @@ export default function PaperDetailPage() {
 
     try {
       await abandonPaper();
-      // 立即跳到頂部
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      // 整頁模式：捲到頂部（題卡模式已在 store 中處理）
+      if (viewMode === 'scroll') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '放棄作答失敗');
     }

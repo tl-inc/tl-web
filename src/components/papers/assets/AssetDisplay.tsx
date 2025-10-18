@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import type { AssetJsonData } from '@/types/paper';
 import { usePaperStore } from '@/stores/usePaperStore';
+import { ImageAsset } from './ImageAsset';
 import { MenuAsset } from './MenuAsset';
 import { NoticeAsset } from './NoticeAsset';
 import { DialogueAsset } from './DialogueAsset';
@@ -23,6 +24,11 @@ export const AssetDisplay = memo(function AssetDisplay({ asset }: AssetDisplayPr
   if (!asset) return null;
 
   // 根據 asset 的屬性判斷類型
+  // 圖片素材
+  if ('image_url' in asset && 'caption' in asset) {
+    return <ImageAsset asset={asset} />;
+  }
+
   if ('menu' in asset) {
     return <MenuAsset asset={asset} mode={mode} />;
   }
