@@ -90,6 +90,16 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
         {parts}
       </div>
 
+      {/* Show translation in completed mode */}
+      {mode === 'completed' && sortedItems[0]?.metadata?.translation && (
+        <div className="mt-3 p-3 bg-gray-50/80 dark:bg-gray-800/80 rounded-lg border-l-4 border-blue-400">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="font-semibold">翻譯：</span>
+            {sortedItems[0].metadata.translation}
+          </div>
+        </div>
+      )}
+
       {/* Show answers in completed mode */}
       {mode === 'completed' && (
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded">

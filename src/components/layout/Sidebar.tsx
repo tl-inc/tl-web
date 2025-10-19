@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, History, BarChart3, TrendingUp, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { BookOpen, History, BarChart3, TrendingUp, ChevronLeft, ChevronRight, X, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const sidebarItems = [
@@ -11,6 +11,11 @@ const sidebarItems = [
     title: '開始練習',
     icon: BookOpen,
     href: '/paper-configuration',
+  },
+  {
+    title: '刷題挑戰',
+    icon: Zap,
+    href: '/exercise-session-configuration',
   },
   {
     title: '考卷回顧',

@@ -32,7 +32,7 @@ describe('Sidebar', () => {
 
       // Each nav item should have an icon (svg element)
       const icons = container.querySelectorAll('nav svg');
-      expect(icons.length).toBe(4);
+      expect(icons.length).toBe(5);
     });
 
     it('should highlight active navigation item', () => {

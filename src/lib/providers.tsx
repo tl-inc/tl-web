@@ -7,13 +7,19 @@ import { useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import Header from '@/components/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { ScrollToTop } from '@/components/ScrollToTop';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 function HeaderWithSidebar() {
-  const { toggleMobile } = useSidebar();
-  return <Header onMenuClick={toggleMobile} />;
+  const { toggleMobile, mobileOpen, setMobileOpen } = useSidebar();
+  return (
+    <>
+      <Header onMenuClick={toggleMobile} />
+      <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
+    </>
+  );
 }
 
 export function Providers({ children }: { children: ReactNode }) {
