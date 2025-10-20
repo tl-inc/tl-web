@@ -3,7 +3,7 @@
 import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
-import { StructuredText } from './StructuredText';
+import { StructuredText, findHighlightedIndices } from './StructuredText';
 
 interface MCQExerciseProps {
   exercise: Exercise;
@@ -21,15 +21,27 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
     [item?.question]
   );
 
-  if (!item) return null;
-
-  // 檢查是否有結構化拆解
-  const hasStructuredBreakdown = item.metadata?.structured_breakdown && item.metadata.structured_breakdown.length > 0;
-
-
-  const userAnswer = answers.get(item.id);
+  // Calculate variables that depend on item - must be before early return
+  const userAnswer = item ? answers.get(item.id) : undefined;
   const isUnanswered = userAnswer === undefined;
   const showCorrect = mode === 'completed';
+  const hasStructuredBreakdown = item?.metadata?.structured_breakdown && item.metadata.structured_breakdown.length > 0;
+
+  // 計算需要 highlight 的索引 - must be before early return to follow hooks rules
+  const highlightedIndices = useMemo(() => {
+    if (!item || !showCorrect || !hasStructuredBreakdown) return undefined;
+
+    // 找出正確答案
+    const correctOption = item.options.find(opt => opt.is_correct);
+    if (!correctOption) return undefined;
+
+    return findHighlightedIndices(
+      item.metadata!.structured_breakdown!,
+      [correctOption.text]
+    );
+  }, [item, showCorrect, hasStructuredBreakdown]);
+
+  if (!item) return null;
 
   return (
     <div className="space-y-4">
@@ -40,10 +52,11 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
               {/* 作答模式:顯示原文 (有挖洞) */}
               {!showCorrect && displayQuestion}
 
-              {/* 公布答案模式:顯示結構化文本 (完整句子) */}
+              {/* 公布答案模式:顯示結構化文本 (完整句子,highlight 正確答案) */}
               {showCorrect && hasStructuredBreakdown && (
                 <StructuredText
                   breakdown={item.metadata!.structured_breakdown!}
+                  highlightedIndices={highlightedIndices}
                 />
               )}
 

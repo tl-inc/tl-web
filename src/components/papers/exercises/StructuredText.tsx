@@ -3,11 +3,75 @@
 import { memo, useState, useEffect, useRef } from 'react';
 import type { StructuredBreakdownUnit } from '@/types/paper';
 
+/**
+ * 在結構化文本中尋找連續匹配的 units，用於 highlight 正確答案
+ *
+ * @param breakdown - 結構化拆解單位陣列
+ * @param correctAnswers - 正確答案陣列（可能包含多個單字的字串，如 "is eating"）
+ * @returns 需要 highlight 的 unit 索引集合
+ */
+export function findHighlightedIndices(
+  breakdown: StructuredBreakdownUnit[],
+  correctAnswers: string[]
+): Set<number> {
+  const highlighted = new Set<number>();
+
+  correctAnswers.forEach(answer => {
+    // Tokenize 答案（用空格分割，並過濾空字串）
+    const tokens = answer.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return;
+
+    // 遍歷 breakdown，尋找連續匹配
+    for (let i = 0; i <= breakdown.length - tokens.length; i++) {
+      let matchCount = 0;
+      let currentIndex = i;
+
+      // 嘗試匹配所有 tokens
+      for (let j = 0; j < tokens.length; j++) {
+        // 跳過標點符號
+        while (currentIndex < breakdown.length && breakdown[currentIndex].pos === '標點符號') {
+          currentIndex++;
+        }
+
+        if (currentIndex >= breakdown.length) break;
+
+        const unit = breakdown[currentIndex];
+        if (unit.content.toLowerCase() === tokens[j]) {
+          matchCount++;
+          currentIndex++;
+        } else {
+          break;
+        }
+      }
+
+      // 如果所有 tokens 都匹配成功
+      if (matchCount === tokens.length) {
+        // 標記這些匹配的 units（不包括標點符號）
+        let tokenIndex = 0;
+        for (let k = i; k < breakdown.length && tokenIndex < tokens.length; k++) {
+          if (breakdown[k].pos === '標點符號') continue;
+          if (breakdown[k].content.toLowerCase() === tokens[tokenIndex]) {
+            highlighted.add(k);
+            tokenIndex++;
+          }
+        }
+        break; // 找到一個匹配就停止（避免重複標記）
+      }
+    }
+  });
+
+  return highlighted;
+}
+
 interface StructuredTextProps {
   /**
    * 結構化拆解單位 (完整句子,沒有 blank)
    */
   breakdown: StructuredBreakdownUnit[];
+  /**
+   * 需要 highlight 的 unit 索引集合 (用於標記正確答案)
+   */
+  highlightedIndices?: Set<number>;
 }
 
 /**
@@ -21,6 +85,7 @@ interface StructuredTextProps {
  */
 export const StructuredText = memo(function StructuredText({
   breakdown,
+  highlightedIndices,
 }: StructuredTextProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLSpanElement>(null);
@@ -31,7 +96,6 @@ export const StructuredText = memo(function StructuredText({
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         if (activeIndex !== null) {
           e.stopPropagation();
-          e.preventDefault();
           setActiveIndex(null);
         }
       }
@@ -39,7 +103,7 @@ export const StructuredText = memo(function StructuredText({
 
     if (activeIndex !== null) {
       document.addEventListener('mousedown', handleClickOutside, true);
-      document.addEventListener('touchstart', handleClickOutside, true);
+      document.addEventListener('touchstart', handleClickOutside, { capture: true, passive: false });
     }
 
     return () => {
@@ -55,6 +119,7 @@ export const StructuredText = memo(function StructuredText({
           key={idx}
           unit={unit}
           isActive={activeIndex === idx}
+          isHighlighted={highlightedIndices?.has(idx) ?? false}
           onToggle={() => setActiveIndex(activeIndex === idx ? null : idx)}
         />
       ))}
@@ -68,10 +133,12 @@ export const StructuredText = memo(function StructuredText({
 const UnitSpan = memo(function UnitSpan({
   unit,
   isActive,
+  isHighlighted,
   onToggle,
 }: {
   unit: StructuredBreakdownUnit;
   isActive: boolean;
+  isHighlighted: boolean;
   onToggle: () => void;
 }) {
   const isPunctuation = unit.pos === '標點符號';
@@ -85,14 +152,8 @@ const UnitSpan = memo(function UnitSpan({
     onToggle();
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
   const handleTouchEnd = (e: React.TouchEvent) => {
     e.stopPropagation();
-    e.preventDefault();
     onToggle();
   };
   return (
@@ -100,13 +161,13 @@ const UnitSpan = memo(function UnitSpan({
       <span
         className="relative inline-block cursor-pointer"
         onClick={handleClick}
-        onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         tabIndex={0}
       >
         <span className={`
           rounded transition-all duration-200
           ${isActive ? 'bg-blue-200 dark:bg-blue-800/50 px-1 py-0.5 scale-105' : ''}
+          ${isHighlighted && !isActive ? 'bg-yellow-200 dark:bg-yellow-600/40 px-1 py-0.5 font-semibold' : ''}
         `}>
           {unit.content}
         </span>

@@ -3,7 +3,7 @@
 import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { StructuredText } from './StructuredText';
+import { StructuredText, findHighlightedIndices } from './StructuredText';
 
 interface ClozeExerciseProps {
   exercise: Exercise;
@@ -19,12 +19,25 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
   const passageBreakdown = exercise.asset_json?.passage_structured_breakdown;
   const hasStructuredBreakdown = passageBreakdown && Array.isArray(passageBreakdown) && passageBreakdown.length > 0;
 
-
   // Memoize sorted items to avoid re-sorting on every render
   const sortedItems = useMemo(
     () => [...exercise.exercise_items].sort((a, b) => a.sequence - b.sequence),
     [exercise.exercise_items]
   );
+
+  // 計算需要 highlight 的索引
+  const highlightedIndices = useMemo(() => {
+    if (mode !== 'completed' || !hasStructuredBreakdown || !passageBreakdown) return undefined;
+
+    // 收集所有正確答案
+    const correctAnswers = sortedItems
+      .map(item => item.options.find(opt => opt.is_correct)?.text)
+      .filter((text): text is string => Boolean(text));
+
+    if (correctAnswers.length === 0) return undefined;
+
+    return findHighlightedIndices(passageBreakdown, correctAnswers);
+  }, [mode, hasStructuredBreakdown, passageBreakdown, sortedItems]);
 
   // Memoize the parts generation
   const parts = useMemo(() => {
@@ -98,10 +111,13 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
           {parts}
         </div>
       ) : (
-        /* 完成後:顯示結構化文本 (完整句子,不 highlight) 或原本的 parts */
+        /* 完成後:顯示結構化文本 (完整句子,highlight 正確答案) 或原本的 parts */
         <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
           {hasStructuredBreakdown && passageBreakdown ? (
-            <StructuredText breakdown={passageBreakdown} />
+            <StructuredText
+              breakdown={passageBreakdown}
+              highlightedIndices={highlightedIndices}
+            />
           ) : (
             parts
           )}
