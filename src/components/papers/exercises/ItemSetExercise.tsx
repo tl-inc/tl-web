@@ -8,6 +8,7 @@ import { NoticeAsset } from '../assets/NoticeAsset';
 import { TimetableAsset } from '../assets/TimetableAsset';
 import { AdvertisementAsset } from '../assets/AdvertisementAsset';
 import { DialogueAsset } from '../assets/DialogueAsset';
+import { StructuredText } from './StructuredText';
 
 interface ItemSetExerciseProps {
   exercise: Exercise;
@@ -20,6 +21,11 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
   const passageText = exercise.passage || exercise.asset_json?.passage;
   const imageUrl = exercise.image_url || exercise.asset_json?.image_url;
   const audioUrl = exercise.audio_url || exercise.asset_json?.audio_url;
+
+  // Type 6 (Reading) - check for structured breakdown
+  const isReading = exercise.exercise_type_id === 6;
+  const passageBreakdown = exercise.asset_json?.passage_structured_breakdown;
+  const hasStructuredBreakdown = isReading && passageBreakdown && Array.isArray(passageBreakdown) && passageBreakdown.length > 0;
 
   // Listening comprehension (type 7) shows transcript only in completed mode
   const isListening = exercise.exercise_type_id === 7;
@@ -68,7 +74,12 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
       {!isInformationReading && shouldShowPassage && (
         <div className="p-5 bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
           <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
-            {passageText}
+            {/* Type 6 (Reading) 完成模式：顯示結構化文本 */}
+            {mode === 'completed' && hasStructuredBreakdown && passageBreakdown ? (
+              <StructuredText breakdown={passageBreakdown} />
+            ) : (
+              passageText
+            )}
           </div>
           {/* Show passage translation */}
           {mode === 'completed' && exercise.asset_json?.translation && (
@@ -86,6 +97,7 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
           const displayQuestion = item.question?.replace(/\{\{blank(_\d+)?\}\}/g, '____') || '';
           const isUnanswered = userAnswer === undefined;
           const showCorrect = mode === 'completed';
+          const hasItemStructuredBreakdown = item.metadata?.structured_breakdown && item.metadata.structured_breakdown.length > 0;
 
           return (
             <div key={item.id} className="bg-white/40 dark:bg-gray-800/40 p-4 rounded-lg">
@@ -95,7 +107,18 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1">{displayQuestion}</div>
+                    <div className="flex-1">
+                      {/* 作答模式：顯示原文 */}
+                      {!showCorrect && displayQuestion}
+
+                      {/* 完成模式：顯示結構化文本 */}
+                      {showCorrect && hasItemStructuredBreakdown && (
+                        <StructuredText breakdown={item.metadata!.structured_breakdown!} />
+                      )}
+
+                      {/* 沒有結構化文本時的 fallback */}
+                      {showCorrect && !hasItemStructuredBreakdown && displayQuestion}
+                    </div>
                     {/* Unanswered badge */}
                     {showCorrect && isUnanswered && (
                       <span className="px-2 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
