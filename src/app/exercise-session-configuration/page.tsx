@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { useCreateSession } from '@/hooks/exerciseSession/useExerciseSession';
 import { rangePackService } from '@/lib/api/rangePack';
 import { useQuery } from '@tanstack/react-query';
@@ -78,151 +80,155 @@ export default function ExerciseSessionConfigurationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container max-w-2xl mx-auto px-4 py-4 sm:py-8">
-        {/* 返回按鈕 */}
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/dashboard')}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          返回
-        </Button>
-
-      {/* 標題 */}
-      <div className="mb-6 text-center">
-        <div className="flex items-center justify-center gap-2">
-          <Flame className="h-8 w-8 text-orange-500" />
-          <h1 className="text-3xl font-bold">刷題挑戰</h1>
-        </div>
-      </div>
-
-      {/* 配置表單 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>練習設定</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* 年級選擇 */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              年級 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={grade.toString()}
-              onValueChange={(value) => setGrade(parseInt(value))}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="選擇年級" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">七年級</SelectItem>
-                <SelectItem value="8">八年級</SelectItem>
-                <SelectItem value="9">九年級</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 科目選擇 */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              選擇科目 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={subjectId.toString()}
-              onValueChange={(value) => setSubjectId(parseInt(value))}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="選擇科目" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjectsData?.subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id.toString()}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 範圍包選擇 */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              選擇練習範圍 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={rangePackId?.toString() || ''}
-              onValueChange={(value) => setRangePackId(parseInt(value))}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="請選擇範圍" />
-              </SelectTrigger>
-              <SelectContent>
-                {rangePacksData?.data.map((pack) => (
-                  <SelectItem key={pack.id} value={pack.id.toString()}>
-                    {pack.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 題型選擇 */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              選擇題型 <span className="text-red-500">*</span>
-              <span className="text-sm text-muted-foreground ml-2">
-                (至少選一種)
-              </span>
-            </label>
-            <div className="space-y-2">
-              {EXERCISE_TYPES.map((type) => (
-                <label
-                  key={type.id}
-                  className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-muted"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedExerciseTypes.includes(type.id)}
-                    onChange={() => toggleExerciseType(type.id)}
-                    className="w-4 h-4"
-                  />
-                  <span className="flex-1">{type.display_name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* 提示訊息 */}
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              ℹ️ 系統會根據你的表現自動調整難度
-            </p>
-          </div>
-
-          {/* 提交按鈕 */}
-          <div className="flex gap-3">
+    <ProtectedRoute>
+      <SidebarLayout>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="container max-w-2xl mx-auto px-4 py-4 sm:py-8">
+            {/* 返回按鈕 */}
             <Button
-              onClick={handleSubmit}
-              disabled={!isFormValid || createSession.isPending}
-              className="flex-1"
-              size="lg"
-            >
-              {createSession.isPending ? '建立中...' : '開始練習'}
-            </Button>
-            <Button
+              variant="ghost"
               onClick={() => router.push('/dashboard')}
-              variant="outline"
-              className="flex-1"
-              size="lg"
+              className="mb-4"
             >
-              取消
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回
             </Button>
+
+            {/* 標題 */}
+            <div className="mb-6 text-center">
+              <div className="flex items-center justify-center gap-2">
+                <Flame className="h-8 w-8 text-orange-500" />
+                <h1 className="text-3xl font-bold">刷題挑戰</h1>
+              </div>
+            </div>
+
+            {/* 配置表單 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>練習設定</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* 年級選擇 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    年級 <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={grade.toString()}
+                    onValueChange={(value) => setGrade(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="選擇年級" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">七年級</SelectItem>
+                      <SelectItem value="8">八年級</SelectItem>
+                      <SelectItem value="9">九年級</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 科目選擇 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    選擇科目 <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={subjectId.toString()}
+                    onValueChange={(value) => setSubjectId(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="選擇科目" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjectsData?.subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id.toString()}>
+                          {subject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 範圍包選擇 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    選擇練習範圍 <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={rangePackId?.toString() || ''}
+                    onValueChange={(value) => setRangePackId(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="請選擇範圍" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rangePacksData?.data.map((pack) => (
+                        <SelectItem key={pack.id} value={pack.id.toString()}>
+                          {pack.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 題型選擇 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    選擇題型 <span className="text-red-500">*</span>
+                    <span className="text-sm text-muted-foreground ml-2">
+                      (至少選一種)
+                    </span>
+                  </label>
+                  <div className="space-y-2">
+                    {EXERCISE_TYPES.map((type) => (
+                      <label
+                        key={type.id}
+                        className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-muted"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedExerciseTypes.includes(type.id)}
+                          onChange={() => toggleExerciseType(type.id)}
+                          className="w-4 h-4"
+                        />
+                        <span className="flex-1">{type.display_name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 提示訊息 */}
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    ℹ️ 系統會根據你的表現自動調整難度
+                  </p>
+                </div>
+
+                {/* 提交按鈕 */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!isFormValid || createSession.isPending}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {createSession.isPending ? '建立中...' : '開始練習'}
+                  </Button>
+                  <Button
+                    onClick={() => router.push('/dashboard')}
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    取消
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
-      </div>
-    </div>
+        </div>
+      </SidebarLayout>
+    </ProtectedRoute>
   );
 }

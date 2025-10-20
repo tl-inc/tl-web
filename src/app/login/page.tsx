@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
@@ -9,11 +9,15 @@ import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // 取得 redirect 參數
+  const redirect = searchParams.get('redirect') || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +26,8 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      router.push('/dashboard');
+      // 登入成功後導向到原本想去的頁面
+      router.push(redirect);
     } catch (err: unknown) {
       const errorMessage =
         err && typeof err === 'object' && 'response' in err && err.response &&
@@ -44,7 +49,8 @@ export default function LoginPage() {
         throw new Error('No credential received');
       }
       await googleLogin(credentialResponse.credential);
-      router.push('/dashboard');
+      // 登入成功後導向到原本想去的頁面
+      router.push(redirect);
     } catch (err: unknown) {
       const errorMessage =
         err && typeof err === 'object' && 'response' in err && err.response &&

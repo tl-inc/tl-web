@@ -65,7 +65,7 @@ describe('ProtectedRoute', () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
-        `/?redirect=${encodeURIComponent(mockPathname)}`
+        `/login?redirect=${encodeURIComponent(mockPathname)}`
       );
     });
 
@@ -162,7 +162,7 @@ describe('ProtectedRoute', () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
-        `/?redirect=${encodeURIComponent(customPathname)}`
+        `/login?redirect=${encodeURIComponent(customPathname)}`
       );
     });
   });

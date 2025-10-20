@@ -11,8 +11,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) {
-      // 未登入，重定向到首頁，並帶上 redirect 參數
-      router.push(`/?redirect=${encodeURIComponent(pathname)}`);
+      // 未登入,重定向到登入頁面,並帶上 redirect 參數
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [user, loading, router, pathname]);
 

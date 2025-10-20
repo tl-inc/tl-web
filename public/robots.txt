@@ -1,0 +1,15 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /papers/
+Disallow: /paper-configuration
+Disallow: /paper-history
+Disallow: /analytics
+Disallow: /chart
+Disallow: /exercise-session-configuration
+Disallow: /exercise-sessions/
+
+# Sitemap
+Sitemap: https://testlearn.app/sitemap.xml

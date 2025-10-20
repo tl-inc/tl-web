@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { themeStorage } from '@/lib/storage';
@@ -73,8 +74,17 @@ export default function Header({ onMenuClick }: HeaderProps) {
               </button>
             )}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
-                Test Learn
+              <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/logo.svg"
+                  alt="Test Learn Logo"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8"
+                />
+                <span className="text-xl font-bold text-gray-900 dark:text-white">
+                  Test Learn
+                </span>
               </Link>
             </div>
           </div>
