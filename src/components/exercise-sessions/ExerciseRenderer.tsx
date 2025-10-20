@@ -54,6 +54,18 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
       options: question.content.options as any[],
       metadata: (question.content.metadata as any) || null,
     }];
+  } else if (typeId === 4) {
+    // Cloze (克漏字) 格式：多個 items
+    // content.items 是陣列,每個 item 有 sequence, options
+    const items = (question.content.items as any[]) || [];
+    exerciseItems = items.map((item) => ({
+      id: item.id || item.exercise_item_id,
+      exercise_id: question.exercise_id,
+      sequence: item.sequence,
+      question: null,
+      options: item.options,
+      metadata: item.metadata || null,
+    }));
   }
 
   const exercise: Exercise = {
@@ -88,6 +100,18 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
   if (typeId === 1 || typeId === 2 || typeId === 3) {
     return (
       <MCQExercise
+        exercise={exercise}
+        answers={answersMap}
+        onAnswerChange={handleAnswerChange}
+        mode={disabled ? 'completed' : 'in_progress'}
+      />
+    );
+  }
+
+  // 克漏字 (4) 使用 ClozeExercise
+  if (typeId === 4) {
+    return (
+      <ClozeExercise
         exercise={exercise}
         answers={answersMap}
         onAnswerChange={handleAnswerChange}

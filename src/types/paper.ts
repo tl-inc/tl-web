@@ -16,6 +16,14 @@ export interface ExerciseItemOption {
   why_incorrect?: string | null;
 }
 
+// Structured Breakdown Unit
+export interface StructuredBreakdownUnit {
+  content: string;
+  translation: string;
+  pos: string;
+  explanation: string;
+}
+
 // Exercise Item (子題)
 export interface ExerciseItem {
   id: number;
@@ -25,6 +33,7 @@ export interface ExerciseItem {
   options: ExerciseItemOption[];
   metadata?: {
     translation?: string;
+    structured_breakdown?: StructuredBreakdownUnit[] | null;
   } | null;
 }
 
@@ -185,10 +194,18 @@ export interface TimetableAssetData {
   schedule: TimetableTrip[];
 }
 
+// Cloze and Reading passage asset with structured breakdown
+export interface PassageAssetData {
+  passage?: string;
+  translation?: string;
+  passage_structured_breakdown?: StructuredBreakdownUnit[] | null;
+}
+
 export type AssetJsonData =
   | MenuAssetData
   | NoticeAssetData
   | DialogueAssetData
   | AdvertisementAssetData
   | TimetableAssetData
+  | PassageAssetData
   | Record<string, unknown>;  // Fallback for unknown asset types

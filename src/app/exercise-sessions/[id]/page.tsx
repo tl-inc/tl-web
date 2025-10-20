@@ -41,6 +41,9 @@ export default function ExerciseSessionPage() {
   // 滑動手勢相關
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
+  const isSwiping = useRef<boolean>(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // React Query hooks
@@ -123,23 +126,46 @@ export default function ExerciseSessionPage() {
   // 滑動手勢處理
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+    isSwiping.current = false;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+
+    // 檢查是否有明顯的滑動動作（移動距離超過 10px）
+    const deltaX = Math.abs(touchEndX.current - touchStartX.current);
+    const deltaY = Math.abs(touchEndY.current - touchStartY.current);
+
+    if (deltaX > 10 || deltaY > 10) {
+      isSwiping.current = true;
+    }
   };
 
   const handleTouchEnd = () => {
     // 只在顯示反饋時才允許滑動換題
     if (!showFeedback) return;
 
-    const swipeDistance = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50; // 最小滑動距離（像素）
+    // 如果沒有滑動動作（只是點擊），不處理
+    if (!isSwiping.current) return;
+
+    const swipeDistanceX = touchStartX.current - touchEndX.current;
+    const swipeDistanceY = Math.abs(touchStartY.current - touchEndY.current);
+    const minSwipeDistance = 80; // 增加最小滑動距離到 80px，更不容易誤觸
+
+    // 確保是水平滑動而不是垂直滑動（水平距離要大於垂直距離）
+    if (Math.abs(swipeDistanceX) <= swipeDistanceY) return;
 
     // 向左滑動（換下一題）
-    if (swipeDistance > minSwipeDistance) {
+    if (swipeDistanceX > minSwipeDistance) {
       handleNext();
     }
+
+    // 重置狀態
+    isSwiping.current = false;
   };
 
   // Loading 狀態

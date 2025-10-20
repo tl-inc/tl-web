@@ -3,6 +3,7 @@
 import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { StructuredText } from './StructuredText';
 
 interface MCQExerciseProps {
   exercise: Exercise;
@@ -22,6 +23,10 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
 
   if (!item) return null;
 
+  // 檢查是否有結構化拆解
+  const hasStructuredBreakdown = item.metadata?.structured_breakdown && item.metadata.structured_breakdown.length > 0;
+
+
   const userAnswer = answers.get(item.id);
   const isUnanswered = userAnswer === undefined;
   const showCorrect = mode === 'completed';
@@ -32,7 +37,18 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
         <div className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 p-3 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg border-l-4 border-blue-400">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              {displayQuestion}
+              {/* 作答模式:顯示原文 (有挖洞) */}
+              {!showCorrect && displayQuestion}
+
+              {/* 公布答案模式:顯示結構化文本 (完整句子) */}
+              {showCorrect && hasStructuredBreakdown && (
+                <StructuredText
+                  breakdown={item.metadata!.structured_breakdown!}
+                />
+              )}
+
+              {/* 沒有結構化文本時的 fallback */}
+              {showCorrect && !hasStructuredBreakdown && displayQuestion}
             </div>
             {/* Unanswered badge */}
             {showCorrect && isUnanswered && (

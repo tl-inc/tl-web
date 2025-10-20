@@ -3,6 +3,7 @@
 import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StructuredText } from './StructuredText';
 
 interface ClozeExerciseProps {
   exercise: Exercise;
@@ -13,6 +14,11 @@ interface ClozeExerciseProps {
 
 export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, onAnswerChange, mode }: ClozeExerciseProps) {
   const passageText = exercise.passage || exercise.asset_json?.passage;
+
+  // 檢查是否有結構化拆解 (存在 asset_json.passage_structured_breakdown)
+  const passageBreakdown = exercise.asset_json?.passage_structured_breakdown;
+  const hasStructuredBreakdown = passageBreakdown && Array.isArray(passageBreakdown) && passageBreakdown.length > 0;
+
 
   // Memoize sorted items to avoid re-sorting on every render
   const sortedItems = useMemo(
@@ -86,16 +92,28 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
 
   return (
     <div className="space-y-4">
-      <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
-        {parts}
-      </div>
+      {/* 進行中:顯示 dropdown */}
+      {mode === 'in_progress' || mode === 'pending' ? (
+        <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
+          {parts}
+        </div>
+      ) : (
+        /* 完成後:顯示結構化文本 (完整句子,不 highlight) 或原本的 parts */
+        <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
+          {hasStructuredBreakdown && passageBreakdown ? (
+            <StructuredText breakdown={passageBreakdown} />
+          ) : (
+            parts
+          )}
+        </div>
+      )}
 
       {/* Show translation in completed mode */}
-      {mode === 'completed' && sortedItems[0]?.metadata?.translation && (
+      {mode === 'completed' && exercise.asset_json?.translation && (
         <div className="mt-3 p-3 bg-gray-50/80 dark:bg-gray-800/80 rounded-lg border-l-4 border-blue-400">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             <span className="font-semibold">翻譯：</span>
-            {sortedItems[0].metadata.translation}
+            {exercise.asset_json.translation}
           </div>
         </div>
       )}
