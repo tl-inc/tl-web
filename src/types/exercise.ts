@@ -141,12 +141,3 @@ export type ExerciseTypeName =
   | 'advertisement'       // 廣告
   | 'dialogue';           // 對話
 
-// Helper function to check exercise type
-export function isExerciseType(exercise: Exercise, typeName: ExerciseTypeName): boolean {
-  return exercise.exercise_type.name === typeName;
-}
-
-// Helper to get asset as specific type
-export function getAssetAs<T>(exercise: Exercise): T | null {
-  return exercise.asset_json as T | null;
-}
