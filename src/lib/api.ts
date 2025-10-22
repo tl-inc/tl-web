@@ -10,7 +10,29 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { tokenStorage } from './storage';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+// Dynamically determine API URL based on hostname
+const getApiBaseUrl = () => {
+  // Server-side rendering: use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  }
+
+  // Client-side: determine based on hostname
+  const hostname = window.location.hostname;
+
+  if (hostname === 'staging.test-learn.com') {
+    return 'https://tl-public-api-staging-363061754177.asia-east1.run.app/api/v1';
+  }
+
+  if (hostname === 'www.test-learn.com' || hostname === 'test-learn.com') {
+    return 'https://tl-public-api-363061754177.asia-east1.run.app/api/v1';
+  }
+
+  // Fallback to environment variable or localhost
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
