@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaper } from '@/stores/paper';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { CheckCircle, Loader2, XCircle, RotateCcw, Play, Target } from 'lucide-react';
@@ -16,16 +16,18 @@ export default function ProgressBar() {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [showAbandonDialog, setShowAbandonDialog] = useState(false);
 
-  const paper = usePaperStore((state) => state.paper);
-  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
-  const mode = usePaperStore((state) => state.mode);
-  const isSubmitting = usePaperStore((state) => state.isSubmitting);
-  const startPaper = usePaperStore((state) => state.startPaper);
-  const completePaper = usePaperStore((state) => state.completePaper);
-  const abandonPaper = usePaperStore((state) => state.abandonPaper);
-  const retryPaper = usePaperStore((state) => state.retryPaper);
-  const calculateStats = usePaperStore((state) => state.calculateStats);
-  const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
+  const {
+    paper,
+    currentExerciseIndex,
+    mode,
+    isSubmitting,
+    startPaper,
+    completePaper,
+    abandonPaper,
+    retryPaper,
+    calculateStats,
+    toggleNavigationPanel,
+  } = usePaper();
 
   if (!paper) return null;
 

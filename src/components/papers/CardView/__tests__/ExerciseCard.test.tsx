@@ -1,7 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ExerciseCard from '../ExerciseCard';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
+import { usePaperActions } from '@/stores/paper/usePaperActions';
 import type { Exercise } from '@/types/paper';
 
 // Mock framer-motion
@@ -78,10 +79,12 @@ const createMockExercise = (exerciseTypeId: number, includeAsset: boolean = fals
 
 describe('ExerciseCard', () => {
   beforeEach(() => {
-    // 重置 store
-    usePaperStore.setState({
+    // 重置 stores
+    usePaperDataStore.setState({
       mode: 'pending',
       answers: new Map(),
+    });
+    usePaperCardViewStore.setState({
       navigationDirection: 'right',
     });
   });
@@ -179,7 +182,7 @@ describe('ExerciseCard', () => {
 
   describe('動畫方向', () => {
     it('direction=right 時應該從右側進入', () => {
-      usePaperStore.setState({ navigationDirection: 'right' });
+      usePaperCardViewStore.setState({ navigationDirection: 'right' });
       const exercise = createMockExercise(1);
 
       const { container } = render(<ExerciseCard exercise={exercise} index={0} />);
@@ -190,7 +193,7 @@ describe('ExerciseCard', () => {
     });
 
     it('direction=left 時應該從左側進入', () => {
-      usePaperStore.setState({ navigationDirection: 'left' });
+      usePaperCardViewStore.setState({ navigationDirection: 'left' });
       const exercise = createMockExercise(1);
 
       const { container } = render(<ExerciseCard exercise={exercise} index={0} />);

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import CardViewContainer from '@/components/papers/CardView/CardViewContainer';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
 import { useEffect } from 'react';
 import type { PaperData } from '@/types/paper';
 
@@ -63,7 +63,7 @@ const meta = {
           markedExercises?: Set<number>;
           currentExerciseIndex?: number;
         };
-        usePaperStore.setState({
+        usePaperDataStore, usePaperCardViewStore.setState({
           paper: args.paper || createMockPaper(5),
           mode: args.mode || 'in_progress',
           answers: args.answers || new Map(),
@@ -263,7 +263,7 @@ export const WithNavigationPanelOpen: Story = {
     (Story, context) => {
       useEffect(() => {
         // 打開導航面板
-        usePaperStore.setState({ isNavigationPanelOpen: true });
+        usePaperDataStore, usePaperCardViewStore.setState({ isNavigationPanelOpen: true });
       }, []);
 
       return (

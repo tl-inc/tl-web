@@ -1,20 +1,20 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Menu, Bookmark } from 'lucide-react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
 
 /**
  * NavigationControls 組件
  * 前一題、後一題、目錄、標記按鈕
  */
 export default function NavigationControls() {
-  const paper = usePaperStore((state) => state.paper);
-  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
-  const previousExercise = usePaperStore((state) => state.previousExercise);
-  const nextExercise = usePaperStore((state) => state.nextExercise);
-  const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
-  const toggleMarkExercise = usePaperStore((state) => state.toggleMarkExercise);
-  const markedExercises = usePaperStore((state) => state.markedExercises);
+  const paper = usePaperDataStore((state) => state.paper);
+  const currentExerciseIndex = usePaperCardViewStore((state) => state.currentExerciseIndex);
+  const previousExercise = usePaperCardViewStore((state) => state.previousExercise);
+  const nextExercise = usePaperCardViewStore((state) => state.nextExercise);
+  const toggleNavigationPanel = usePaperCardViewStore((state) => state.toggleNavigationPanel);
+  const toggleMarkExercise = usePaperCardViewStore((state) => state.toggleMarkExercise);
+  const markedExercises = usePaperCardViewStore((state) => state.markedExercises);
 
   if (!paper) return null;
 

@@ -15,7 +15,7 @@ export { usePaperActions } from './usePaperActions';
 export type { PageMode } from './usePaperDataStore';
 export type { ViewMode } from './usePaperCardViewStore';
 
-// Re-export a unified hook for backward compatibility
+// Unified hook that combines all paper-related stores
 export const usePaper = () => {
   const data = usePaperDataStore();
   const ui = usePaperUIStore();

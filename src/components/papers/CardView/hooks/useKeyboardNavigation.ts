@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaper } from '@/stores/paper';
 
 /**
  * useKeyboardNavigation Hook
@@ -14,14 +14,16 @@ import { usePaperStore } from '@/stores/usePaperStore';
  * - 數字鍵 1-9: 快速跳到指定題號
  */
 export function useKeyboardNavigation() {
-  const paper = usePaperStore((state) => state.paper);
-  const viewMode = usePaperStore((state) => state.viewMode);
-  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
-  const previousExercise = usePaperStore((state) => state.previousExercise);
-  const nextExercise = usePaperStore((state) => state.nextExercise);
-  const jumpToExercise = usePaperStore((state) => state.jumpToExercise);
-  const toggleMarkExercise = usePaperStore((state) => state.toggleMarkExercise);
-  const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
+  const {
+    paper,
+    viewMode,
+    currentExerciseIndex,
+    previousExercise,
+    nextExercise,
+    jumpToExercise,
+    toggleMarkExercise,
+    toggleNavigationPanel,
+  } = usePaper();
 
   useEffect(() => {
     // 只在卡片模式下啟用鍵盤快捷鍵

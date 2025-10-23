@@ -1,7 +1,7 @@
 'use client';
 
 import { LayoutList, LayoutGrid } from 'lucide-react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperCardViewStore } from '@/stores/paper';
 
 /**
  * ViewModeToggle 組件
@@ -9,8 +9,8 @@ import { usePaperStore } from '@/stores/usePaperStore';
  * 在 A 模式顯示切換到 B 模式的按鈕
  */
 export default function ViewModeToggle() {
-  const viewMode = usePaperStore((state) => state.viewMode);
-  const setViewMode = usePaperStore((state) => state.setViewMode);
+  const viewMode = usePaperCardViewStore((state) => state.viewMode);
+  const setViewMode = usePaperCardViewStore((state) => state.setViewMode);
 
   const toggleViewMode = () => {
     setViewMode(viewMode === 'scroll' ? 'card' : 'scroll');

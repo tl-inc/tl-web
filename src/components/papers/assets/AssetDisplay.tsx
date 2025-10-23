@@ -9,7 +9,7 @@ import type {
   AdvertisementAssetData,
   NoticeAssetData,
 } from '@/types/paper';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore } from '@/stores/paper';
 import { MenuAsset } from './MenuAsset';
 import { NoticeAsset } from './NoticeAsset';
 import { DialogueAsset } from './DialogueAsset';
@@ -25,7 +25,7 @@ interface AssetDisplayProps {
  * 根據素材類型動態渲染對應的 Asset 組件
  */
 export const AssetDisplay = memo(function AssetDisplay({ asset }: AssetDisplayProps) {
-  const mode = usePaperStore((state) => state.mode);
+  const mode = usePaperDataStore((state) => state.mode);
 
   if (!asset) return null;
 

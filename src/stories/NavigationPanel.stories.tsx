@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import NavigationPanel from '@/components/papers/CardView/NavigationPanel';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
 import { useEffect } from 'react';
 import type { PaperData } from '@/types/paper';
 
@@ -58,7 +58,7 @@ const meta = {
           currentExerciseIndex?: number;
         };
         const { paper, mode, answers, markedExercises, currentExerciseIndex } = args;
-        usePaperStore.setState({
+        usePaperDataStore, usePaperCardViewStore.setState({
           paper: paper || createMockPaper(10),
           mode: mode || 'pending',
           answers: answers || new Map(),

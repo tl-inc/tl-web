@@ -2,7 +2,7 @@
 
 import { X, Check, Circle, AlertCircle, Bookmark, Filter, AlertTriangle } from 'lucide-react';
 import { useMemo, useState, useCallback } from 'react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaper } from '@/stores/paper';
 import type { Exercise } from '@/types/paper';
 
 type FilterType = 'all' | 'unanswered' | 'answered' | 'correct' | 'incorrect' | 'marked';
@@ -12,13 +12,8 @@ type FilterType = 'all' | 'unanswered' | 'answered' | 'correct' | 'incorrect' | 
  * 顯示題目導航列表，根據模式顯示不同資訊
  */
 export default function NavigationPanel() {
-  const paper = usePaperStore((state) => state.paper);
-  const mode = usePaperStore((state) => state.mode);
-  const answers = usePaperStore((state) => state.answers);
-  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
-  const jumpToExercise = usePaperStore((state) => state.jumpToExercise);
-  const toggleNavigationPanel = usePaperStore((state) => state.toggleNavigationPanel);
-  const markedExercises = usePaperStore((state) => state.markedExercises);
+  const { paper, mode, answers, currentExerciseIndex, jumpToExercise, toggleNavigationPanel, markedExercises } =
+    usePaper();
 
   const [filter, setFilter] = useState<FilterType>('all');
 

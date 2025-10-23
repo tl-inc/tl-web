@@ -13,7 +13,7 @@ import { PaperHeader } from '@/components/papers/PaperHeader';
 import { PaperActionButtons } from '@/components/papers/PaperActionButtons';
 import { ExerciseCard } from '@/components/papers/ExerciseCard';
 import CardViewContainer from '@/components/papers/CardView/CardViewContainer';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaper } from '@/stores/paper';
 import { PageLoading } from '@/components/common/PageLoading';
 import { EmptyState } from '@/components/common/EmptyState';
 
@@ -25,7 +25,7 @@ export default function PaperDetailPage() {
   const router = useRouter();
   const paper_id = params.paper_id as string;
 
-  // Zustand store
+  // Paper store
   const {
     paper,
     mode,
@@ -42,7 +42,7 @@ export default function PaperDetailPage() {
     retryPaper,
     calculateStats,
     reset,
-  } = usePaperStore();
+  } = usePaper();
 
   // 載入試卷
   useEffect(() => {

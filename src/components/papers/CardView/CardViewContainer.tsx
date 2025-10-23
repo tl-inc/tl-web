@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Suspense, lazy, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
 import ExerciseCard from './ExerciseCard';
 import NavigationControls from './NavigationControls';
 import ProgressBar from './ProgressBar';
@@ -18,9 +18,9 @@ const NavigationPanel = lazy(() => import('./NavigationPanel'));
  * 卡片式檢閱模式的主容器
  */
 export default function CardViewContainer() {
-  const paper = usePaperStore((state) => state.paper);
-  const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
-  const isNavigationPanelOpen = usePaperStore((state) => state.isNavigationPanelOpen);
+  const paper = usePaperDataStore((state) => state.paper);
+  const currentExerciseIndex = usePaperCardViewStore((state) => state.currentExerciseIndex);
+  const isNavigationPanelOpen = usePaperCardViewStore((state) => state.isNavigationPanelOpen);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 啟用鍵盤快捷鍵

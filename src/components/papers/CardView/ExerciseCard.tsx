@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useSwipeable } from 'react-swipeable';
 import type { Exercise } from '@/types/paper';
-import { usePaperStore } from '@/stores/usePaperStore';
+import { usePaper } from '@/stores/paper';
 import { MCQExercise } from '../exercises/MCQExercise';
 import { ClozeExercise } from '../exercises/ClozeExercise';
 import { ItemSetExercise } from '../exercises/ItemSetExercise';
@@ -18,12 +18,7 @@ interface ExerciseCardProps {
  * 單題卡片，包含題目、素材、答題區
  */
 export default function ExerciseCard({ exercise, index }: ExerciseCardProps) {
-  const mode = usePaperStore((state) => state.mode);
-  const answers = usePaperStore((state) => state.answers);
-  const submitAnswer = usePaperStore((state) => state.submitAnswer);
-  const nextExercise = usePaperStore((state) => state.nextExercise);
-  const previousExercise = usePaperStore((state) => state.previousExercise);
-  const direction = usePaperStore((state) => state.navigationDirection);
+  const { mode, answers, submitAnswer, nextExercise, previousExercise, navigationDirection: direction } = usePaper();
 
   // Swipe handlers for mobile
   const swipeHandlers = useSwipeable({
