@@ -17,6 +17,7 @@ import type { usePaper } from './paper';
 import { usePaperDataStore } from './paper/usePaperDataStore';
 import { usePaperUIStore } from './paper/usePaperUIStore';
 import { usePaperCardViewStore } from './paper/usePaperCardViewStore';
+import { usePaperActions } from './paper/usePaperActions';
 
 // Selector type for backward compatibility
 type Selector<T> = (state: ReturnType<typeof usePaper>) => T;
@@ -25,10 +26,11 @@ type Selector<T> = (state: ReturnType<typeof usePaper>) => T;
 function usePaperStoreCompat(): ReturnType<typeof usePaper>;
 function usePaperStoreCompat<T>(selector: Selector<T>): T;
 function usePaperStoreCompat<T>(selector?: Selector<T>) {
-  // Get state from all three stores
+  // Get state from all four stores
   const dataState = usePaperDataStore();
   const uiState = usePaperUIStore();
   const cardViewState = usePaperCardViewStore();
+  const actions = usePaperActions();
 
   // Wrap navigation methods to auto-provide maxIndex (matching usePaper implementation)
   const nextExercise = () => {
@@ -52,6 +54,7 @@ function usePaperStoreCompat<T>(selector?: Selector<T>) {
     ...dataState,
     ...uiState,
     ...cardViewState,
+    ...actions,
     // Override with wrapped navigation functions
     nextExercise,
     previousExercise,
