@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import user from '@testing-library/user-event';
 import NavigationPanel from '../NavigationPanel';
 import { usePaperStore } from '@/stores/usePaperStore';
-import type { PaperData } from '@/types/paper';
+import type { PaperData, Exercise } from '@/types/paper';
 
 // Mock Lucide icons
 vi.mock('lucide-react', () => ({
@@ -25,22 +25,29 @@ const createMockPaper = (exerciseCount: number = 5): PaperData => ({
     id: i + 1,
     exercise_type_id: 1,
     exercise_type: { id: 1, name: 'MCQ' },
+    subject_id: 1,
     difficulty_bundle_id: 1,
+    passage: null,
+    audio_url: null,
+    image_url: null,
+    asset_json: null,
+    created_at: new Date().toISOString(),
     question: `Question ${i + 1}`,
     exercise_items: [
       {
         id: (i + 1) * 10,
         exercise_id: i + 1,
+        sequence: 1,
         question: `Item ${i + 1}`,
         options: [
-          { id: 1, content: 'A', is_correct: true },
-          { id: 2, content: 'B', is_correct: false },
+          { text: 'A', is_correct: true },
+          { text: 'B', is_correct: false },
         ],
       },
     ],
-  })),
+  } as Exercise)),
+  total_items: exerciseCount,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
 });
 
 describe('NavigationPanel', () => {

@@ -2,16 +2,26 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-utils';
 import { ClozeExercise } from '../ClozeExercise';
 import userEvent from '@testing-library/user-event';
+import type { Exercise } from '@/types/paper';
 
 describe('ClozeExercise', () => {
-  const mockExercise = {
+  const mockExercise: Exercise = {
     id: 1,
     exercise_type_id: 2,
+    subject_id: 1,
+    difficulty_bundle_id: 1,
+    audio_url: null,
+    image_url: null,
+    asset_json: null,
+    exercise_type: { id: 2, name: 'cloze' },
+    created_at: new Date().toISOString(),
     passage: 'The cat {{blank_1}} on the mat and {{blank_2}} a nap.',
     exercise_items: [
       {
         id: 101,
+        exercise_id: 1,
         sequence: 1,
+        question: 'blank_1',
         options: [
           { text: 'sits', is_correct: true },
           { text: 'sitting', is_correct: false },
@@ -20,7 +30,9 @@ describe('ClozeExercise', () => {
       },
       {
         id: 102,
+        exercise_id: 1,
         sequence: 2,
+        question: 'blank_2',
         options: [
           { text: 'takes', is_correct: true },
           { text: 'taking', is_correct: false },
@@ -37,7 +49,7 @@ describe('ClozeExercise', () => {
   });
 
   it('should return null when passage is not available', () => {
-    const exerciseWithoutPassage = { ...mockExercise, passage: null, asset_json: null };
+    const exerciseWithoutPassage = { ...mockExercise, passage: null, asset_json: null } as Exercise;
     const { container } = render(
       <ClozeExercise
         exercise={exerciseWithoutPassage}
@@ -248,7 +260,7 @@ describe('ClozeExercise', () => {
           options: [{ text: 'test', is_correct: true }],
         },
       ],
-    };
+    } as Exercise;
 
     render(
       <ClozeExercise
@@ -270,7 +282,7 @@ describe('ClozeExercise', () => {
         mockExercise.exercise_items[1], // sequence 2
         mockExercise.exercise_items[0], // sequence 1
       ],
-    };
+    } as Exercise;
 
     render(
       <ClozeExercise

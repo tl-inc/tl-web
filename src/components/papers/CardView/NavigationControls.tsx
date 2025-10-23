@@ -2,7 +2,6 @@
 
 import { ChevronLeft, ChevronRight, Menu, Bookmark } from 'lucide-react';
 import { usePaperStore } from '@/stores/usePaperStore';
-import { Button } from '@/components/ui/button';
 
 /**
  * NavigationControls 組件

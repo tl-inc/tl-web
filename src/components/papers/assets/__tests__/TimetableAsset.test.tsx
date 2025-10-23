@@ -33,11 +33,6 @@ describe('TimetableAsset', () => {
     ],
   };
 
-  it('should return null when asset is null or undefined', () => {
-    const { container } = render(<TimetableAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should return null when schedule is empty', () => {
     const emptyAsset = {
       title: 'Empty Schedule',

@@ -19,19 +19,19 @@ vi.mock('react-swipeable', () => ({
 // Mock child components
 vi.mock('../../exercises/MCQExercise', () => ({
   MCQExercise: ({ exercise }: any) => (
-    <div data-testid="mcq-exercise">MCQ: {exercise.question}</div>
+    <div data-testid="mcq-exercise">MCQ: {exercise.exercise_items[0]?.question || ''}</div>
   ),
 }));
 
 vi.mock('../../exercises/ClozeExercise', () => ({
   ClozeExercise: ({ exercise }: any) => (
-    <div data-testid="cloze-exercise">Cloze: {exercise.question}</div>
+    <div data-testid="cloze-exercise">Cloze: {exercise.exercise_items[0]?.question || ''}</div>
   ),
 }));
 
 vi.mock('../../exercises/ItemSetExercise', () => ({
   ItemSetExercise: ({ exercise }: any) => (
-    <div data-testid="itemset-exercise">ItemSet: {exercise.question}</div>
+    <div data-testid="itemset-exercise">ItemSet: {exercise.exercise_items[0]?.question || ''}</div>
   ),
 }));
 
@@ -53,22 +53,27 @@ const createMockExercise = (exerciseTypeId: number, includeAsset: boolean = fals
     id: exerciseTypeId,
     name: `Type ${exerciseTypeId}`,
   },
+  subject_id: 1,
   difficulty_bundle_id: 1,
-  question: 'Test Question',
+  passage: null,
+  audio_url: null,
+  image_url: null,
+  created_at: new Date().toISOString(),
   exercise_items: [
     {
       id: 10,
       exercise_id: 1,
+      sequence: 1,
       question: 'Test Item',
       options: [
-        { id: 1, content: 'A', is_correct: true },
-        { id: 2, content: 'B', is_correct: false },
-        { id: 3, content: 'C', is_correct: false },
-        { id: 4, content: 'D', is_correct: false },
+        { text: 'A', is_correct: true },
+        { text: 'B', is_correct: false },
+        { text: 'C', is_correct: false },
+        { text: 'D', is_correct: false },
       ],
     },
   ],
-  asset_json: includeAsset ? { type: 'menu', content: {} } : undefined,
+  asset_json: includeAsset ? { restaurant_name: 'Test', menu: {} } : null,
 });
 
 describe('ExerciseCard', () => {
@@ -115,7 +120,7 @@ describe('ExerciseCard', () => {
       render(<ExerciseCard exercise={exercise} index={0} />);
 
       expect(screen.getByTestId('mcq-exercise')).toBeInTheDocument();
-      expect(screen.getByText('MCQ: Test Question')).toBeInTheDocument();
+      expect(screen.getByText('MCQ: Test Item')).toBeInTheDocument();
     });
 
     it('應該渲染 MCQ 題型 (type_id = 2)', () => {
@@ -140,7 +145,7 @@ describe('ExerciseCard', () => {
       render(<ExerciseCard exercise={exercise} index={0} />);
 
       expect(screen.getByTestId('cloze-exercise')).toBeInTheDocument();
-      expect(screen.getByText('Cloze: Test Question')).toBeInTheDocument();
+      expect(screen.getByText('Cloze: Test Item')).toBeInTheDocument();
     });
 
     it('應該渲染 ItemSet 題型 (type_id = 5)', () => {
@@ -149,7 +154,7 @@ describe('ExerciseCard', () => {
       render(<ExerciseCard exercise={exercise} index={0} />);
 
       expect(screen.getByTestId('itemset-exercise')).toBeInTheDocument();
-      expect(screen.getByText('ItemSet: Test Question')).toBeInTheDocument();
+      expect(screen.getByText('ItemSet: Test Item')).toBeInTheDocument();
     });
 
     it('應該渲染 ItemSet 題型 (type_id = 6-12)', () => {

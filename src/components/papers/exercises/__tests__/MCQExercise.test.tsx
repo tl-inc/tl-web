@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@/__tests__/utils/test-utils';
 import { MCQExercise } from '../MCQExercise';
+import type { Exercise } from '@/types/paper';
 
 describe('MCQExercise', () => {
   const mockExercise = {
@@ -21,7 +22,7 @@ describe('MCQExercise', () => {
         },
       },
     ],
-  };
+  } as Exercise;
 
   const mockOnAnswerChange = vi.fn();
 
@@ -231,7 +232,7 @@ describe('MCQExercise', () => {
           ],
         },
       ],
-    };
+    } as Exercise;
 
     render(
       <MCQExercise
