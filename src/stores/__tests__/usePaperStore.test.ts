@@ -34,8 +34,8 @@ const createMockPaper = (exerciseCount: number = 10): PaperData => ({
       },
     ],
   } as Exercise)),
+  total_items: exerciseCount,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
 });
 
 // Mock localStorage

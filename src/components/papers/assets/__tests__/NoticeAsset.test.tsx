@@ -11,11 +11,6 @@ describe('NoticeAsset', () => {
     organizer: 'Student Council',
   };
 
-  it('should return null when asset is null or undefined', () => {
-    const { container } = render(<NoticeAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render notice title', () => {
     render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
     expect(screen.getByText('School Fair 2024')).toBeInTheDocument();

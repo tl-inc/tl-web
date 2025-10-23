@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { usePaperStore } from '@/stores/usePaperStore';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { CheckCircle, Loader2, XCircle, RotateCcw, Play, Target } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ViewModeToggle from './ViewModeToggle';
@@ -11,6 +13,9 @@ import ViewModeToggle from './ViewModeToggle';
  * 顯示當前進度
  */
 export default function ProgressBar() {
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showAbandonDialog, setShowAbandonDialog] = useState(false);
+
   const paper = usePaperStore((state) => state.paper);
   const currentExerciseIndex = usePaperStore((state) => state.currentExerciseIndex);
   const mode = usePaperStore((state) => state.mode);
@@ -47,9 +52,11 @@ export default function ProgressBar() {
   };
 
   // 完成作答
-  const handleComplete = async () => {
-    if (!confirm('確定要完成作答嗎？完成後將無法修改答案。')) return;
+  const handleCompleteClick = () => {
+    setShowCompleteDialog(true);
+  };
 
+  const handleCompleteConfirm = async () => {
     try {
       await completePaper();
       // 立即跳到頂部
@@ -60,9 +67,11 @@ export default function ProgressBar() {
   };
 
   // 放棄作答
-  const handleAbandon = async () => {
-    if (!confirm('確定要放棄作答嗎？')) return;
+  const handleAbandonClick = () => {
+    setShowAbandonDialog(true);
+  };
 
+  const handleAbandonConfirm = async () => {
     try {
       await abandonPaper();
       // 立即跳到頂部
@@ -139,7 +148,7 @@ export default function ProgressBar() {
           {mode === 'in_progress' && (
             <>
               <Button
-                onClick={handleComplete}
+                onClick={handleCompleteClick}
                 disabled={isSubmitting}
                 size="sm"
                 className="bg-green-600 hover:bg-green-700 text-white"
@@ -152,7 +161,7 @@ export default function ProgressBar() {
                 <span>完成</span>
               </Button>
               <Button
-                onClick={handleAbandon}
+                onClick={handleAbandonClick}
                 disabled={isSubmitting}
                 size="sm"
                 variant="destructive"
@@ -197,6 +206,22 @@ export default function ProgressBar() {
           />
         </div>
       )}
+
+      {/* 確認對話框 */}
+      <ConfirmDialog
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+        onConfirm={handleCompleteConfirm}
+        title="完成作答"
+        description="確定要完成作答嗎？完成後將無法修改答案。"
+      />
+      <ConfirmDialog
+        open={showAbandonDialog}
+        onOpenChange={setShowAbandonDialog}
+        onConfirm={handleAbandonConfirm}
+        title="放棄作答"
+        description="確定要放棄作答嗎？"
+      />
     </div>
   );
 }

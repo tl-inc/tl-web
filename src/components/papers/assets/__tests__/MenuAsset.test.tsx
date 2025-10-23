@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@/__tests__/utils/test-utils';
 import { MenuAsset } from '../MenuAsset';
+import type { MenuAssetData } from '@/types/paper';
 
 describe('MenuAsset', () => {
   const mockMenuAsset = {
@@ -49,7 +50,7 @@ describe('MenuAsset', () => {
         },
       ],
     },
-  };
+  } as MenuAssetData;
 
   it('should render restaurant name', () => {
     render(<MenuAsset asset={mockMenuAsset} mode="pending" />);
@@ -118,7 +119,7 @@ describe('MenuAsset', () => {
     const asset = {
       restaurant_name: { content: 'Fancy Restaurant' },
       menu: { beverages: [] },
-    };
+    } as MenuAssetData;
     render(<MenuAsset asset={asset} mode="pending" />);
     expect(screen.getByText('Fancy Restaurant')).toBeInTheDocument();
   });

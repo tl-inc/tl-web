@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ScoreCard } from '@/components/papers/ScoreCard';
 import { PaperHeader } from '@/components/papers/PaperHeader';
 import { PaperActionButtons } from '@/components/papers/PaperActionButtons';
@@ -17,6 +18,9 @@ import { PageLoading } from '@/components/common/PageLoading';
 import { EmptyState } from '@/components/common/EmptyState';
 
 export default function PaperDetailPage() {
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showAbandonDialog, setShowAbandonDialog] = useState(false);
+
   const params = useParams();
   const router = useRouter();
   const paper_id = params.paper_id as string;
@@ -77,9 +81,11 @@ export default function PaperDetailPage() {
     }
   };
 
-  const handleComplete = async () => {
-    if (!window.confirm('確定要完成作答嗎?完成後將無法修改答案。')) return;
+  const handleCompleteClick = () => {
+    setShowCompleteDialog(true);
+  };
 
+  const handleCompleteConfirm = async () => {
     try {
       await completePaper();
       if (viewMode === 'scroll') {
@@ -90,9 +96,11 @@ export default function PaperDetailPage() {
     }
   };
 
-  const handleAbandon = async () => {
-    if (!window.confirm('確定要放棄作答嗎?')) return;
+  const handleAbandonClick = () => {
+    setShowAbandonDialog(true);
+  };
 
+  const handleAbandonConfirm = async () => {
     try {
       await abandonPaper();
       if (viewMode === 'scroll') {
@@ -183,8 +191,8 @@ export default function PaperDetailPage() {
                     mode={mode}
                     isSubmitting={isSubmitting}
                     onStart={handleStart}
-                    onComplete={handleComplete}
-                    onAbandon={handleAbandon}
+                    onComplete={handleCompleteClick}
+                    onAbandon={handleAbandonClick}
                     onRenew={handleRenew}
                   />
                 </div>
@@ -235,6 +243,22 @@ export default function PaperDetailPage() {
             </div>
           </div>
         )}
+
+        {/* 確認對話框 */}
+        <ConfirmDialog
+          open={showCompleteDialog}
+          onOpenChange={setShowCompleteDialog}
+          onConfirm={handleCompleteConfirm}
+          title="完成作答"
+          description="確定要完成作答嗎？完成後將無法修改答案。"
+        />
+        <ConfirmDialog
+          open={showAbandonDialog}
+          onOpenChange={setShowAbandonDialog}
+          onConfirm={handleAbandonConfirm}
+          title="放棄作答"
+          description="確定要放棄作答嗎？"
+        />
       </SidebarLayout>
     </ProtectedRoute>
   );
