@@ -36,7 +36,14 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
 
   // 對於單字題（類型1）和片語題（類型2），content 包含 question 和 options
   // 需要轉換為 exercise_items 格式
-  let exerciseItems: any[] = [];
+  let exerciseItems: Array<{
+    id: number;
+    exercise_id: number;
+    sequence: number;
+    question: string | null;
+    options: unknown[];
+    metadata: unknown | null;
+  }> = [];
 
   if (typeId === 1 || typeId === 2 || typeId === 3) {
     // MCQ 格式：單個 item
@@ -51,13 +58,19 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
       exercise_id: question.exercise_id,
       sequence: 1,
       question: question.content.question as string,
-      options: question.content.options as any[],
-      metadata: (question.content.metadata as any) || null,
+      options: (question.content.options as unknown[]) || [],
+      metadata: (question.content.metadata as unknown) || null,
     }];
   } else if (typeId === 4) {
     // Cloze (克漏字) 格式：多個 items
     // content.items 是陣列,每個 item 有 sequence, options
-    const items = (question.content.items as any[]) || [];
+    const items = (question.content.items as Array<{
+      id?: number;
+      exercise_item_id?: number;
+      sequence: number;
+      options: unknown[];
+      metadata?: unknown;
+    }>) || [];
     exerciseItems = items.map((item) => ({
       id: item.id || item.exercise_item_id,
       exercise_id: question.exercise_id,
@@ -76,7 +89,7 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
     passage: (question.content.passage as string) || null,
     audio_url: (question.content.audio_url as string) || null,
     image_url: (question.content.image_url as string) || null,
-    asset_json: (question.content.asset_json as any) || null,
+    asset_json: (question.content.asset_json as unknown) || null,
     exercise_type: question.exercise_type,
     exercise_items: exerciseItems,
     created_at: new Date().toISOString(),

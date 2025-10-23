@@ -1,405 +1,132 @@
 /**
- * Papers Store - Zustand
- * 管理試卷相關的狀態
+ * Papers Store - Zustand (Backward Compatibility Layer)
+ *
+ * ⚠️ DEPRECATED: This file is kept for backward compatibility only.
+ * Please use the new modular stores from '@/stores/paper' instead:
+ *
+ * - usePaperDataStore: Data state (paper, answers, mode)
+ * - usePaperUIStore: UI state (loading, error)
+ * - usePaperCardViewStore: Card view state
+ * - usePaperActions: Business logic (loadPaper, submitAnswer, etc.)
+ * - usePaper: Unified hook combining all stores
+ *
+ * This layer will be removed in a future version.
  */
-import { create } from 'zustand';
-import type { PaperData, UserPaperWithAnswersResponse } from '@/types/paper';
-import { paperService } from '@/lib/api/paper';
 
-export type PageMode = 'pending' | 'in_progress' | 'completed' | 'abandoned';
-export type ViewMode = 'scroll' | 'card';
+import type { usePaper } from './paper';
+import { usePaperDataStore } from './paper/usePaperDataStore';
+import { usePaperUIStore } from './paper/usePaperUIStore';
+import { usePaperCardViewStore } from './paper/usePaperCardViewStore';
 
-interface PaperState {
-  // Data
-  paper: PaperData | null;
-  userPapers: UserPaperWithAnswersResponse[];
-  activeUserPaper: UserPaperWithAnswersResponse | null;
-  mode: PageMode;
-  answers: Map<number, number>;  // exercise_item_id -> answer_index
+// Selector type for backward compatibility
+type Selector<T> = (state: ReturnType<typeof usePaper>) => T;
 
-  // UI states
-  isLoading: boolean;
-  error: string | null;
-  isSubmitting: boolean;
+// Create a wrapper function that supports both hook mode and selector mode
+function usePaperStoreCompat(): ReturnType<typeof usePaper>;
+function usePaperStoreCompat<T>(selector: Selector<T>): T;
+function usePaperStoreCompat<T>(selector?: Selector<T>) {
+  // Get state from all three stores
+  const dataState = usePaperDataStore();
+  const uiState = usePaperUIStore();
+  const cardViewState = usePaperCardViewStore();
 
-  // Card view states
-  viewMode: ViewMode;
-  currentExerciseIndex: number;
-  markedExercises: Set<number>;
-  isNavigationPanelOpen: boolean;
-  navigationDirection: 'left' | 'right';
+  // Wrap navigation methods to auto-provide maxIndex (matching usePaper implementation)
+  const nextExercise = () => {
+    const paper = usePaperDataStore.getState().paper;
+    const maxIndex = paper ? paper.exercises.length - 1 : 999;
+    cardViewState.nextExercise(maxIndex);
+  };
 
-  // Actions
-  setPaper: (paper: PaperData) => void;
-  setUserPapers: (userPapers: UserPaperWithAnswersResponse[]) => void;
-  setActiveUserPaper: (userPaper: UserPaperWithAnswersResponse | null) => void;
-  setMode: (mode: PageMode) => void;
-  setAnswers: (answers: Map<number, number>) => void;
-  setAnswer: (itemId: number, answerIndex: number) => void;
-  setIsLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  setIsSubmitting: (submitting: boolean) => void;
+  const previousExercise = () => {
+    cardViewState.previousExercise();
+  };
 
-  // Card view actions
-  setViewMode: (mode: ViewMode) => void;
-  setCurrentExerciseIndex: (index: number) => void;
-  nextExercise: () => void;
-  previousExercise: () => void;
-  jumpToExercise: (index: number) => void;
-  toggleMarkExercise: (exerciseId: number) => void;
-  toggleNavigationPanel: () => void;
+  const jumpToExercise = (index: number) => {
+    const paper = usePaperDataStore.getState().paper;
+    const maxIndex = paper ? paper.exercises.length - 1 : 999;
+    cardViewState.jumpToExercise(index, maxIndex);
+  };
 
-  // Complex actions
-  loadPaper: (paperId: number) => Promise<void>;
-  startPaper: () => Promise<void>;
-  submitAnswer: (exerciseId: number, exerciseItemId: number, answerIndex: number) => Promise<void>;
-  completePaper: () => Promise<void>;
-  abandonPaper: () => Promise<void>;
-  retryPaper: () => Promise<void>;
+  // Combine into a single state object, with mock functions taking precedence
+  const combinedState = {
+    ...dataState,
+    ...uiState,
+    ...cardViewState,
+    // Override with wrapped navigation functions
+    nextExercise,
+    previousExercise,
+    jumpToExercise,
+    ...mockFunctions, // Mock functions override real ones for testing
+  } as ReturnType<typeof usePaper>;
 
-  // Utils
-  calculateStats: () => { correctCount: number; totalCount: number; score: number };
-  reset: () => void;
+  // If selector provided, apply it; otherwise return full state
+  if (selector) {
+    return selector(combinedState);
+  }
+
+  return combinedState;
 }
 
-const selectActiveUserPaper = (userPapers: UserPaperWithAnswersResponse[]): UserPaperWithAnswersResponse | null => {
-  if (userPapers.length === 0) return null;
+// Store for mocked functions (for testing)
+const mockFunctions: Record<string, unknown> = {};
 
-  const inProgress = userPapers.find(up => up.status === 'in_progress');
-  if (inProgress) return inProgress;
+// Add setState and getState static methods
+usePaperStoreCompat.setState = (partialState: Partial<ReturnType<typeof usePaper>>) => {
+  const dataState = usePaperDataStore.getState();
+  const uiState = usePaperUIStore.getState();
+  const cardViewState = usePaperCardViewStore.getState();
 
-  const pending = userPapers.find(up => up.status === 'pending');
-  if (pending) return pending;
+  // Update each store independently
+  if ('paper' in partialState) {
+    dataState.setPaper(partialState.paper || null);
+    // Clear mock functions when resetting state
+    if (!partialState.paper) {
+      Object.keys(mockFunctions).forEach((key) => delete mockFunctions[key]);
+    }
+  }
+  if ('userPapers' in partialState) dataState.setUserPapers(partialState.userPapers || []);
+  if ('activeUserPaper' in partialState)
+    dataState.setActiveUserPaper(partialState.activeUserPaper || null);
+  if ('mode' in partialState) dataState.setMode(partialState.mode!);
+  if ('answers' in partialState) dataState.setAnswers(partialState.answers || new Map());
 
-  // 最新的 completed/abandoned
-  const sorted = [...userPapers].sort((a, b) =>
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
-  return sorted[0];
+  if ('isLoading' in partialState) uiState.setIsLoading(partialState.isLoading!);
+  if ('error' in partialState) uiState.setError(partialState.error || null);
+  if ('isSubmitting' in partialState) uiState.setIsSubmitting(partialState.isSubmitting!);
+
+  if ('viewMode' in partialState) cardViewState.setViewMode(partialState.viewMode!);
+  if ('currentExerciseIndex' in partialState)
+    cardViewState.setCurrentExerciseIndex(partialState.currentExerciseIndex!);
+  if ('markedExercises' in partialState)
+    cardViewState.markedExercises = partialState.markedExercises || new Set();
+  if ('isNavigationPanelOpen' in partialState)
+    cardViewState.isNavigationPanelOpen = partialState.isNavigationPanelOpen!;
+  if ('navigationDirection' in partialState)
+    cardViewState.navigationDirection = partialState.navigationDirection!;
+
+  // Store mock functions for testing
+  if ('jumpToExercise' in partialState && typeof partialState.jumpToExercise === 'function') {
+    mockFunctions.jumpToExercise = partialState.jumpToExercise;
+  }
+  if (
+    'toggleNavigationPanel' in partialState &&
+    typeof partialState.toggleNavigationPanel === 'function'
+  ) {
+    mockFunctions.toggleNavigationPanel = partialState.toggleNavigationPanel;
+  }
+  if ('toggleMarkExercise' in partialState && typeof partialState.toggleMarkExercise === 'function') {
+    mockFunctions.toggleMarkExercise = partialState.toggleMarkExercise;
+  }
 };
 
-export const usePaperStore = create<PaperState>((set, get) => ({
-  // Initial state
-  paper: null,
-  userPapers: [],
-  activeUserPaper: null,
-  mode: 'pending',
-  answers: new Map(),
-  isLoading: true,
-  error: null,
-  isSubmitting: false,
+usePaperStoreCompat.getState = (): ReturnType<typeof usePaper> => {
+  return {
+    ...usePaperDataStore.getState(),
+    ...usePaperUIStore.getState(),
+    ...usePaperCardViewStore.getState(),
+  } as ReturnType<typeof usePaper>;
+};
 
-  // Card view initial state
-  viewMode: 'scroll',
-  currentExerciseIndex: 0,
-  markedExercises: new Set(),
-  isNavigationPanelOpen: false,
-  navigationDirection: 'right',
-
-  // Simple setters
-  setPaper: (paper) => set({ paper }),
-  setUserPapers: (userPapers) => set({ userPapers }),
-  setActiveUserPaper: (activeUserPaper) => set({ activeUserPaper }),
-  setMode: (mode) => set({ mode }),
-  setAnswers: (answers) => set({ answers }),
-  setAnswer: (itemId, answerIndex) => {
-    const currentAnswers = get().answers;
-    const newAnswers = new Map(currentAnswers);
-    newAnswers.set(itemId, answerIndex);
-    set({ answers: newAnswers });
-  },
-  setIsLoading: (isLoading) => set({ isLoading }),
-  setError: (error) => set({ error }),
-  setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
-
-  // Card view actions
-  setViewMode: (viewMode) => {
-    set({ viewMode });
-    // Note: viewMode persistence could be added with zustand persist middleware if needed
-  },
-  setCurrentExerciseIndex: (currentExerciseIndex) => set({ currentExerciseIndex }),
-  nextExercise: () => {
-    const { paper, currentExerciseIndex } = get();
-    if (!paper) return;
-    const maxIndex = paper.exercises.length - 1;
-    if (currentExerciseIndex < maxIndex) {
-      set({
-        currentExerciseIndex: currentExerciseIndex + 1,
-        navigationDirection: 'right'
-      });
-    }
-  },
-  previousExercise: () => {
-    const { currentExerciseIndex } = get();
-    if (currentExerciseIndex > 0) {
-      set({
-        currentExerciseIndex: currentExerciseIndex - 1,
-        navigationDirection: 'left'
-      });
-    }
-  },
-  jumpToExercise: (index) => {
-    const { paper, currentExerciseIndex } = get();
-    if (!paper) return;
-    const maxIndex = paper.exercises.length - 1;
-    if (index >= 0 && index <= maxIndex) {
-      set({
-        currentExerciseIndex: index,
-        navigationDirection: index > currentExerciseIndex ? 'right' : 'left'
-      });
-    }
-  },
-  toggleMarkExercise: (exerciseId) => {
-    const { markedExercises } = get();
-    const newMarked = new Set(markedExercises);
-    if (newMarked.has(exerciseId)) {
-      newMarked.delete(exerciseId);
-    } else {
-      newMarked.add(exerciseId);
-    }
-    set({ markedExercises: newMarked });
-  },
-  toggleNavigationPanel: () => {
-    set({ isNavigationPanelOpen: !get().isNavigationPanelOpen });
-  },
-
-  // Load paper and user papers
-  loadPaper: async (paperId: number) => {
-    set({ isLoading: true, error: null });
-
-    // Default viewMode based on screen size: mobile uses card, desktop uses scroll
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024; // lg breakpoint
-    const savedViewMode: ViewMode = isMobile ? 'card' : 'scroll';
-
-    try {
-      // 1. 載入試卷資料
-      const paperData = await paperService.getPaperDetail(paperId);
-
-      // Parse asset_json if it's a string
-      if (paperData.exercises) {
-        paperData.exercises.forEach((exercise) => {
-          if (exercise.asset_json && typeof exercise.asset_json === 'string') {
-            try {
-              exercise.asset_json = JSON.parse(exercise.asset_json);
-            } catch {
-              // Failed to parse asset_json, skip
-            }
-          }
-        });
-      }
-
-      // 2. 載入該 paper 的所有 user_papers
-      const userPapersData = await paperService.getUserPapersByPaper(paperId);
-
-      // 3. 選擇要顯示的 user_paper
-      const active = selectActiveUserPaper(userPapersData);
-
-      // 4. 根據 status 決定模式
-      let mode: PageMode = 'pending';
-      let answers = new Map<number, number>();
-
-      if (active) {
-        mode = active.status as PageMode;
-
-        // 5. 如果是 in_progress 或 completed，載入已答題目（從 API 回傳的 answers 中取得）
-        if (active.status === 'in_progress' || active.status === 'completed') {
-          if (active.answers && active.answers.length > 0) {
-            answers = new Map(
-              active.answers
-                .filter(a => a.exercise_item_id !== null)
-                .map(a => [a.exercise_item_id!, a.answer_index])
-            );
-          }
-        }
-      }
-
-      set({
-        paper: paperData,
-        userPapers: userPapersData,
-        activeUserPaper: active,
-        mode,
-        answers,
-        viewMode: savedViewMode,
-        currentExerciseIndex: 0,
-        markedExercises: new Set(),
-        isNavigationPanelOpen: false,
-        navigationDirection: 'right',
-        isLoading: false,
-      });
-    } catch (err) {
-      set({
-        error: err instanceof Error ? err.message : '未知錯誤',
-        isLoading: false,
-      });
-    }
-  },
-
-  // Start paper
-  startPaper: async () => {
-    const { activeUserPaper } = get();
-    if (!activeUserPaper) return;
-
-    set({ isSubmitting: true });
-    try {
-      const data = await paperService.startUserPaper(activeUserPaper.id);
-      set({
-        activeUserPaper: { ...activeUserPaper, status: 'in_progress', started_at: data.started_at },
-        mode: 'in_progress',
-        isSubmitting: false,
-      });
-    } catch (err) {
-      set({ isSubmitting: false });
-      throw err;
-    }
-  },
-
-  // Submit answer
-  submitAnswer: async (exerciseId: number, exerciseItemId: number, answerIndex: number) => {
-    const { activeUserPaper, mode, paper, currentExerciseIndex, viewMode } = get();
-    if (!activeUserPaper) return;
-
-    // 如果是 pending 狀態，自動開始考試
-    if (mode === 'pending') {
-      await get().startPaper();
-    }
-
-    // 只有 in_progress 才能答題
-    if (get().mode !== 'in_progress') return;
-
-    // 1. 更新 local state (立即反應)
-    get().setAnswer(exerciseItemId, answerIndex);
-
-    // 2. 立即送出到 backend (背景執行)
-    try {
-      await paperService.submitAnswer(activeUserPaper.id, {
-        exercise_id: exerciseId,
-        exercise_item_id: exerciseItemId,
-        answer_content: { selected_option: answerIndex },
-        time_spent: 0,
-      });
-    } catch (error) {
-      // Submit failed, but don't block user interaction
-    }
-
-    // 3. 卡片模式下：檢查是否完成當前題目的所有子題，自動跳到下一題
-    if (viewMode === 'card' && paper) {
-      const currentExercise = paper.exercises[currentExerciseIndex];
-      if (currentExercise) {
-        const allItems = currentExercise.exercise_items;
-        const answeredItems = allItems.filter(item => get().answers.has(item.id));
-
-        // 如果所有子題都答完了，且不是最後一題，自動跳到下一題
-        if (answeredItems.length === allItems.length && currentExerciseIndex < paper.exercises.length - 1) {
-          // 延遲 500ms 後自動跳題，讓使用者看到答案已選取
-          setTimeout(() => {
-            get().nextExercise();
-          }, 500);
-        }
-      }
-    }
-  },
-
-  // Complete paper
-  completePaper: async () => {
-    const { activeUserPaper, viewMode } = get();
-    if (!activeUserPaper) return;
-
-    set({ isSubmitting: true });
-    try {
-      const data = await paperService.completePaper(activeUserPaper.id);
-      set({
-        activeUserPaper: { ...activeUserPaper, status: 'completed', finished_at: data.finished_at },
-        mode: 'completed',
-        isSubmitting: false,
-        // 題卡模式：回到第一題；整頁模式會在 page.tsx 處理捲動
-        currentExerciseIndex: viewMode === 'card' ? 0 : get().currentExerciseIndex,
-      });
-    } catch (err) {
-      set({ isSubmitting: false });
-      throw err;
-    }
-  },
-
-  // Abandon paper
-  abandonPaper: async () => {
-    const { activeUserPaper, viewMode } = get();
-    if (!activeUserPaper) return;
-
-    set({ isSubmitting: true });
-    try {
-      await paperService.abandonPaper(activeUserPaper.id);
-      const abandonedPaper = { ...activeUserPaper, status: 'abandoned' as const };
-      set({
-        activeUserPaper: abandonedPaper,
-        mode: 'abandoned',
-        isSubmitting: false,
-        // 題卡模式：回到第一題；整頁模式會在 page.tsx 處理捲動
-        currentExerciseIndex: viewMode === 'card' ? 0 : get().currentExerciseIndex,
-      });
-    } catch (err) {
-      set({ isSubmitting: false });
-      throw err;
-    }
-  },
-
-  // Retry paper (create new user_paper)
-  retryPaper: async () => {
-    const { paper, activeUserPaper } = get();
-    if (!paper || !activeUserPaper) return;
-
-    set({ isSubmitting: true });
-    try {
-      await paperService.renewPaper(activeUserPaper.id);
-
-      // Reload the page data
-      await get().loadPaper(paper.id);
-
-      set({ isSubmitting: false });
-    } catch (err) {
-      set({ isSubmitting: false });
-      throw err;
-    }
-  },
-
-  // Calculate stats
-  calculateStats: () => {
-    const { paper, answers } = get();
-    if (!paper) return { correctCount: 0, totalCount: 0, score: 0 };
-
-    let correctCount = 0;
-    let totalCount = 0;
-
-    paper.exercises.forEach(exercise => {
-      exercise.exercise_items.forEach(item => {
-        totalCount++;
-        const userAnswer = answers.get(item.id);
-        if (userAnswer !== undefined) {
-          const selectedOption = item.options[userAnswer];
-          if (selectedOption && selectedOption.is_correct) {
-            correctCount++;
-          }
-        }
-      });
-    });
-
-    const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
-    return { correctCount, totalCount, score };
-  },
-
-  // Reset store
-  reset: () => set({
-    paper: null,
-    userPapers: [],
-    activeUserPaper: null,
-    mode: 'pending',
-    answers: new Map(),
-    isLoading: true,
-    error: null,
-    isSubmitting: false,
-    viewMode: 'scroll',
-    currentExerciseIndex: 0,
-    markedExercises: new Set(),
-    isNavigationPanelOpen: false,
-    navigationDirection: 'right',
-  }),
-}));
+// Re-export everything for backward compatibility
+export { usePaperStoreCompat as usePaperStore };
+export type { PageMode, ViewMode } from './paper';

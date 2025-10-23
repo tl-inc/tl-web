@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-utils';
+import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
 import ExerciseSessionPage from '../page';
 import * as hooks from '@/hooks/exerciseSession/useExerciseSession';
 import { useExerciseSessionStore } from '@/stores/useExerciseSessionStore';

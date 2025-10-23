@@ -7,7 +7,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { themeStorage } from '@/lib/storage';
 import { Menu, Moon, Sun } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   onMenuClick?: () => void;
