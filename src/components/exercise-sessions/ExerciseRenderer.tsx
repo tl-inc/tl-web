@@ -72,7 +72,7 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
       metadata?: unknown;
     }>) || [];
     exerciseItems = items.map((item) => ({
-      id: item.id || item.exercise_item_id,
+      id: (item.id || item.exercise_item_id) as number,
       exercise_id: question.exercise_id,
       sequence: item.sequence,
       question: null,
