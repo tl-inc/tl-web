@@ -18,7 +18,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 1,
           name: '字彙',
-          description: 'Vocabulary',
+          display_name: '字彙題',
         },
         content: {
           question: 'Choose the correct meaning',
@@ -57,7 +57,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 2,
           name: '片語',
-          description: 'Phrase',
+          display_name: '片語題',
         },
         content: {
           question: 'What does this phrase mean?',
@@ -94,7 +94,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 3,
           name: '文法',
-          description: 'Grammar',
+          display_name: '文法題',
         },
         content: {
           question: 'My parents {{blank}} at the night market now.',
@@ -134,7 +134,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 3,
           name: '文法',
-          description: 'Grammar',
+          display_name: '文法題',
         },
         content: {
           question: 'She {{blank}} a student.',
@@ -171,7 +171,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 99,
           name: '未知題型',
-          description: 'Unknown',
+          display_name: '未知題型',
         },
         content: {
           question: 'Unknown question',
@@ -202,7 +202,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 1,
           name: '字彙',
-          description: 'Vocabulary',
+          display_name: '字彙題',
         },
         content: {
           question: 'Test question',
@@ -238,7 +238,7 @@ describe('ExerciseRenderer', () => {
         exercise_type: {
           id: 1,
           name: '字彙',
-          description: 'Vocabulary',
+          display_name: '字彙題',
         },
         content: {
           question: 'Test question',

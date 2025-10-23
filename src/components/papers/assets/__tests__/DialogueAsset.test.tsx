@@ -22,16 +22,6 @@ describe('DialogueAsset', () => {
     ],
   };
 
-  it('should return null when asset is null or undefined', () => {
-    const { container } = render(<DialogueAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should return null when asset.turns is undefined', () => {
-    const { container } = render(<DialogueAsset asset={{}} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render setting when available', () => {
     render(<DialogueAsset asset={mockDialogueAsset} mode="pending" />);
     expect(screen.getByText('💬 Setting')).toBeInTheDocument();

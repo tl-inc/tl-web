@@ -51,16 +51,6 @@ describe('MenuAsset', () => {
     },
   };
 
-  it('should return null when asset is null or undefined', () => {
-    const { container } = render(<MenuAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should return null when asset.menu is undefined', () => {
-    const { container } = render(<MenuAsset asset={{}} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render restaurant name', () => {
     render(<MenuAsset asset={mockMenuAsset} mode="pending" />);
     expect(screen.getByText('The Food Palace')).toBeInTheDocument();

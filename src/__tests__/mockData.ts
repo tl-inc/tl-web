@@ -5,6 +5,7 @@
 
 import type { User, AuthResponse } from '@/types/auth';
 import type { Exercise, ExerciseType, ExerciseItem } from '@/types/exercise';
+import type { ExerciseContent, ExerciseType as SessionExerciseType } from '@/types/exerciseSession';
 
 // ============================================================================
 // User Mock Data
@@ -157,5 +158,43 @@ export const createMockExercise = (
   overrides: Partial<Exercise> = {}
 ): Exercise => ({
   ...mockExercise,
+  ...overrides,
+});
+
+// ============================================================================
+// Exercise Session Mock Data
+// ============================================================================
+
+export const mockSessionExerciseType: SessionExerciseType = {
+  id: 1,
+  name: 'vocabulary',
+  display_name: '單字題',
+};
+
+export const mockExerciseContent: ExerciseContent = {
+  exercise_id: 1,
+  exercise_item_id: 1,
+  sequence: 1,
+  exercise_type: mockSessionExerciseType,
+  content: {
+    question: 'What is the meaning of "apple"?',
+    options: [
+      { text: '蘋果', is_correct: true },
+      { text: '香蕉', is_correct: false },
+      { text: '橘子', is_correct: false },
+    ],
+    metadata: {
+      translation: '「apple」的意思是什麼？',
+    },
+  },
+};
+
+/**
+ * 建立自訂的 ExerciseContent mock
+ */
+export const createMockExerciseContent = (
+  overrides: Partial<ExerciseContent> = {}
+): ExerciseContent => ({
+  ...mockExerciseContent,
   ...overrides,
 });

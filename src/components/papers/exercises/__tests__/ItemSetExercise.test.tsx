@@ -7,25 +7,32 @@ describe('ItemSetExercise', () => {
   const mockOnAnswerChange = vi.fn();
   const mockAnswers = new Map<number, number>();
 
-  const baseExercise: Exercise = {
+  const baseExercise = {
     id: 1,
     exercise_type_id: 6,
-    question: 'Test question',
     exercise_items: [
       {
         id: 101,
         question: 'Item 1',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        correct_answer: { selected_index: 0 },
+        options: [
+          { text: 'Option A', is_correct: true },
+          { text: 'Option B', is_correct: false },
+          { text: 'Option C', is_correct: false },
+          { text: 'Option D', is_correct: false },
+        ],
       },
       {
         id: 102,
         question: 'Item 2',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        correct_answer: { selected_index: 1 },
+        options: [
+          { text: 'Option A', is_correct: false },
+          { text: 'Option B', is_correct: true },
+          { text: 'Option C', is_correct: false },
+          { text: 'Option D', is_correct: false },
+        ],
       },
     ],
-  };
+  } as Exercise;
 
   it('should render exercise with passage', () => {
     const exercise = {

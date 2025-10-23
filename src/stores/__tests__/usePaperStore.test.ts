@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { usePaperStore } from '../usePaperStore';
-import type { PaperData } from '@/types/paper';
+import type { PaperData, Exercise } from '@/types/paper';
 
 // Helper: 建立 mock paper 資料
 const createMockPaper = (exerciseCount: number = 10): PaperData => ({
@@ -12,21 +12,28 @@ const createMockPaper = (exerciseCount: number = 10): PaperData => ({
     id: i + 1,
     exercise_type_id: 1,
     difficulty_bundle_id: 1,
-    question: `Question ${i + 1}`,
+    subject_id: 1,
+    passage: null,
+    audio_url: null,
+    image_url: null,
+    asset_json: null,
+    exercise_type: { id: 1, name: 'vocabulary' },
+    created_at: new Date().toISOString(),
     exercise_items: [
       {
         id: (i + 1) * 10,
         exercise_id: i + 1,
+        sequence: 1,
         question: `Item ${i + 1}`,
         options: [
-          { id: 1, content: 'A', is_correct: true },
-          { id: 2, content: 'B', is_correct: false },
-          { id: 3, content: 'C', is_correct: false },
-          { id: 4, content: 'D', is_correct: false },
+          { text: 'A', is_correct: true },
+          { text: 'B', is_correct: false },
+          { text: 'C', is_correct: false },
+          { text: 'D', is_correct: false },
         ],
       },
     ],
-  })),
+  } as Exercise)),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 });

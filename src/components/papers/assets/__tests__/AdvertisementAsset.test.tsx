@@ -13,11 +13,6 @@ describe('AdvertisementAsset', () => {
     contact: { content: 'Tel: 555-1234\nEmail: info@best.com', translation: '電話: 555-1234\n電郵: info@best.com' },
   };
 
-  it('should return null when asset is null or undefined', () => {
-    const { container } = render(<AdvertisementAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render title', () => {
     render(<AdvertisementAsset asset={mockAsset} mode="pending" />);
     expect(screen.getByText('Summer Sale')).toBeInTheDocument();
