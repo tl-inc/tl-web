@@ -80,7 +80,7 @@ export default function PaperDetailPage() {
 
   // 完成作答
   const handleComplete = async () => {
-    if (!confirm('確定要完成作答嗎?完成後將無法修改答案。')) return;
+    if (!window.confirm('確定要完成作答嗎?完成後將無法修改答案。')) return;
 
     try {
       await completePaper();
@@ -95,7 +95,7 @@ export default function PaperDetailPage() {
 
   // 放棄作答
   const handleAbandon = async () => {
-    if (!confirm('確定要放棄作答嗎?')) return;
+    if (!window.confirm('確定要放棄作答嗎?')) return;
 
     try {
       await abandonPaper();

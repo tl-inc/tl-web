@@ -10,16 +10,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExerciseSessionStats } from '@/components/exercise-sessions/ExerciseSessionStats';
-import { ExerciseSessionFeedback } from '@/components/exercise-sessions/ExerciseSessionFeedback';
 import { ExerciseRenderer } from '@/components/exercise-sessions/ExerciseRenderer';
 import { useExerciseSessionStore } from '@/stores/useExerciseSessionStore';
-import type { ExerciseContent } from '@/types/exerciseSession';
 import {
   useSubmitAnswer,
   useGetNextExercise,
   useCompleteSession,
-  useExerciseSession,
 } from '@/hooks/exerciseSession/useExerciseSession';
 
 export default function ExerciseSessionPage() {
