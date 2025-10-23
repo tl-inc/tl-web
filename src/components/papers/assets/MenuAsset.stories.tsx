@@ -35,7 +35,7 @@ const mockMenuData: MenuAssetData = {
         description: { content: 'Fresh squeezed', translation: '現榨新鮮' },
       },
     ],
-    food: [
+    main_courses: [
       {
         name: { content: 'Sandwich', translation: '三明治' },
         price: '$8.50',
@@ -124,7 +124,7 @@ export const ChineseMenu: Story = {
           { name: '綠茶', price: '$30' },
           { name: '紅茶', price: '$30' },
         ],
-        food: [
+        main_courses: [
           {
             name: '滷肉飯',
             price: '$60',
@@ -163,7 +163,7 @@ export const FullMenu: Story = {
           { name: { content: 'Sparkling Water', translation: '氣泡水' }, price: '$2.00' },
           { name: { content: 'Wine', translation: '紅酒' }, price: '$12.00' },
         ],
-        food: [
+        main_courses: [
           {
             name: { content: 'Grilled Salmon', translation: '烤鮭魚' },
             price: '$24.00',

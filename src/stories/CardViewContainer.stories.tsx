@@ -9,20 +9,25 @@ const createMockPaper = (exerciseCount: number = 5, exerciseTypeId: number = 1):
   id: 1,
   range_pack_id: 1,
   blueprint_id: 1,
+  total_items: exerciseCount,
   exercises: Array.from({ length: exerciseCount }, (_, i) => ({
     id: i + 1,
     exercise_type_id: exerciseTypeId,
+    subject_id: 1,
+    difficulty_bundle_id: 1,
     exercise_type: {
       id: exerciseTypeId,
       name: exerciseTypeId === 4 ? 'Cloze' : exerciseTypeId === 5 ? 'ItemSet' : 'MCQ',
+      description: exerciseTypeId === 4 ? '克漏字' : exerciseTypeId === 5 ? '題組' : '選擇題',
     },
-    difficulty_bundle_id: 1,
-    question: `This is question ${i + 1}. Please select the best answer.`,
-    passage: exerciseTypeId === 4 ? `This is a passage for cloze test. It has {{blank_${i + 1}}} that need to be filled.` : undefined,
+    passage: exerciseTypeId === 4 ? `This is a passage for cloze test. It has {{blank_${i + 1}}} that need to be filled.` : null,
+    audio_url: null,
+    image_url: null,
     asset_json: exerciseTypeId === 4 ? {
       passage: `Today was cleaning day at home. I cleaned my {{blank_1}} today. Dust hid under the bed. Mom brought boxes and bags.`,
       translation: '今天是家裡的清潔日...',
-    } : undefined,
+    } : null,
+    created_at: new Date().toISOString(),
     exercise_items: [
       {
         id: (i + 1) * 10,
@@ -30,16 +35,15 @@ const createMockPaper = (exerciseCount: number = 5, exerciseTypeId: number = 1):
         sequence: 1,
         question: `Item ${i + 1}`,
         options: [
-          { id: 1, content: 'Option A (Correct)', is_correct: true },
-          { id: 2, content: 'Option B', is_correct: false },
-          { id: 3, content: 'Option C', is_correct: false },
-          { id: 4, content: 'Option D', is_correct: false },
+          { text: 'Option A (Correct)', is_correct: true },
+          { text: 'Option B', is_correct: false },
+          { text: 'Option C', is_correct: false },
+          { text: 'Option D', is_correct: false },
         ],
       },
     ],
   })),
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
 });
 
 const meta = {
@@ -52,13 +56,19 @@ const meta = {
   decorators: [
     (Story, context) => {
       useEffect(() => {
-        const { paper, mode, answers, markedExercises, currentExerciseIndex } = context.args;
+        const args = context.args as {
+          paper?: PaperData;
+          mode?: 'pending' | 'in_progress' | 'completed' | 'abandoned';
+          answers?: Map<number, number>;
+          markedExercises?: Set<number>;
+          currentExerciseIndex?: number;
+        };
         usePaperStore.setState({
-          paper: paper || createMockPaper(5),
-          mode: mode || 'in_progress',
-          answers: answers || new Map(),
-          markedExercises: markedExercises || new Set(),
-          currentExerciseIndex: currentExerciseIndex ?? 0,
+          paper: args.paper || createMockPaper(5),
+          mode: args.mode || 'in_progress',
+          answers: args.answers || new Map(),
+          markedExercises: args.markedExercises || new Set(),
+          currentExerciseIndex: args.currentExerciseIndex ?? 0,
           viewMode: 'card',
           isNavigationPanelOpen: false,
           navigationDirection: 'right',
@@ -318,9 +328,9 @@ export const NoExercises: Story = {
       id: 1,
       range_pack_id: 1,
       blueprint_id: 1,
+      total_items: 0,
       exercises: [],
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
     mode: 'pending',
     answers: new Map(),

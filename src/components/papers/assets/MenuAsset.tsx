@@ -14,7 +14,7 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
   return (
     <div className="p-5 bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
       <h3 className="text-2xl font-bold text-center mb-5 text-amber-900 dark:text-amber-100">
-        {asset.restaurant_name?.content || asset.restaurant_name}
+        {typeof asset.restaurant_name === 'string' ? asset.restaurant_name : asset.restaurant_name?.content || ''}
       </h3>
       <div className="space-y-5">
         {/* Beverages */}
@@ -28,19 +28,19 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
-                    {mode === 'completed' && item.name?.translation && (
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{typeof item.name === 'string' ? item.name : item.name?.content || ''}</span>
+                    {mode === 'completed' && typeof item.name === 'object' && item.name?.translation && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
                     )}
                   </div>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{typeof item.price === 'string' ? item.price : item.price?.content || ''}</span>
                 </div>
                 {item.description && (
                   <div className="text-sm mt-1">
                     <p className="text-gray-600 dark:text-gray-400">
-                      {item.description?.content || item.description}
+                      {typeof item.description === 'string' ? item.description : item.description?.content || ''}
                     </p>
-                    {mode === 'completed' && item.description?.translation && (
+                    {mode === 'completed' && typeof item.description === 'object' && item.description?.translation && (
                       <p className="text-gray-500 dark:text-gray-500 mt-1">
                         {item.description.translation}
                       </p>
@@ -63,19 +63,19 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
-                    {mode === 'completed' && item.name?.translation && (
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{typeof item.name === 'string' ? item.name : item.name?.content || ''}</span>
+                    {mode === 'completed' && typeof item.name === 'object' && item.name?.translation && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
                     )}
                   </div>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{typeof item.price === 'string' ? item.price : item.price?.content || ''}</span>
                 </div>
                 {item.description && (
                   <div className="text-sm mt-1">
                     <p className="text-gray-600 dark:text-gray-400">
-                      {item.description?.content || item.description}
+                      {typeof item.description === 'string' ? item.description : item.description?.content || ''}
                     </p>
-                    {mode === 'completed' && item.description?.translation && (
+                    {mode === 'completed' && typeof item.description === 'object' && item.description?.translation && (
                       <p className="text-gray-500 dark:text-gray-500 mt-1">
                         {item.description.translation}
                       </p>
@@ -98,19 +98,19 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
-                    {mode === 'completed' && item.name?.translation && (
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{typeof item.name === 'string' ? item.name : item.name?.content || ''}</span>
+                    {mode === 'completed' && typeof item.name === 'object' && item.name?.translation && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
                     )}
                   </div>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{typeof item.price === 'string' ? item.price : item.price?.content || ''}</span>
                 </div>
                 {item.description && (
                   <div className="text-sm mt-1">
                     <p className="text-gray-600 dark:text-gray-400">
-                      {item.description?.content || item.description}
+                      {typeof item.description === 'string' ? item.description : item.description?.content || ''}
                     </p>
-                    {mode === 'completed' && item.description?.translation && (
+                    {mode === 'completed' && typeof item.description === 'object' && item.description?.translation && (
                       <p className="text-gray-500 dark:text-gray-500 mt-1">
                         {item.description.translation}
                       </p>
@@ -133,19 +133,19 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.name?.content || item.name}</span>
-                    {mode === 'completed' && item.name?.translation && (
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{typeof item.name === 'string' ? item.name : item.name?.content || ''}</span>
+                    {mode === 'completed' && typeof item.name === 'object' && item.name?.translation && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({item.name.translation})</span>
                     )}
                   </div>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{item.price}</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{typeof item.price === 'string' ? item.price : item.price?.content || ''}</span>
                 </div>
                 {item.description && (
                   <div className="text-sm mt-1">
                     <p className="text-gray-600 dark:text-gray-400">
-                      {item.description?.content || item.description}
+                      {typeof item.description === 'string' ? item.description : item.description?.content || ''}
                     </p>
-                    {mode === 'completed' && item.description?.translation && (
+                    {mode === 'completed' && typeof item.description === 'object' && item.description?.translation && (
                       <p className="text-gray-500 dark:text-gray-500 mt-1">
                         {item.description.translation}
                       </p>
@@ -168,21 +168,21 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
               <div key={idx} className="ml-4 mb-3 pb-3 border-b border-amber-100 dark:border-amber-900 last:border-0">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{meal.name?.content || meal.name}</span>
-                    {mode === 'completed' && meal.name?.translation && (
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{typeof meal.name === 'string' ? meal.name : meal.name?.content || ''}</span>
+                    {mode === 'completed' && typeof meal.name === 'object' && meal.name?.translation && (
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">({meal.name.translation})</span>
                     )}
                   </div>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{meal.price}</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400 ml-4">{typeof meal.price === 'string' ? meal.price : meal.price?.content || ''}</span>
                 </div>
                 {meal.items && (
                   <div className="mt-2 ml-2">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {meal.items && meal.items.map((item, itemIdx: number) => (
+                      {meal.items && meal.items.map((subItem, itemIdx: number) => (
                         <div key={itemIdx}>
-                          • {item?.content || item}
-                          {mode === 'completed' && item?.translation && (
-                            <span className="text-gray-500 dark:text-gray-500 ml-1">({item.translation})</span>
+                          • {typeof subItem.name === 'string' ? subItem.name : subItem.name?.content || ''}
+                          {mode === 'completed' && typeof subItem.name === 'object' && subItem.name?.translation && (
+                            <span className="text-gray-500 dark:text-gray-500 ml-1">({subItem.name.translation})</span>
                           )}
                         </div>
                       ))}
@@ -204,33 +204,15 @@ export const MenuAsset = memo(function MenuAsset({ asset, mode }: MenuAssetProps
             {asset.menu.promotions.map((promo, idx: number) => (
               <div key={idx} className="ml-4 mb-2 last:mb-0">
                 <p className="text-gray-700 dark:text-gray-300">
-                  {promo.description?.content || promo.description}
+                  {typeof promo.description === 'string' ? promo.description : promo.description?.content || ''}
                 </p>
-                {mode === 'completed' && promo.description?.translation && (
+                {mode === 'completed' && typeof promo.description === 'object' && promo.description?.translation && (
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {promo.description.translation}
                   </p>
                 )}
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Business Hours */}
-        {asset.menu.business_hours && (
-          <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg">
-            <h4 className="font-semibold text-lg mb-2 text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <span className="text-xl">🕒</span>
-              Business Hours
-            </h4>
-            <p className="ml-4 text-gray-700 dark:text-gray-300">
-              {asset.menu.business_hours?.content || asset.menu.business_hours}
-            </p>
-            {mode === 'completed' && asset.menu.business_hours?.translation && (
-              <p className="ml-4 text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {asset.menu.business_hours.translation}
-              </p>
-            )}
           </div>
         )}
       </div>

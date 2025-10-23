@@ -9,28 +9,34 @@ const createMockPaper = (exerciseCount: number = 10): PaperData => ({
   id: 1,
   range_pack_id: 1,
   blueprint_id: 1,
+  total_items: exerciseCount,
   exercises: Array.from({ length: exerciseCount }, (_, i) => ({
     id: i + 1,
     exercise_type_id: 1,
-    exercise_type: { id: 1, name: 'MCQ' },
+    subject_id: 1,
     difficulty_bundle_id: 1,
-    question: `Question ${i + 1}`,
+    passage: null,
+    audio_url: null,
+    image_url: null,
+    asset_json: null,
+    exercise_type: { id: 1, name: 'MCQ', description: '選擇題' },
+    created_at: new Date().toISOString(),
     exercise_items: [
       {
         id: (i + 1) * 10,
         exercise_id: i + 1,
+        sequence: 1,
         question: `Item ${i + 1}`,
         options: [
-          { id: 1, content: 'A', is_correct: true },
-          { id: 2, content: 'B', is_correct: false },
-          { id: 3, content: 'C', is_correct: false },
-          { id: 4, content: 'D', is_correct: false },
+          { text: 'A', is_correct: true },
+          { text: 'B', is_correct: false },
+          { text: 'C', is_correct: false },
+          { text: 'D', is_correct: false },
         ],
       },
     ],
   })),
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
 });
 
 const meta = {
@@ -44,7 +50,14 @@ const meta = {
     (Story, context) => {
       useEffect(() => {
         // 設定 mock paper 和其他狀態
-        const { paper, mode, answers, markedExercises, currentExerciseIndex } = context.args;
+        const args = context.args as {
+          paper?: PaperData;
+          mode?: 'pending' | 'in_progress' | 'completed' | 'abandoned';
+          answers?: Map<number, number>;
+          markedExercises?: Set<number>;
+          currentExerciseIndex?: number;
+        };
+        const { paper, mode, answers, markedExercises, currentExerciseIndex } = args;
         usePaperStore.setState({
           paper: paper || createMockPaper(10),
           mode: mode || 'pending',

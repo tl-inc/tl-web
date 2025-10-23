@@ -19,12 +19,12 @@ const GRADES = [
 ];
 
 interface SubjectOption {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface RangePack {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -192,7 +192,7 @@ export default function PaperConfigurationPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {subjects.map((subject) => (
-                        <SelectItem key={subject.id} value={subject.id}>
+                        <SelectItem key={subject.id} value={String(subject.id)}>
                           {subject.name}
                         </SelectItem>
                       ))}
@@ -227,7 +227,7 @@ export default function PaperConfigurationPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {rangePacks.map((range) => (
-                        <SelectItem key={range.id} value={range.id}>
+                        <SelectItem key={range.id} value={String(range.id)}>
                           {range.name}
                         </SelectItem>
                       ))}

@@ -14,9 +14,10 @@ const meta = {
     (Story, context) => {
       // 在每個 story 開始前重置 store
       useEffect(() => {
-        const initialMode = context.args.initialMode || 'scroll';
+        const args = context.args as { initialMode?: 'scroll' | 'card' };
+        const initialMode = args.initialMode || 'scroll';
         usePaperStore.setState({ viewMode: initialMode });
-      }, [context.args.initialMode]);
+      }, [context.args]);
 
       return (
         <div className="p-8">

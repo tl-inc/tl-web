@@ -263,10 +263,14 @@ export default function ExerciseSessionPage() {
                         </div>
 
                         {/* Skill metadata 內容 */}
-                        {skill.metadata && (
+                        {skill.metadata && typeof skill.metadata === 'object' && (
                           <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                            {(() => {
+                              const metadata = skill.metadata as Record<string, unknown>;
+                              return (
+                                <>
                             {/* 詞性 (POS) */}
-                            {skill.metadata.pos && (
+                            {metadata.pos && (
                               <div>
                                 <span className="font-semibold">詞性：</span>
                                 <span>{(() => {
@@ -281,33 +285,33 @@ export default function ExerciseSessionPage() {
                                     'auxiliary': '助動詞',
                                     'int': '感嘆詞',
                                   };
-                                  return posMap[skill.metadata.pos as string] || skill.metadata.pos;
-                                })()}</span>
+                                  return posMap[metadata.pos as string] || (metadata.pos as string);
+                                })() as string}</span>
                               </div>
                             )}
 
                             {/* 意思 (Meaning) */}
-                            {skill.metadata.meaning && (
+                            {metadata.meaning && (
                               <div>
                                 <span className="font-semibold">意思：</span>
-                                <span>{skill.metadata.meaning as string}</span>
+                                <span>{metadata.meaning as string}</span>
                               </div>
                             )}
 
                             {/* 可數性 (Countability) */}
-                            {skill.metadata.countability && (
+                            {metadata.countability && (
                               <div>
                                 <span className="font-semibold">可數性：</span>
-                                <span>{skill.metadata.countability as string}</span>
+                                <span>{metadata.countability as string}</span>
                               </div>
                             )}
 
                             {/* 詞形變化 (Inflections) */}
-                            {skill.metadata.inflections && typeof skill.metadata.inflections === 'object' && (
+                            {metadata.inflections && typeof metadata.inflections === 'object' && (
                               <div>
                                 <span className="font-semibold">詞形變化：</span>
                                 <div className="ml-4 mt-1 space-y-0.5 text-xs">
-                                  {Object.entries(skill.metadata.inflections as Record<string, unknown>).map(([form, value]) => {
+                                  {Object.entries(metadata.inflections as Record<string, unknown>).map(([form, value]) => {
                                     if (value) {
                                       const formLabels: Record<string, string> = {
                                         plural: '複數',
@@ -332,11 +336,11 @@ export default function ExerciseSessionPage() {
                             )}
 
                             {/* 例句 (Example Sentences) */}
-                            {skill.metadata.example_sentences && Array.isArray(skill.metadata.example_sentences) && (
+                            {metadata.example_sentences && Array.isArray(metadata.example_sentences) && (
                               <div>
                                 <span className="font-semibold">例句：</span>
                                 <div className="ml-4 mt-1 space-y-2">
-                                  {(skill.metadata.example_sentences as Array<{content: string; translation: string}>).map((example, idx) => (
+                                  {(metadata.example_sentences as Array<{content: string; translation: string}>).map((example, idx) => (
                                     <div key={idx} className="text-xs">
                                       <div className="italic text-gray-800 dark:text-gray-200">{example.content}</div>
                                       <div className="text-gray-600 dark:text-gray-400">{example.translation}</div>
@@ -345,6 +349,9 @@ export default function ExerciseSessionPage() {
                                 </div>
                               </div>
                             )}
+                                </>
+                              );
+                            })()}
                           </div>
                         )}
                       </div>

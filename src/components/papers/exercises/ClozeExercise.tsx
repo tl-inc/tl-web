@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import type { Exercise } from '@/types/paper';
+import type { Exercise, StructuredBreakdownUnit } from '@/types/paper';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StructuredText, findHighlightedIndices } from './StructuredText';
 
@@ -13,11 +13,19 @@ interface ClozeExerciseProps {
 }
 
 export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, onAnswerChange, mode }: ClozeExerciseProps) {
-  const passageText = exercise.passage || exercise.asset_json?.passage;
+  const passageText: string | null | undefined = exercise.passage ||
+    (exercise.asset_json && 'passage' in exercise.asset_json ? exercise.asset_json.passage as string | undefined : undefined);
 
   // 檢查是否有結構化拆解 (存在 asset_json.passage_structured_breakdown)
-  const passageBreakdown = exercise.asset_json?.passage_structured_breakdown;
+  const passageBreakdown: StructuredBreakdownUnit[] | null | undefined = exercise.asset_json && 'passage_structured_breakdown' in exercise.asset_json
+    ? exercise.asset_json.passage_structured_breakdown as StructuredBreakdownUnit[] | null | undefined
+    : undefined;
   const hasStructuredBreakdown = passageBreakdown && Array.isArray(passageBreakdown) && passageBreakdown.length > 0;
+
+  // 檢查是否有翻譯
+  const translation: string | undefined = exercise.asset_json && 'translation' in exercise.asset_json
+    ? (exercise.asset_json.translation as string | undefined)
+    : undefined;
 
   // Memoize sorted items to avoid re-sorting on every render
   const sortedItems = useMemo(
@@ -40,7 +48,7 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
   }, [mode, hasStructuredBreakdown, passageBreakdown, sortedItems]);
 
   // Memoize the parts generation
-  const parts = useMemo(() => {
+  const parts = useMemo<React.ReactNode[] | null>(() => {
     if (!passageText) return null;
 
     const result: React.ReactNode[] = [];
@@ -105,17 +113,17 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
 
   return (
     <div className="space-y-4">
-      {/* 進行中:顯示 dropdown */}
-      {mode === 'in_progress' || mode === 'pending' ? (
+      {(mode === 'in_progress' || mode === 'pending') && (
         <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
           {parts}
         </div>
-      ) : (
-        /* 完成後:顯示結構化文本 (完整句子,highlight 正確答案) 或原本的 parts */
+      )}
+
+      {(mode === 'completed' || mode === 'abandoned') && (
         <div className="text-gray-900 dark:text-gray-100 leading-relaxed">
-          {hasStructuredBreakdown && passageBreakdown ? (
+          {hasStructuredBreakdown && passageBreakdown && Array.isArray(passageBreakdown) ? (
             <StructuredText
-              breakdown={passageBreakdown}
+              breakdown={passageBreakdown as StructuredBreakdownUnit[]}
               highlightedIndices={highlightedIndices}
             />
           ) : (
@@ -124,12 +132,11 @@ export const ClozeExercise = memo(function ClozeExercise({ exercise, answers, on
         </div>
       )}
 
-      {/* Show translation in completed mode */}
-      {mode === 'completed' && exercise.asset_json?.translation && (
+      {mode === 'completed' && translation && (
         <div className="mt-3 p-3 bg-gray-50/80 dark:bg-gray-800/80 rounded-lg border-l-4 border-blue-400">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             <span className="font-semibold">翻譯：</span>
-            {exercise.asset_json.translation}
+            {translation}
           </div>
         </div>
       )}

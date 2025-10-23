@@ -93,9 +93,9 @@ export const ExerciseTypeRadarChart = memo(
     }, [radarData]);
 
     // 處理點擊事件
-    const handleClick = (data: RadarChartData) => {
-      if (onExerciseTypeClick && data) {
-        onExerciseTypeClick(data.id);
+    const handleClick = (data: unknown) => {
+      if (onExerciseTypeClick && data && typeof data === 'object' && 'id' in data) {
+        onExerciseTypeClick((data as RadarChartData).id);
       }
     };
 

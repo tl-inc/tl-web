@@ -4,248 +4,136 @@ import { TimetableAsset } from '../TimetableAsset';
 
 describe('TimetableAsset', () => {
   const mockAsset = {
-    title: 'Bus Schedule',
-    timetable: {
-      route_name: 'Route 101',
-      notes: 'No service on public holidays',
-      schedule: [
-        {
-          time: '08:00',
-          price: '$5.00',
-          duration: '45 minutes',
-          stops: [
-            { arrival_time: '08:00', location_index: 0 },
-            { arrival_time: '08:15', location_index: 1 },
-            { arrival_time: '08:45', location_index: 2 },
-          ],
-        },
-        {
-          time: '10:00',
-          price: '$5.00',
-          duration: '45 minutes',
-          stops: [
-            { arrival_time: '10:00', location_index: 0 },
-            { arrival_time: '10:15', location_index: 1 },
-            { arrival_time: '10:45', location_index: 2 },
-          ],
-        },
-      ],
-      locations: [
-        { name: 'City Center' },
-        { name: 'Park Station' },
-        { name: 'Airport Terminal' },
-      ],
-      transfer_info: 'Transfer available at Park Station',
-    },
+    title: { content: 'Taipei - Kaohsiung Train', translation: '台北 - 高雄火車' },
+    route: { content: 'High Speed Rail Route 1', translation: '高鐵一號線' },
+    schedule: [
+      {
+        train_number: 'TR101',
+        departure_time: '08:00',
+        arrival_time: '10:30',
+        duration: '2h 30m',
+        platform: 'Platform 1',
+        stops: [
+          { station: { content: 'Taipei Main Station', translation: '台北車站' }, arrival: '08:00', departure: '08:00' },
+          { station: { content: 'Hsinchu Station', translation: '新竹車站' }, arrival: '08:45', departure: '08:47' },
+          { station: { content: 'Taichung Station', translation: '台中車站' }, arrival: '09:20', departure: '09:22' },
+          { station: { content: 'Kaohsiung Station', translation: '高雄車站' }, arrival: '10:30', departure: '10:30' },
+        ],
+      },
+      {
+        train_number: 'TR102',
+        departure_time: '10:00',
+        arrival_time: '12:30',
+        duration: '2h 30m',
+        stops: [
+          { station: 'Taipei Main Station', arrival: '10:00', departure: '10:00' },
+          { station: 'Kaohsiung Station', arrival: '12:30', departure: '12:30' },
+        ],
+      },
+    ],
   };
 
-  describe('Rendering - basic elements', () => {
-    it('should render title', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getByText('Bus Schedule')).toBeInTheDocument();
-    });
-
-    it('should render route name', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getByText('Route 101')).toBeInTheDocument();
-    });
-
-    it('should render notes', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getByText('No service on public holidays')).toBeInTheDocument();
-    });
-
-    it('should render transfer info', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getByText('Transfer available at Park Station')).toBeInTheDocument();
-    });
+  it('should return null when asset is null or undefined', () => {
+    const { container } = render(<TimetableAsset asset={null} mode="pending" />);
+    expect(container.firstChild).toBeNull();
   });
 
-  describe('Rendering - schedule trips', () => {
-    it('should render all trip times', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getAllByText('08:00').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('10:00').length).toBeGreaterThan(0);
-    });
-
-    it('should render trip prices', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      const prices = screen.getAllByText(/\$5\.00/);
-      expect(prices.length).toBeGreaterThan(0);
-    });
-
-    it('should render trip durations', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      const durations = screen.getAllByText('45 minutes');
-      expect(durations.length).toBe(2);
-    });
-
-    it('should render all stops with arrival times', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getAllByText('08:15').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('08:45').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('10:15').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('10:45').length).toBeGreaterThan(0);
-    });
-
-    it('should render all location names', () => {
-      render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-      expect(screen.getAllByText('City Center').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Park Station').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Airport Terminal').length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('Rendering - completed mode with translations', () => {
-    const assetWithTranslations = {
-      title: { content: 'Bus Schedule', translation: '巴士時刻表' },
-      timetable: {
-        route_name: { content: 'Route 101', translation: '101號路線' },
-        notes: {
-          content: 'No service on public holidays',
-          translation: '國定假日停駛',
-        },
-        schedule: [
-          {
-            time: '08:00',
-            price: { content: '$5.00', translation: '$5.00' },
-            duration: { content: '45 minutes', translation: '45分鐘' },
-            stops: [{ arrival_time: '08:00', location_index: 0 }],
-          },
-        ],
-        locations: [{ name: { content: 'City Center', translation: '市中心' } }],
-        transfer_info: {
-          content: 'Transfer available',
-          translation: '可轉乘',
-        },
-      },
+  it('should return null when schedule is empty', () => {
+    const emptyAsset = {
+      title: 'Empty Schedule',
+      schedule: [],
     };
-
-    it('should render title translation in completed mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="completed" />);
-      expect(screen.getByText('巴士時刻表')).toBeInTheDocument();
-    });
-
-    it('should render route name translation in completed mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="completed" />);
-      expect(screen.getByText('101號路線')).toBeInTheDocument();
-    });
-
-    it('should render notes translation in completed mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="completed" />);
-      expect(screen.getByText('國定假日停駛')).toBeInTheDocument();
-    });
-
-    it('should render location translation in completed mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="completed" />);
-      expect(screen.getByText('市中心')).toBeInTheDocument();
-    });
-
-    it('should render transfer info translation in completed mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="completed" />);
-      expect(screen.getByText('可轉乘')).toBeInTheDocument();
-    });
-
-    it('should NOT render translations in in_progress mode', () => {
-      render(<TimetableAsset asset={assetWithTranslations} mode="in_progress" />);
-      expect(screen.queryByText('巴士時刻表')).not.toBeInTheDocument();
-      expect(screen.queryByText('101號路線')).not.toBeInTheDocument();
-    });
+    const { container } = render(<TimetableAsset asset={emptyAsset} mode="pending" />);
+    expect(container.firstChild).toBeNull();
   });
 
-  describe('Conditional rendering', () => {
-    it('should render null when asset is missing', () => {
-      const { container } = render(<TimetableAsset asset={null} mode="in_progress" />);
-      expect(container.firstChild).toBeNull();
-    });
+  it('should render title', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getByText('Taipei - Kaohsiung Train')).toBeInTheDocument();
+  });
 
-    it('should render null when timetable field is missing', () => {
-      const { container } = render(<TimetableAsset asset={{}} mode="in_progress" />);
-      expect(container.firstChild).toBeNull();
-    });
+  it('should not show title translation when mode is not completed', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.queryByText('台北 - 高雄火車')).not.toBeInTheDocument();
+  });
 
-    it('should handle missing schedule', () => {
-      const assetWithoutSchedule = {
-        title: 'Test',
-        timetable: {
-          route_name: 'Test Route',
-        },
-      };
+  it('should show title translation when mode is completed', () => {
+    render(<TimetableAsset asset={mockAsset} mode="completed" />);
+    expect(screen.getByText('台北 - 高雄火車')).toBeInTheDocument();
+  });
 
-      render(<TimetableAsset asset={assetWithoutSchedule} mode="in_progress" />);
-      expect(screen.getByText('Test')).toBeInTheDocument();
-      expect(screen.getByText('Test Route')).toBeInTheDocument();
-    });
+  it('should render route when available', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getByText('High Speed Rail Route 1')).toBeInTheDocument();
+  });
 
-    it('should handle missing locations', () => {
-      const assetWithoutLocations = {
-        title: 'Test',
-        timetable: {
-          schedule: [
-            {
-              time: '08:00',
-              stops: [{ arrival_time: '08:00', location_index: 0 }],
-            },
+  it('should render train numbers', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getByText('TR101')).toBeInTheDocument();
+    expect(screen.getByText('TR102')).toBeInTheDocument();
+  });
+
+  it('should render departure and arrival times', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getAllByText(/08:00/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/10:30/).length).toBeGreaterThan(0);
+  });
+
+  it('should render duration when available', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getAllByText(/Duration: 2h 30m/).length).toBe(2);
+  });
+
+  it('should render platform when available', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getByText(/Platform.*Platform 1/)).toBeInTheDocument();
+  });
+
+  it('should render stops', () => {
+    render(<TimetableAsset asset={mockAsset} mode="pending" />);
+    expect(screen.getAllByText(/Taipei Main Station/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Hsinchu Station/).length).toBeGreaterThan(0);
+  });
+
+  it('should show stop translations when mode is completed', () => {
+    render(<TimetableAsset asset={mockAsset} mode="completed" />);
+    expect(screen.getAllByText(/台北車站/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/新竹車站/).length).toBeGreaterThan(0);
+  });
+
+  it('should handle simple string values', () => {
+    const simpleAsset = {
+      title: 'Simple Title',
+      schedule: [
+        {
+          train_number: 'T1',
+          departure_time: '09:00',
+          arrival_time: '11:00',
+          stops: [
+            { station: 'Station A', arrival: '09:00' },
+            { station: 'Station B', arrival: '11:00' },
           ],
         },
-      };
-
-      render(<TimetableAsset asset={assetWithoutLocations} mode="in_progress" />);
-      expect(screen.getAllByText('08:00').length).toBeGreaterThan(0);
-    });
-
-    it('should handle missing optional fields (notes, transfer_info)', () => {
-      const minimalAsset = {
-        title: 'Minimal',
-        timetable: {
-          schedule: [],
-          locations: [],
-        },
-      };
-
-      render(<TimetableAsset asset={minimalAsset} mode="in_progress" />);
-      expect(screen.getByText('Minimal')).toBeInTheDocument();
-      expect(screen.queryByText('Notes')).not.toBeInTheDocument();
-      expect(screen.queryByText('Transfer Information')).not.toBeInTheDocument();
-    });
-
-    it('should use fallback title when missing', () => {
-      const assetWithoutTitle = {
-        timetable: {
-          schedule: [],
-          locations: [],
-        },
-      };
-
-      render(<TimetableAsset asset={assetWithoutTitle} mode="in_progress" />);
-      expect(screen.getByText('Schedule')).toBeInTheDocument();
-    });
+      ],
+    };
+    render(<TimetableAsset asset={simpleAsset} mode="pending" />);
+    expect(screen.getByText('Simple Title')).toBeInTheDocument();
+    expect(screen.getByText('T1')).toBeInTheDocument();
   });
 
-  describe('Styling and visual elements', () => {
-    it('should render emoji icons', () => {
-      const { container } = render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-
-      expect(container.innerHTML).toContain('🚌'); // route name
-      expect(container.innerHTML).toContain('⚠️'); // notes
-      expect(container.innerHTML).toContain('💵'); // price
-      expect(container.innerHTML).toContain('⏱️'); // duration
-      expect(container.innerHTML).toContain('🔄'); // transfer info
-    });
-
-    it('should apply gradient background classes', () => {
-      const { container } = render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-
-      const wrapper = container.querySelector('.bg-gradient-to-br');
-      expect(wrapper).toBeInTheDocument();
-      expect(wrapper?.className).toContain('from-sky-50');
-    });
-
-    it('should render schedule items with border styling', () => {
-      const { container } = render(<TimetableAsset asset={mockAsset} mode="in_progress" />);
-
-      const scheduleItems = container.querySelectorAll('.border-l-4.border-sky-500');
-      expect(scheduleItems.length).toBeGreaterThan(0);
-    });
+  it('should render minimal timetable without route', () => {
+    const minimalAsset = {
+      title: 'Minimal Schedule',
+      schedule: [
+        {
+          train_number: 'M1',
+          departure_time: '08:00',
+          arrival_time: '09:00',
+        },
+      ],
+    };
+    render(<TimetableAsset asset={minimalAsset} mode="pending" />);
+    expect(screen.getByText('Minimal Schedule')).toBeInTheDocument();
+    expect(screen.getByText('M1')).toBeInTheDocument();
   });
 });
