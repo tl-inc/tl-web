@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { Card } from '@/components/ui/card';
 import { BarChart3, Target } from 'lucide-react';
+import { PageHeader } from '@/components/common/PageHeader';
 
 const SUBJECT_ID = 1; // 英文科目 (目前系統只有英文)
 
@@ -25,14 +26,10 @@ export default function AnalyticsPage() {
         <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                程度分析
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                查看您的學習成效與能力分布
-              </p>
-            </div>
+            <PageHeader
+              title="程度分析"
+              description="查看您的學習成效與能力分布"
+            />
 
             {/* Analysis Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

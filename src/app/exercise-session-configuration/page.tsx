@@ -7,8 +7,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Flame, ArrowLeft } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/common/BackButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -22,6 +23,7 @@ import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { useCreateSession } from '@/hooks/exerciseSession/useExerciseSession';
 import { rangePackService } from '@/lib/api/rangePack';
 import { useQuery } from '@tanstack/react-query';
+import { PageHeader } from '@/components/common/PageHeader';
 
 // 題型選項 (基礎題型: 字彙、片語、文法)
 const EXERCISE_TYPES = [
@@ -85,22 +87,18 @@ export default function ExerciseSessionConfigurationPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <div className="container max-w-2xl mx-auto px-4 py-4 sm:py-8">
             {/* 返回按鈕 */}
-            <Button
-              variant="ghost"
+            <BackButton
               onClick={() => router.push('/dashboard')}
               className="mb-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              返回
-            </Button>
+            />
 
             {/* 標題 */}
-            <div className="mb-6 text-center">
-              <div className="flex items-center justify-center gap-2">
-                <Flame className="h-8 w-8 text-orange-500" />
-                <h1 className="text-3xl font-bold">刷題挑戰</h1>
-              </div>
-            </div>
+            <PageHeader
+              title="刷題挑戰"
+              icon={<Flame className="h-8 w-8 text-orange-500" />}
+              align="center"
+              className="mb-6"
+            />
 
             {/* 配置表單 */}
             <Card>

@@ -133,7 +133,7 @@ export default function NavigationPanel() {
           return true;
         }
       });
-  }, [paper, filter, mode, answers, markedExercises, getExerciseStatus]);
+  }, [paper, filter, mode, markedExercises, getExerciseStatus]);
 
   // 統計
   const stats = useMemo(() => {

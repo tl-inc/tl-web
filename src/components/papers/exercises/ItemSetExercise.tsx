@@ -16,6 +16,8 @@ import { TimetableAsset } from '../assets/TimetableAsset';
 import { AdvertisementAsset } from '../assets/AdvertisementAsset';
 import { DialogueAsset } from '../assets/DialogueAsset';
 import { StructuredText } from './StructuredText';
+import { UnansweredBadge } from '@/components/common/UnansweredBadge';
+import { AnswerFeedback } from '@/components/common/AnswerFeedback';
 
 interface ItemSetExerciseProps {
   exercise: Exercise;
@@ -131,11 +133,7 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                       {showCorrect && !hasItemStructuredBreakdown && displayQuestion}
                     </div>
                     {/* Unanswered badge */}
-                    {showCorrect && isUnanswered && (
-                      <span className="px-2 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
-                        ⚠️ 未作答
-                      </span>
-                    )}
+                    {showCorrect && isUnanswered && <UnansweredBadge size="sm" />}
                   </div>
                   {/* Show question translation */}
                   {showCorrect && item.metadata?.translation && (
@@ -182,32 +180,22 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
                       </label>
                       {/* Show why_correct for correct answer (always show in completed mode) */}
                       {showCorrect && option.is_correct && option.why_correct && (
-                        <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
-                          <div className="text-green-700 dark:text-green-300">
-                            <span className="font-semibold">✓ </span>{option.why_correct}
-                          </div>
-                        </div>
+                        <AnswerFeedback
+                          type="correct"
+                          message={option.why_correct}
+                          size="sm"
+                          spacing="compact"
+                        />
                       )}
                       {/* Show why_incorrect for incorrect options */}
                       {showCorrect && !option.is_correct && option.why_incorrect && (
-                        <div className="mt-2 ml-3 p-2 bg-gray-50/80 dark:bg-gray-900/80 rounded text-xs">
-                          {isSelected ? (
-                            // Selected wrong answer - red
-                            <div className="text-red-700 dark:text-red-300">
-                              <span className="font-semibold">✗ </span>{option.why_incorrect}
-                            </div>
-                          ) : isUnanswered ? (
-                            // Unanswered - gray info
-                            <div className="text-gray-600 dark:text-gray-400">
-                              <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
-                            </div>
-                          ) : (
-                            // Answered but not selected - gray info
-                            <div className="text-gray-600 dark:text-gray-400">
-                              <span className="font-semibold">ℹ️ </span>{option.why_incorrect}
-                            </div>
-                          )}
-                        </div>
+                        <AnswerFeedback
+                          type="incorrect"
+                          message={option.why_incorrect}
+                          variant={isSelected ? 'selected' : 'info'}
+                          size="sm"
+                          spacing="compact"
+                        />
                       )}
                     </div>
                   );

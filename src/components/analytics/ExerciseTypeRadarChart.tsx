@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from 'recharts';
 import type { ExerciseTypeGroup, RadarChartData } from '@/types/analytics';
+import { EmptyState } from '@/components/common/EmptyState';
 
 /**
  * Props for ExerciseTypeRadarChart component
@@ -102,11 +103,12 @@ export const ExerciseTypeRadarChart = memo(
     // 空資料處理
     if (radarData.length === 0) {
       return (
-        <div className="flex items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
-          <div className="text-center">
-            <p className="text-lg mb-2">此分組尚無題型資料</p>
-            <p className="text-sm">完成練習後即可查看統計</p>
-          </div>
+        <div className="flex items-center justify-center h-[400px]">
+          <EmptyState
+            message="此分組尚無題型資料"
+            description="完成練習後即可查看統計"
+            spacing="compact"
+          />
         </div>
       );
     }

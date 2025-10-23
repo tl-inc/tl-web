@@ -2,19 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthContext';
 import { authService } from '@/lib/api/auth';
-import type { User, LoginRequest, RegisterRequest } from '@/types/auth';
+import type { LoginRequest, RegisterRequest } from '@/types/auth';
+import { mockUser, mockAuthResponse } from '@/__tests__/mockData';
 
 // Mock authService
 vi.mock('@/lib/api/auth');
 
 describe('AuthContext', () => {
-  const mockUser: User = {
-    id: 1,
-    email: 'test@example.com',
-    username: 'testuser',
-    created_at: '2025-01-01T00:00:00Z',
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -117,11 +111,7 @@ describe('AuthContext', () => {
         password: 'password123',
       };
 
-      vi.mocked(authService.login).mockResolvedValue({
-        user: mockUser,
-        access_token: 'new-token',
-        refresh_token: 'refresh-token',
-      });
+      vi.mocked(authService.login).mockResolvedValue(mockAuthResponse);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,
@@ -166,16 +156,12 @@ describe('AuthContext', () => {
   describe('register', () => {
     it('should set user on successful registration', async () => {
       const registerData: RegisterRequest = {
-        username: 'newuser',
         email: 'new@example.com',
         password: 'password123',
+        full_name: 'New User',
       };
 
-      vi.mocked(authService.register).mockResolvedValue({
-        user: mockUser,
-        access_token: 'new-token',
-        refresh_token: 'refresh-token',
-      });
+      vi.mocked(authService.register).mockResolvedValue(mockAuthResponse);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,
@@ -198,11 +184,7 @@ describe('AuthContext', () => {
     it('should set user on successful Google login', async () => {
       const credential = 'google-credential-token';
 
-      vi.mocked(authService.googleLogin).mockResolvedValue({
-        user: mockUser,
-        access_token: 'google-token',
-        refresh_token: 'refresh-token',
-      });
+      vi.mocked(authService.googleLogin).mockResolvedValue(mockAuthResponse);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,

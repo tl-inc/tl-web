@@ -7,10 +7,12 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
 import { exerciseSessionService } from '@/lib/api/exerciseSession';
 import { ExerciseSessionSummary } from '@/components/exercise-sessions/ExerciseSessionSummary';
 import { useExerciseSessionStore } from '@/stores/useExerciseSessionStore';
+import { PageLoading } from '@/components/common/PageLoading';
+import { EmptyState } from '@/components/common/EmptyState';
+import { Button } from '@/components/ui/button';
 
 export default function ExerciseSessionSummaryPage() {
   const params = useParams();
@@ -39,30 +41,22 @@ export default function ExerciseSessionSummaryPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="container max-w-3xl mx-auto py-8">
-        <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </div>
-    );
+    return <PageLoading fullScreen={false} />;
   }
 
   if (!session) {
     return (
       <div className="container max-w-3xl mx-auto py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">找不到結算資料</h2>
-          <p className="text-muted-foreground mb-6">
-            可能是 Session 不存在或尚未完成
-          </p>
-          <button
-            onClick={handleBackHome}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
-          >
-            返回首頁
-          </button>
-        </div>
+        <EmptyState
+          message="找不到結算資料"
+          description="可能是 Session 不存在或尚未完成"
+          size="lg"
+          action={
+            <Button onClick={handleBackHome} className="px-4 py-2">
+              返回首頁
+            </Button>
+          }
+        />
       </div>
     );
   }
