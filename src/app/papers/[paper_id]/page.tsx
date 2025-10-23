@@ -50,7 +50,8 @@ export default function PaperDetailPage() {
       loadPaper(Number(paper_id));
     }
     return () => reset();
-  }, [paper_id, loadPaper, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paper_id]);
 
   // 禁止 body 捲動
   useEffect(() => {
