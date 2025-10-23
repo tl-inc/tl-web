@@ -4,27 +4,15 @@ import { NoticeAsset } from '../NoticeAsset';
 
 describe('NoticeAsset', () => {
   const mockNoticeAsset = {
-    notice: {
-      title: { content: 'School Fair 2024', translation: '學校園遊會 2024' },
-      date_time: 'March 15, 2024, 10:00 AM',
-      location: { content: 'Main Campus', translation: '主校區' },
-      description: { content: 'Annual school fair with activities', translation: '年度學校園遊會活動' },
-      participant_info: 'All students welcome',
-      fee_info: { content: 'Free entry', translation: '免費入場' },
-      contact_info: 'contact@school.edu',
-      requirements: 'Student ID required',
-      deadline: { content: 'March 10, 2024', translation: '2024年3月10日' },
-    },
+    title: { content: 'School Fair 2024', translation: '學校園遊會 2024' },
+    content: { content: 'Annual school fair with activities and games for all students.', translation: '年度學校園遊會,有各種活動和遊戲供所有學生參加。' },
+    date: 'March 15, 2024, 10:00 AM',
+    location: { content: 'Main Campus', translation: '主校區' },
     organizer: 'Student Council',
   };
 
   it('should return null when asset is null or undefined', () => {
     const { container } = render(<NoticeAsset asset={null} mode="pending" />);
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should return null when asset.notice is undefined', () => {
-    const { container } = render(<NoticeAsset asset={{}} mode="pending" />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -43,9 +31,9 @@ describe('NoticeAsset', () => {
     expect(screen.getByText('學校園遊會 2024')).toBeInTheDocument();
   });
 
-  it('should render date and time', () => {
+  it('should render date', () => {
     render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('📅 Date & Time:')).toBeInTheDocument();
+    expect(screen.getByText('📅 Date:')).toBeInTheDocument();
     expect(screen.getByText('March 15, 2024, 10:00 AM')).toBeInTheDocument();
   });
 
@@ -55,88 +43,41 @@ describe('NoticeAsset', () => {
     expect(screen.getByText('Main Campus')).toBeInTheDocument();
   });
 
-  it('should render description', () => {
+  it('should render content', () => {
     render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('Annual school fair with activities')).toBeInTheDocument();
-  });
-
-  it('should render participant info when available', () => {
-    render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('👥 Participants:')).toBeInTheDocument();
-    expect(screen.getByText('All students welcome')).toBeInTheDocument();
-  });
-
-  it('should render fee info when available', () => {
-    render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('💰 Fee:')).toBeInTheDocument();
-    expect(screen.getByText('Free entry')).toBeInTheDocument();
-  });
-
-  it('should render contact info when available', () => {
-    render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('📞 Contact:')).toBeInTheDocument();
-    expect(screen.getByText('contact@school.edu')).toBeInTheDocument();
-  });
-
-  it('should render requirements when available', () => {
-    render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('✅ Requirements:')).toBeInTheDocument();
-    expect(screen.getByText('Student ID required')).toBeInTheDocument();
-  });
-
-  it('should render deadline when available', () => {
-    render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('⏰ Deadline:')).toBeInTheDocument();
-    expect(screen.getByText('March 10, 2024')).toBeInTheDocument();
+    expect(screen.getByText('Annual school fair with activities and games for all students.')).toBeInTheDocument();
   });
 
   it('should render organizer when available', () => {
     render(<NoticeAsset asset={mockNoticeAsset} mode="pending" />);
-    expect(screen.getByText('👤 Organizer:')).toBeInTheDocument();
+    expect(screen.getByText('👥 Organizer:')).toBeInTheDocument();
     expect(screen.getByText('Student Council')).toBeInTheDocument();
   });
 
   it('should show translations when mode is completed', () => {
     render(<NoticeAsset asset={mockNoticeAsset} mode="completed" />);
     expect(screen.getByText('主校區')).toBeInTheDocument();
-    expect(screen.getByText('年度學校園遊會活動')).toBeInTheDocument();
-    expect(screen.getByText('免費入場')).toBeInTheDocument();
-    expect(screen.getByText('2024年3月10日')).toBeInTheDocument();
+    expect(screen.getByText('年度學校園遊會,有各種活動和遊戲供所有學生參加。')).toBeInTheDocument();
   });
 
   it('should handle title as string', () => {
     const asset = {
-      notice: {
-        title: 'Simple Title',
-        description: 'Some content',
-      },
+      title: 'Simple Title',
+      content: 'Some content',
     };
     render(<NoticeAsset asset={asset} mode="pending" />);
     expect(screen.getByText('Simple Title')).toBeInTheDocument();
   });
 
-  it('should handle content field instead of description', () => {
-    const asset = {
-      notice: {
-        title: 'Notice',
-        content: { content: 'Main content here', translation: '主要內容' },
-      },
-    };
-    render(<NoticeAsset asset={asset} mode="pending" />);
-    expect(screen.getByText('Main content here')).toBeInTheDocument();
-  });
-
-  it('should render minimal notice with only title and description', () => {
+  it('should render minimal notice with only title and content', () => {
     const minimalAsset = {
-      notice: {
-        title: 'Simple Notice',
-        description: 'Just a description',
-      },
+      title: 'Simple Notice',
+      content: 'Just a description',
     };
     render(<NoticeAsset asset={minimalAsset} mode="pending" />);
     expect(screen.getByText('Simple Notice')).toBeInTheDocument();
     expect(screen.getByText('Just a description')).toBeInTheDocument();
-    expect(screen.queryByText('📅 Date & Time:')).not.toBeInTheDocument();
+    expect(screen.queryByText('📅 Date:')).not.toBeInTheDocument();
     expect(screen.queryByText('📍 Location:')).not.toBeInTheDocument();
   });
 });

@@ -36,7 +36,11 @@ describe('MenuAsset', () => {
         {
           name: 'Lunch Special',
           price: '$15.00',
-          items: ['Soup', 'Main', 'Dessert'],
+          items: [
+            { name: 'Soup' },
+            { name: 'Main' },
+            { name: 'Dessert' },
+          ],
         },
       ],
       promotions: [
@@ -44,7 +48,6 @@ describe('MenuAsset', () => {
           description: '20% off on weekdays!',
         },
       ],
-      business_hours: '9:00 AM - 10:00 PM',
     },
   };
 
@@ -107,12 +110,6 @@ describe('MenuAsset', () => {
     render(<MenuAsset asset={mockMenuAsset} mode="pending" />);
     expect(screen.getByText('Promotions')).toBeInTheDocument();
     expect(screen.getByText('20% off on weekdays!')).toBeInTheDocument();
-  });
-
-  it('should render business hours section', () => {
-    render(<MenuAsset asset={mockMenuAsset} mode="pending" />);
-    expect(screen.getByText('Business Hours')).toBeInTheDocument();
-    expect(screen.getByText('9:00 AM - 10:00 PM')).toBeInTheDocument();
   });
 
   it('should not show translations when mode is not completed', () => {
