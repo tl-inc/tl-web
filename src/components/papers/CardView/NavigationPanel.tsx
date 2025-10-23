@@ -156,10 +156,10 @@ export default function NavigationPanel() {
   }, [paper, getExerciseStatus]);
 
   // 可用的篩選選項
-  const availableFilters = useMemo(() => {
+  const availableFilters = useMemo<FilterType[]>(() => {
     const base: FilterType[] = ['all', 'unanswered', 'answered', 'marked'];
     if (mode === 'completed' || mode === 'abandoned') {
-      return [...base, 'correct', 'incorrect'];
+      return [...base, 'correct', 'incorrect'] as FilterType[];
     }
     return base;
   }, [mode]);

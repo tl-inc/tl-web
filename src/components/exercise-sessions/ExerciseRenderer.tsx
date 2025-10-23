@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import type { ExerciseContent } from '@/types/exerciseSession';
-import type { Exercise } from '@/types/paper';
+import type { Exercise, ExerciseItemOption } from '@/types/paper';
 import { MCQExercise } from '@/components/papers/exercises/MCQExercise';
 import { ClozeExercise } from '@/components/papers/exercises/ClozeExercise';
 
@@ -41,8 +41,11 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
     exercise_id: number;
     sequence: number;
     question: string | null;
-    options: unknown[];
-    metadata: unknown | null;
+    options: ExerciseItemOption[];
+    metadata?: {
+      translation?: string;
+      structured_breakdown?: { content: string; translation: string; pos: string; explanation: string }[] | null;
+    } | null;
   }> = [];
 
   if (typeId === 1 || typeId === 2 || typeId === 3) {
@@ -58,8 +61,8 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
       exercise_id: question.exercise_id,
       sequence: 1,
       question: question.content.question as string,
-      options: (question.content.options as unknown[]) || [],
-      metadata: (question.content.metadata as unknown) || null,
+      options: (question.content.options as ExerciseItemOption[]) || [],
+      metadata: (question.content.metadata as { translation?: string; structured_breakdown?: { content: string; translation: string; pos: string; explanation: string }[] | null } | null) || null,
     }];
   } else if (typeId === 4) {
     // Cloze (克漏字) 格式：多個 items
@@ -76,8 +79,8 @@ export const ExerciseRenderer = memo(function ExerciseRenderer({
       exercise_id: question.exercise_id,
       sequence: item.sequence,
       question: null,
-      options: item.options,
-      metadata: item.metadata || null,
+      options: item.options as ExerciseItemOption[],
+      metadata: (item.metadata as { translation?: string; structured_breakdown?: { content: string; translation: string; pos: string; explanation: string }[] | null } | null) || null,
     }));
   }
 

@@ -1,7 +1,14 @@
 'use client';
 
 import { memo } from 'react';
-import type { AssetJsonData } from '@/types/paper';
+import type {
+  AssetJsonData,
+  MenuAssetData,
+  DialogueAssetData,
+  TimetableAssetData,
+  AdvertisementAssetData,
+  NoticeAssetData,
+} from '@/types/paper';
 import { usePaperStore } from '@/stores/usePaperStore';
 import { MenuAsset } from './MenuAsset';
 import { NoticeAsset } from './NoticeAsset';
@@ -24,23 +31,23 @@ export const AssetDisplay = memo(function AssetDisplay({ asset }: AssetDisplayPr
 
   // 根據 asset 的屬性判斷類型
   if ('menu' in asset) {
-    return <MenuAsset asset={asset} mode={mode} />;
+    return <MenuAsset asset={asset as MenuAssetData} mode={mode} />;
   }
 
   if ('dialogue' in asset || 'turns' in asset) {
-    return <DialogueAsset asset={asset} mode={mode} />;
+    return <DialogueAsset asset={asset as DialogueAssetData} mode={mode} />;
   }
 
   if ('schedule' in asset) {
-    return <TimetableAsset asset={asset} mode={mode} />;
+    return <TimetableAsset asset={asset as TimetableAssetData} mode={mode} />;
   }
 
   if ('company' in asset || ('title' in asset && 'content' in asset && 'contact' in asset)) {
-    return <AdvertisementAsset asset={asset} mode={mode} />;
+    return <AdvertisementAsset asset={asset as AdvertisementAssetData} mode={mode} />;
   }
 
   if ('title' in asset && 'content' in asset) {
-    return <NoticeAsset asset={asset} mode={mode} />;
+    return <NoticeAsset asset={asset as NoticeAssetData} mode={mode} />;
   }
 
   // Passage type (for Cloze exercises) - 直接不顯示，因為文章會在題目中顯示

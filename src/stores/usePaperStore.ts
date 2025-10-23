@@ -78,9 +78,10 @@ usePaperStoreCompat.setState = (partialState: Partial<ReturnType<typeof usePaper
 
   // Update each store independently
   if ('paper' in partialState) {
-    dataState.setPaper(partialState.paper || null);
-    // Clear mock functions when resetting state
-    if (!partialState.paper) {
+    if (partialState.paper) {
+      dataState.setPaper(partialState.paper);
+    } else {
+      // Clear mock functions when resetting state
       Object.keys(mockFunctions).forEach((key) => delete mockFunctions[key]);
     }
   }

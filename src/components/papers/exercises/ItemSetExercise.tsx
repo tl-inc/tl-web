@@ -1,7 +1,14 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import type { Exercise } from '@/types/paper';
+import type {
+  Exercise,
+  MenuAssetData,
+  NoticeAssetData,
+  TimetableAssetData,
+  AdvertisementAssetData,
+  DialogueAssetData,
+} from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { MenuAsset } from '../assets/MenuAsset';
 import { NoticeAsset } from '../assets/NoticeAsset';
@@ -18,13 +25,18 @@ interface ItemSetExerciseProps {
 }
 
 export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers, onAnswerChange, mode }: ItemSetExerciseProps) {
-  const passageText = exercise.passage || exercise.asset_json?.passage;
-  const imageUrl = exercise.image_url || exercise.asset_json?.image_url;
-  const audioUrl = exercise.audio_url || exercise.asset_json?.audio_url;
+  const passageText: string | null | undefined = exercise.passage ||
+    (exercise.asset_json && 'passage' in exercise.asset_json ? exercise.asset_json.passage as string | undefined : undefined);
+  const imageUrl: string | null | undefined = exercise.image_url ||
+    (exercise.asset_json && 'image_url' in exercise.asset_json ? exercise.asset_json.image_url as string | undefined : undefined);
+  const audioUrl: string | null | undefined = exercise.audio_url ||
+    (exercise.asset_json && 'audio_url' in exercise.asset_json ? exercise.asset_json.audio_url as string | undefined : undefined);
 
   // Type 6 (Reading) - check for structured breakdown
   const isReading = exercise.exercise_type_id === 6;
-  const passageBreakdown = exercise.asset_json?.passage_structured_breakdown;
+  const passageBreakdown = exercise.asset_json && 'passage_structured_breakdown' in exercise.asset_json
+    ? exercise.asset_json.passage_structured_breakdown
+    : undefined;
   const hasStructuredBreakdown = isReading && passageBreakdown && Array.isArray(passageBreakdown) && passageBreakdown.length > 0;
 
   // Listening comprehension (type 7) shows transcript only in completed mode
@@ -42,49 +54,48 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
 
     const typeId = exercise.exercise_type_id;
 
-    if (typeId === 8) return <MenuAsset asset={asset} mode={mode} />;
-    if (typeId === 9) return <NoticeAsset asset={asset} mode={mode} />;
-    if (typeId === 10) return <TimetableAsset asset={asset} mode={mode} />;
-    if (typeId === 11) return <AdvertisementAsset asset={asset} mode={mode} />;
-    if (typeId === 12) return <DialogueAsset asset={asset} mode={mode} />;
+    if (typeId === 8) return <MenuAsset asset={asset as MenuAssetData} mode={mode} />;
+    if (typeId === 9) return <NoticeAsset asset={asset as NoticeAssetData} mode={mode} />;
+    if (typeId === 10) return <TimetableAsset asset={asset as TimetableAssetData} mode={mode} />;
+    if (typeId === 11) return <AdvertisementAsset asset={asset as AdvertisementAssetData} mode={mode} />;
+    if (typeId === 12) return <DialogueAsset asset={asset as DialogueAssetData} mode={mode} />;
 
     return null;
   }, [isInformationReading, exercise.asset_json, exercise.exercise_type_id, mode]);
 
+  // Extract translation for type safety
+  const passageTranslation = exercise.asset_json && 'translation' in exercise.asset_json
+    ? exercise.asset_json.translation as string | undefined
+    : undefined;
+
   return (
     <div className="space-y-4">
-      {/* Image */}
       {imageUrl && (
         <div className="flex justify-center">
           <img src={imageUrl} alt="Exercise" className="max-w-full rounded-lg shadow-lg" />
         </div>
       )}
 
-      {/* Audio */}
       {audioUrl && (
         <audio controls className="w-full">
           <source src={audioUrl} type="audio/mpeg" />
         </audio>
       )}
 
-      {/* Information reading asset (8-12) */}
       {informationAsset}
 
-      {/* Passage (show transcript only in completed mode for listening) */}
       {!isInformationReading && shouldShowPassage && (
         <div className="p-5 bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
           <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
-            {/* Type 6 (Reading) 完成模式：顯示結構化文本 */}
             {mode === 'completed' && hasStructuredBreakdown && passageBreakdown ? (
               <StructuredText breakdown={passageBreakdown} />
             ) : (
               passageText
             )}
           </div>
-          {/* Show passage translation */}
-          {mode === 'completed' && exercise.asset_json?.translation && (
+          {mode === 'completed' && passageTranslation && (
             <div className="mt-4 pt-4 border-t border-slate-300/50 dark:border-slate-600/50 whitespace-pre-wrap text-gray-600 dark:text-gray-400 leading-relaxed">
-              {exercise.asset_json.translation}
+              {passageTranslation}
             </div>
           )}
         </div>
