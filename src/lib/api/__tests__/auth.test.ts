@@ -35,13 +35,13 @@ describe('authService', () => {
       const result = await authService.register({
         email: 'test@example.com',
         password: 'password123',
-        username: 'testuser',
+        full_name: 'Test User',
       });
 
       expect(mockPost).toHaveBeenCalledWith('/auth/register', {
         email: 'test@example.com',
         password: 'password123',
-        username: 'testuser',
+        full_name: 'Test User',
       });
       expect(result).toEqual(mockResponse.data);
       expect(localStorage.getItem('access_token')).toBe('access_123');

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import Header from '../Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
+import { mockUser } from '@/__tests__/mockData';
 
 // Mock dependencies
 vi.mock('@/contexts/AuthContext');
@@ -64,13 +65,6 @@ describe('Header', () => {
   });
 
   it('should show user info and logout button when user is logged in', () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/dashboard');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -84,20 +78,13 @@ describe('Header', () => {
 
     render(<Header />);
 
-    // Header shows email when full_name is not present
-    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+    // Header shows full_name when present
+    expect(screen.getByText('Test User')).toBeInTheDocument();
     expect(screen.getByText('登出')).toBeInTheDocument();
     expect(screen.queryByText('登入')).not.toBeInTheDocument();
   });
 
   it('should call logout and redirect to login page on logout click', async () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/dashboard');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -120,13 +107,6 @@ describe('Header', () => {
   });
 
   it('should show menu button when logged in and not on home or dashboard', () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/papers/123');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -145,13 +125,6 @@ describe('Header', () => {
   });
 
   it('should not show menu button on homepage', () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -169,13 +142,6 @@ describe('Header', () => {
   });
 
   it('should not show menu button on dashboard', () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/dashboard');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -193,13 +159,6 @@ describe('Header', () => {
   });
 
   it('should call onMenuClick when menu button is clicked', async () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     vi.mocked(usePathname).mockReturnValue('/papers/123');
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
@@ -221,13 +180,6 @@ describe('Header', () => {
   });
 
   it('should handle logout error gracefully', async () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01',
-    };
-
     mockLogout.mockRejectedValue(new Error('Logout failed'));
 
     vi.mocked(usePathname).mockReturnValue('/dashboard');

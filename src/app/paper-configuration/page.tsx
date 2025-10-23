@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { LoadingButton } from '@/components/common/LoadingButton';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
 import { paperService } from '@/lib/api/paper';
 import { rangePackService } from '@/lib/api/rangePack';
 import toast, { Toaster } from 'react-hot-toast';
+import { PageHeader } from '@/components/common/PageHeader';
 
 const GRADES = [
   { value: 7, label: '七年級' },
@@ -134,14 +135,10 @@ export default function PaperConfigurationPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                選取練習範圍
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                依序選擇年級、科目和範圍來開始練習
-              </p>
-            </div>
+            <PageHeader
+              title="選取練習範圍"
+              description="依序選擇年級、科目和範圍來開始練習"
+            />
 
             {/* Configuration Card */}
             <Card>
@@ -243,21 +240,16 @@ export default function PaperConfigurationPage() {
 
                 {/* Start Practice Button */}
                 <div className="pt-4">
-                  <Button
+                  <LoadingButton
                     onClick={handleStartPractice}
-                    disabled={!isButtonEnabled || startingPaper}
+                    isLoading={startingPaper}
+                    disabled={!isButtonEnabled}
+                    loadingText="正在生成考卷..."
                     className="w-full"
                     size="lg"
                   >
-                    {startingPaper ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        正在生成考卷...
-                      </>
-                    ) : (
-                      '進入練習'
-                    )}
-                  </Button>
+                    進入練習
+                  </LoadingButton>
                 </div>
               </CardContent>
             </Card>

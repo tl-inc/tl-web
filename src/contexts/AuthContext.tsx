@@ -21,11 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user on mount
-  useEffect(() => {
-    loadUser();
-  }, []);
-
   const loadUser = useCallback(async () => {
     try {
       const accessToken = tokenStorage.getAccessToken();
@@ -40,6 +35,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   }, []);
+
+  // Load user on mount
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   const login = useCallback(async (data: LoginRequest) => {
     const response = await authService.login(data);

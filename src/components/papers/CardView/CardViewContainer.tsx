@@ -8,6 +8,7 @@ import ExerciseCard from './ExerciseCard';
 import NavigationControls from './NavigationControls';
 import ProgressBar from './ProgressBar';
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
+import { EmptyState } from '@/components/common/EmptyState';
 
 // 懶加載 NavigationPanel
 const NavigationPanel = lazy(() => import('./NavigationPanel'));
@@ -34,8 +35,8 @@ export default function CardViewContainer() {
 
   if (!paper || paper.exercises.length === 0) {
     return (
-      <div className="flex h-96 items-center justify-center text-gray-500">
-        <p>無題目可顯示</p>
+      <div className="flex h-96 items-center justify-center">
+        <EmptyState message="無題目可顯示" spacing="compact" />
       </div>
     );
   }

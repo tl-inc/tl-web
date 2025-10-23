@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Target, Lightbulb, TrendingUp, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { PageLoading } from '@/components/common/PageLoading';
 
 const coreValues = [
   {
@@ -41,11 +42,7 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">載入中...</div>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   return (

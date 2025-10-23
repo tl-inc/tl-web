@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { PageLoading } from '@/components/common/PageLoading';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -18,11 +19,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   // 載入中或未登入時不顯示內容
   if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">載入中...</div>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   return <>{children}</>;

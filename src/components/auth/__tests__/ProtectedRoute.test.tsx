@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
+import { mockUser } from '@/__tests__/mockData';
 
 // Mock dependencies
 vi.mock('@/contexts/AuthContext');
@@ -93,13 +94,6 @@ describe('ProtectedRoute', () => {
   });
 
   it('should render children when user is authenticated', () => {
-    const mockUser = {
-      id: 1,
-      email: 'test@example.com',
-      username: 'testuser',
-      created_at: '2025-01-01T00:00:00Z',
-    };
-
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
       loading: false,

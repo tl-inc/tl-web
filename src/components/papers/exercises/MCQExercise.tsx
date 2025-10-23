@@ -4,6 +4,8 @@ import { memo, useMemo } from 'react';
 import type { Exercise } from '@/types/paper';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { StructuredText, findHighlightedIndices } from './StructuredText';
+import { UnansweredBadge } from '@/components/common/UnansweredBadge';
+import { AnswerFeedback } from '@/components/common/AnswerFeedback';
 
 interface MCQExerciseProps {
   exercise: Exercise;
@@ -64,11 +66,7 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
               {showCorrect && !hasStructuredBreakdown && displayQuestion}
             </div>
             {/* Unanswered badge */}
-            {showCorrect && isUnanswered && (
-              <span className="px-3 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700 whitespace-nowrap">
-                ⚠️ 未作答
-              </span>
-            )}
+            {showCorrect && isUnanswered && <UnansweredBadge />}
           </div>
           {/* Show translation */}
           {showCorrect && item.metadata?.translation && (
@@ -114,19 +112,18 @@ export const MCQExercise = memo(function MCQExercise({ exercise, answers, onAnsw
                 )}
               </label>
               {/* Show explanation */}
-              {showCorrect && (option.why_correct || option.why_incorrect) && (
-                <div className="mt-2 ml-4 p-3 bg-gray-50/80 dark:bg-gray-800/80 rounded-lg text-sm">
-                  {option.is_correct && option.why_correct && (
-                    <div className="text-green-700 dark:text-green-300">
-                      <span className="font-semibold">✓ </span>{option.why_correct}
-                    </div>
-                  )}
-                  {!option.is_correct && option.why_incorrect && (
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="font-semibold">✗ </span>{option.why_incorrect}
-                    </div>
-                  )}
-                </div>
+              {showCorrect && option.is_correct && option.why_correct && (
+                <AnswerFeedback
+                  type="correct"
+                  message={option.why_correct}
+                />
+              )}
+              {showCorrect && !option.is_correct && option.why_incorrect && (
+                <AnswerFeedback
+                  type="incorrect"
+                  message={option.why_incorrect}
+                  variant="info"
+                />
               )}
             </div>
           );

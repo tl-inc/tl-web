@@ -4,11 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SidebarLayout } from '@/components/layout/SidebarLayout';
-import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ExerciseTypeRadarChart } from '@/components/analytics/ExerciseTypeRadarChart';
 import { analyticsService } from '@/lib/api/analytics';
+import { PageLoading } from '@/components/common/PageLoading';
+import { PageHeader } from '@/components/common/PageHeader';
+import { BackButton } from '@/components/common/BackButton';
+import { EmptyState } from '@/components/common/EmptyState';
 
 const SUBJECT_ID = 1; // 英文科目 (目前系統只有英文)
 
@@ -43,34 +46,17 @@ export default function ExerciseTypesAnalyticsPage() {
         <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
             {/* Back Button */}
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="mb-6 hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              返回程度分析
-            </Button>
+            <BackButton onClick={handleBack} label="返回程度分析" />
 
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
-                題型分析
-              </h1>
-              <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
-                查看各題型的等級與表現
-              </p>
-            </div>
+            <PageHeader
+              title="題型分析"
+              description="查看各題型的等級與表現"
+              align="center"
+            />
 
             {/* Loading State */}
-            {isLoading && (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-400" />
-                <span className="ml-3 text-gray-600 dark:text-gray-400">
-                  載入中...
-                </span>
-              </div>
-            )}
+            {isLoading && <PageLoading fullScreen={false} />}
 
             {/* Error State */}
             {error && (
@@ -86,14 +72,11 @@ export default function ExerciseTypesAnalyticsPage() {
             {!isLoading && !error && analyticsData && (
               <div className="space-y-6">
                 {analyticsData.groups.length === 0 ? (
-                  <div className="text-center py-20">
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">
-                      尚無題型資料
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-500">
-                      完成練習後即可查看統計
-                    </p>
-                  </div>
+                  <EmptyState
+                    message="尚無題型資料"
+                    description="完成練習後即可查看統計"
+                    spacing="large"
+                  />
                 ) : (
                   analyticsData.groups.map((group) => {
                     // 計算該分組的最大 max_level

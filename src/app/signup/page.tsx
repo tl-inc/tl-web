@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/common/LoadingButton';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -192,13 +192,15 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <Button
+              <LoadingButton
                 type="submit"
-                disabled={loading}
+                isLoading={loading}
+                loadingText="註冊中..."
+                showSpinner={false}
                 className="w-full"
               >
-                {loading ? '註冊中...' : '註冊'}
-              </Button>
+                註冊
+              </LoadingButton>
             </div>
           </form>
         </div>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/common/LoadingButton';
 
 export function LoginForm() {
   const router = useRouter();
@@ -151,13 +151,15 @@ export function LoginForm() {
             </div>
 
             <div>
-              <Button
+              <LoadingButton
                 type="submit"
-                disabled={loading}
+                isLoading={loading}
+                loadingText="登入中..."
+                showSpinner={false}
                 className="w-full"
               >
-                {loading ? '登入中...' : '登入'}
-              </Button>
+                登入
+              </LoadingButton>
             </div>
           </form>
         </div>
