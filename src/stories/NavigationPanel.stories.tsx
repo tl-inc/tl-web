@@ -58,10 +58,12 @@ const meta = {
           currentExerciseIndex?: number;
         };
         const { paper, mode, answers, markedExercises, currentExerciseIndex } = args;
-        usePaperDataStore, usePaperCardViewStore.setState({
+        usePaperDataStore.setState({
           paper: paper || createMockPaper(10),
           mode: mode || 'pending',
           answers: answers || new Map(),
+        });
+        usePaperCardViewStore.setState({
           markedExercises: markedExercises || new Set(),
           currentExerciseIndex: currentExerciseIndex ?? 0,
           isNavigationPanelOpen: true,

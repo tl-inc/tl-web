@@ -16,7 +16,7 @@ const meta = {
       useEffect(() => {
         const args = context.args as { initialMode?: 'scroll' | 'card' };
         const initialMode = args.initialMode || 'scroll';
-        usePaperDataStore, usePaperCardViewStore.setState({ viewMode: initialMode });
+        usePaperCardViewStore.setState({ viewMode: initialMode });
       }, [context.args]);
 
       return (
@@ -66,7 +66,7 @@ export const Interactive: Story = {
         <div className="text-center text-sm text-gray-600">
           <p>點擊按鈕試試切換模式</p>
           <p className="mt-2">
-            當前模式: <strong>{usePaperDataStore, usePaperCardViewStore.getState().viewMode === 'scroll' ? '整頁' : '卡片'}</strong>
+            當前模式: <strong>{usePaperCardViewStore.getState().viewMode === 'scroll' ? '整頁' : '卡片'}</strong>
           </p>
         </div>
       </div>

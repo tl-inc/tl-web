@@ -63,10 +63,12 @@ const meta = {
           markedExercises?: Set<number>;
           currentExerciseIndex?: number;
         };
-        usePaperDataStore, usePaperCardViewStore.setState({
+        usePaperDataStore.setState({
           paper: args.paper || createMockPaper(5),
           mode: args.mode || 'in_progress',
           answers: args.answers || new Map(),
+        });
+        usePaperCardViewStore.setState({
           markedExercises: args.markedExercises || new Set(),
           currentExerciseIndex: args.currentExerciseIndex ?? 0,
           viewMode: 'card',
@@ -263,7 +265,7 @@ export const WithNavigationPanelOpen: Story = {
     (Story, context) => {
       useEffect(() => {
         // 打開導航面板
-        usePaperDataStore, usePaperCardViewStore.setState({ isNavigationPanelOpen: true });
+        usePaperCardViewStore.setState({ isNavigationPanelOpen: true });
       }, []);
 
       return (
