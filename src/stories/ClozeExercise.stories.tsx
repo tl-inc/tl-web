@@ -71,8 +71,7 @@ export const Basic: Story = {
       'short'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -90,8 +89,7 @@ export const MediumOptions: Story = {
       'medium'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -109,8 +107,7 @@ export const LongOptions: Story = {
       'long'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -131,8 +128,7 @@ export const PartiallyAnswered: Story = {
       [1, 0], // 第一個空格選了第一個選項
       [2, 1], // 第二個空格選了第二個選項
     ]),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -154,8 +150,7 @@ export const CompletedMode: Story = {
       [2, 1], // 錯誤 (正確答案是 0)
       [3, 0], // 正確
     ]),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'completed',
   },
@@ -173,8 +168,7 @@ export const MobileShortOptions: Story = {
       'short'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -197,8 +191,7 @@ export const MobileLongOptions: Story = {
       'long'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -221,8 +214,7 @@ export const TabletLongOptions: Story = {
       'long'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -248,8 +240,7 @@ export const ManyBlanks: Story = {
       [1, 0],
       [3, 2],
     ]),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },
@@ -267,8 +258,7 @@ export const PendingMode: Story = {
       'short'
     ),
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'pending',
   },
@@ -294,8 +284,7 @@ export const NoPassage: Story = {
       exercise_items: [],
     },
     answers: new Map(),
-    onAnswerChange: (exerciseId, itemId, answerIndex) => {
-      console.log('Answer changed:', { exerciseId, itemId, answerIndex });
+    onAnswerChange: (_exerciseId, _itemId, _answerIndex) => {
     },
     mode: 'in_progress',
   },

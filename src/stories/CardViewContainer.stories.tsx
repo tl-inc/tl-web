@@ -262,7 +262,7 @@ export const WithNavigationPanelOpen: Story = {
     currentExerciseIndex: 2,
   },
   decorators: [
-    (Story, context) => {
+    (Story, _context) => {
       useEffect(() => {
         // 打開導航面板
         usePaperCardViewStore.setState({ isNavigationPanelOpen: true });

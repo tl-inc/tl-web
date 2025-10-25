@@ -1,8 +1,7 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ExerciseCard from '../ExerciseCard';
 import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
-import { usePaperActions } from '@/stores/paper/usePaperActions';
 import type { Exercise } from '@/types/paper';
 
 // Mock framer-motion

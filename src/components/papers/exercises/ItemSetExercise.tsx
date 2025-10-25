@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
+import Image from 'next/image';
 import type {
   Exercise,
   MenuAssetData,
@@ -74,7 +75,14 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
     <div className="space-y-4">
       {imageUrl && (
         <div className="flex justify-center">
-          <img src={imageUrl} alt="Exercise" className="max-w-full rounded-lg shadow-lg" />
+          <Image
+            src={imageUrl}
+            alt="Exercise"
+            width={800}
+            height={600}
+            className="max-w-full h-auto rounded-lg shadow-lg"
+            unoptimized
+          />
         </div>
       )}
 

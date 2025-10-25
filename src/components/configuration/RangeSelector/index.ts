@@ -10,5 +10,7 @@ export type {
   SubjectsResponse,
   RangePackOption,
   RangePacksResponse,
-  GradeOption,
+  GradeSemesterOption,
+  PublisherEditionOption,
+  PublisherEditionsResponse,
 } from './types';

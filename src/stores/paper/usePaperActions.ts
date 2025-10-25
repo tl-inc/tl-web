@@ -6,7 +6,7 @@ import { usePaperDataStore } from './usePaperDataStore';
 import { usePaperUIStore } from './usePaperUIStore';
 import { usePaperCardViewStore } from './usePaperCardViewStore';
 import { paperService } from '@/lib/api/paper';
-import type { UserPaperWithAnswersResponse, PaperData } from '@/types/paper';
+import type { UserPaperWithAnswersResponse } from '@/types/paper';
 import type { ViewMode } from './usePaperCardViewStore';
 
 // Helper function to select active user paper
@@ -40,7 +40,6 @@ export const usePaperActions = () => {
     paper,
     activeUserPaper,
     mode,
-    answers,
   } = usePaperDataStore();
 
   // UI store

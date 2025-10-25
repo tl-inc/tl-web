@@ -17,7 +17,12 @@ export interface RangePack {
   id: number;
   name: string;
   subject_id: number;
-  grade: number;
+  grade: number | null;
+  semester: number | null;
+  display_order: number;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
   [key: string]: unknown;
 }
 

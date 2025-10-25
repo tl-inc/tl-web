@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-utils';
+import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
 import { ClozeExercise } from '../ClozeExercise';
 import userEvent from '@testing-library/user-event';
 import type { Exercise } from '@/types/paper';

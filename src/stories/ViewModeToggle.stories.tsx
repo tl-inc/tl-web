@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import ViewModeToggle from '@/components/papers/CardView/ViewModeToggle';
-import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
+import { usePaperCardViewStore } from '@/stores/paper';
 import { useEffect } from 'react';
 
 const meta = {

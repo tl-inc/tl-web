@@ -237,10 +237,8 @@ describe('Select components', () => {
   });
 
   describe('SelectContent - MutationObserver cleanup', () => {
-    let originalBody: HTMLElement;
-
     beforeEach(() => {
-      originalBody = document.body;
+      // Setup cleanup
     });
 
     afterEach(() => {

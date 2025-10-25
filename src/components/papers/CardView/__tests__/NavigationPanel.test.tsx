@@ -1,8 +1,9 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import user from '@testing-library/user-event';
 import NavigationPanel from '../NavigationPanel';
 import { usePaperDataStore, usePaperCardViewStore } from '@/stores/paper';
+import type { PageMode } from '@/stores/paper/usePaperDataStore';
 import type { PaperData, Exercise } from '@/types/paper';
 
 // Mock Lucide icons
@@ -53,7 +54,7 @@ const createMockPaper = (exerciseCount: number = 5): PaperData => ({
 // Helper: 設置測試 stores
 const setTestStores = (options: {
   paper?: PaperData | null;
-  mode?: string;
+  mode?: PageMode;
   answers?: Map<number, number>;
   currentExerciseIndex?: number;
   markedExercises?: Set<number>;

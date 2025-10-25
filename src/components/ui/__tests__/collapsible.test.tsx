@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../collapsible';
 
 describe('Collapsible components', () => {
