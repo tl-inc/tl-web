@@ -9,7 +9,7 @@ export interface RangePack {
   description: string | null;
   grade: number | null;       // 7, 8, 9
   semester: number | null;    // 1, 2
-  exam_index: number | null;  // 1, 2, 3
+  display_order: number;      // 排序順序 (1, 2, 3...)
   created_at: string;
   updated_at: string;
 }
