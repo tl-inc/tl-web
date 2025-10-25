@@ -4,6 +4,31 @@
 
 ## [Unreleased]
 
+### 型別安全與程式碼品質改進 (2025-10-26)
+
+#### Upgraded
+- 升級 Storybook 從 9.1.13 → 9.1.15 (patch 更新)
+- 升級 React 和 React DOM 從 19.1.0 → 19.2.0 (minor 更新)
+- 所有測試通過驗證 (355/355 tests passing)
+- Storybook 正常運作確認
+
+#### Fixed
+- 修正 RangeSelector 類型匯出錯誤：`GradeOption` → `GradeSemesterOption` (index.ts:13)
+- 補全 `RangePack` 介面缺少的欄位：`semester`, `display_order`, `description`, `created_at`, `updated_at` (rangePack.ts)
+- 修正測試檔案類型錯誤：`NavigationPanel.test.tsx` mode 參數從 `string` 改為 `PageMode` (NavigationPanel.test.tsx:62)
+- 升級圖片元件：將 `<img>` 替換為 Next.js `<Image />` 以提升效能 (ItemSetExercise.tsx:76-86)
+
+#### Removed
+- 清理 7 個檔案的未使用 imports：`within`, `fireEvent`, `vi`, `usePaperActions`, `PaperData`, `usePaperDataStore`
+- 移除 Storybook 檔案中的 11 個 `console.log` 語句 (ClozeExercise.stories.tsx)
+- 清理未使用變數：`originalBody` (select.test.tsx), `answers` (usePaperActions.ts)
+
+#### Improved
+- ESLint 警告從 23 → 0 (100% 改進)
+- TypeScript 編譯錯誤從 3 → 0
+- 生產構建現在可正常完成
+- 新增缺少的類型匯出：`PublisherEditionOption`, `PublisherEditionsResponse`
+
 ### 刷題模式 (Exercise Session) 功能改進
 
 #### Added
