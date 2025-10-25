@@ -19,7 +19,7 @@ vi.mock('lucide-react', () => ({
 // Helper: 建立 mock paper
 const createMockPaper = (exerciseCount: number = 5): PaperData => ({
   id: 1,
-  range_pack_id: 1,
+  range_pack_ids: [1],
   blueprint_id: 1,
   exercises: Array.from({ length: exerciseCount }, (_, i) => ({
     id: i + 1,

@@ -85,7 +85,7 @@ export default function CardViewContainer() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="absolute inset-0 z-40 bg-black/20"
-              onClick={() => usePaperStore.getState().toggleNavigationPanel()}
+              onClick={() => usePaperCardViewStore.getState().toggleNavigationPanel()}
             />
 
             {/* 導航面板 */}

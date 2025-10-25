@@ -33,20 +33,43 @@ describe('rangePackService', () => {
   });
 
   describe('getRangePacks', () => {
-    it('should fetch range packs by subject and grade', async () => {
+    it('should fetch range packs by publisher edition, subject, grade and semester', async () => {
       const mockRangePacks = [
-        { id: 1, name: 'Chapter 1', range_type: 'chapter' },
-        { id: 2, name: 'Chapter 2', range_type: 'chapter' },
+        { id: 1, name: 'Unit 1', range_type: 'unit' },
+        { id: 2, name: 'Unit 2', range_type: 'unit' },
       ];
 
       vi.mocked(apiClient.get).mockResolvedValue({ data: mockRangePacks });
 
-      const result = await rangePackService.getRangePacks(1, 7);
+      const result = await rangePackService.getRangePacks(1, 1, 7, 1);
 
       expect(apiClient.get).toHaveBeenCalledWith('/range-packs', {
-        params: { subject_id: 1, grade: 7 },
+        params: {
+          publisher_edition_id: 1,
+          subject_id: 1,
+          grade: 7,
+          semester: 1
+        },
       });
       expect(result).toEqual(mockRangePacks);
+    });
+  });
+
+  describe('getPublisherEditions', () => {
+    it('should fetch publisher editions by subject', async () => {
+      const mockEditions = [
+        { id: 1, publisher_name: '翰林', version: 'B3' },
+        { id: 2, publisher_name: '南一', version: 'A2' },
+      ];
+
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockEditions });
+
+      const result = await rangePackService.getPublisherEditions(1);
+
+      expect(apiClient.get).toHaveBeenCalledWith('/publisher-editions', {
+        params: { subject_id: 1 },
+      });
+      expect(result).toEqual(mockEditions);
     });
   });
 });

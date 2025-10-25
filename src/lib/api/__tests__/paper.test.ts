@@ -18,7 +18,7 @@ describe('paperService', () => {
   describe('startPaper', () => {
     it('should create a new paper', async () => {
       const mockRequest = {
-        range_pack_id: 1,
+        range_pack_ids: [1],
         subject_id: 1,
       };
       const mockResponse = {

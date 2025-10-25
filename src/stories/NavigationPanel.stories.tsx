@@ -7,7 +7,7 @@ import type { PaperData } from '@/types/paper';
 // Helper: 建立 mock paper
 const createMockPaper = (exerciseCount: number = 10): PaperData => ({
   id: 1,
-  range_pack_id: 1,
+  range_pack_ids: [1],
   blueprint_id: 1,
   total_items: exerciseCount,
   exercises: Array.from({ length: exerciseCount }, (_, i) => ({

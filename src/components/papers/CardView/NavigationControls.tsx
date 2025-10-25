@@ -65,7 +65,7 @@ export default function NavigationControls() {
 
         {/* 右側：下一題按鈕 */}
         <button
-          onClick={nextExercise}
+          onClick={() => nextExercise(paper.exercises.length - 1)}
           disabled={isLastExercise}
           className={`flex items-center gap-1 rounded-lg px-3 py-2 font-medium transition-colors md:gap-2 md:px-4 ${
             isLastExercise

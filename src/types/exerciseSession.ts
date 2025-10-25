@@ -18,7 +18,7 @@ export interface ExerciseType {
 
 export interface CreateSessionRequest {
   subject_id: number;
-  range_pack_id: number;
+  range_pack_ids: number[];
   exercise_type_ids: number[]; // 1=字彙, 2=片語, 3=文法
 }
 
@@ -76,7 +76,7 @@ export interface ExerciseSessionDetail {
   id: number;
   user_id: number;
   subject_id: number;
-  range_pack_id?: number;
+  range_pack_ids?: number[];
   status: SessionStatus;
   configuration: {
     exercise_type_ids: number[];

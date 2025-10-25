@@ -25,6 +25,21 @@ export interface RangePacksResponse {
   data: RangePack[];
 }
 
+export interface PublisherEdition {
+  id: number;
+  publisher_id: number;
+  publisher_name: string;
+  version: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublisherEditionsResponse {
+  data: PublisherEdition[];
+  total: number;
+}
+
 export const rangePackService = {
   /**
    * Get available subjects by grade
@@ -37,11 +52,31 @@ export const rangePackService = {
   },
 
   /**
-   * Get range packs by subject and grade
+   * Get publisher editions by subject
    */
-  async getRangePacks(subjectId: number, grade: number): Promise<RangePacksResponse> {
+  async getPublisherEditions(subjectId: number): Promise<PublisherEditionsResponse> {
+    const response = await apiClient.get<PublisherEditionsResponse>('/publisher-editions', {
+      params: { subject_id: subjectId },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get range packs by publisher edition, subject, grade and semester
+   */
+  async getRangePacks(
+    publisherEditionId: number,
+    subjectId: number,
+    grade: number,
+    semester: number
+  ): Promise<RangePacksResponse> {
     const response = await apiClient.get<RangePacksResponse>('/range-packs', {
-      params: { subject_id: subjectId, grade },
+      params: {
+        publisher_edition_id: publisherEditionId,
+        subject_id: subjectId,
+        grade,
+        semester
+      },
     });
     return response.data;
   },

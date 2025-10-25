@@ -55,7 +55,7 @@ export interface Exercise {
 // Paper (試卷)
 export interface PaperData {
   id: number;
-  range_pack_id: number;
+  range_pack_ids: number[];
   blueprint_id: number;
   total_items: number;
   exercises: Exercise[];
@@ -87,7 +87,7 @@ export interface UserPaperWithAnswersResponse extends UserPaperResponse {
 }
 
 export interface StartPaperRequest {
-  range_pack_id: number;
+  range_pack_ids: number[];
   subject_id: number;
   blueprint_id?: number;
 }
