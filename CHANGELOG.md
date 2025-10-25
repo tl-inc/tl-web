@@ -29,6 +29,25 @@
 - 生產構建現在可正常完成
 - 新增缺少的類型匯出：`PublisherEditionOption`, `PublisherEditionsResponse`
 
+#### Dependency Upgrade Evaluation
+完成主要版本升級評估（使用 MCP Context7 + WebSearch）：
+
+**Vitest 3.2.4 → 4.0.3**
+- ❌ **暫不升級** - 主要版本跳躍風險高，breaking changes 影響範圍不明確
+- 破壞性變更：Coverage 配置重構、Pool options 改名、Test/Describe 參數順序變更、Mock API 變更
+- 預估工作量：3.5-5.5 小時（需掃描所有 355 個測試）
+- 建議時機：等待 v4.2+ 穩定版本（2026 Q2）
+- 當前狀態：355/355 tests passing，測試狀態良好
+
+**Next.js 15.5.4 → 16.0.0**
+- ❌ **強烈不建議升級** - 破壞性極大，影響範圍極廣
+- 重大變更：Async Request APIs（cookies/headers/params 全部需要 await）、Node.js 20.9.0+ 要求、Middleware → Proxy 改名
+- 預估工作量：13-25 小時（幾乎所有 Server Components 需要改動）
+- 建議時機：等待 v16.3+ 和社群最佳實踐成熟（2026 Q2-Q3）
+- 當前狀態：Next.js 15.5.4 穩定且成熟，React 19.2.0 完全相容
+
+**綜合建議**：保持依賴項穩定，專注功能開發，僅執行 minor/patch 安全更新
+
 ### 刷題模式 (Exercise Session) 功能改進
 
 #### Added
