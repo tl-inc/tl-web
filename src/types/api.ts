@@ -76,7 +76,7 @@ export interface RangePack {
   subject_id: string;
   grade: number;
   semester: number;
-  exam_index: number;
+  display_order: number;
   name: string | null;
   meta_data: Record<string, unknown> | null;
   created_at: string;
