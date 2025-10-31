@@ -152,16 +152,18 @@ const UnitSpan = memo(function UnitSpan({
     onToggle();
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // 防止瀏覽器的預設行為（如滾動）
     e.stopPropagation();
     onToggle();
   };
+
   return (
     <>
       <span
         className="relative inline-block cursor-pointer"
         onClick={handleClick}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={handleTouchStart}
         tabIndex={0}
       >
         <span className={`
