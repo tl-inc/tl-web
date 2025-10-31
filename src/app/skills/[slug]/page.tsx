@@ -136,20 +136,24 @@ export default function SkillPage() {
                 <CardContent className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">公式</h3>
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="p-4">
                       {skill.metadata.pattern.visual_parts && skill.metadata.pattern.visual_parts.length > 0 ? (
                         <div className="flex flex-wrap gap-2 items-center text-lg">
                           {skill.metadata.pattern.visual_parts.map((part, idx) => (
-                            <span
-                              key={idx}
-                              className={`px-3 py-1 rounded-md font-semibold ${getPartColorClasses(part.type)}`}
-                            >
-                              {part.text}
+                            <span key={idx} className="flex items-center gap-2">
+                              <span
+                                className={`px-3 py-1 rounded-md font-semibold ${getPartColorClasses(part.type)}`}
+                              >
+                                {part.text}
+                              </span>
+                              {idx < skill.metadata.pattern.visual_parts!.length - 1 && (
+                                <span className="text-gray-600 dark:text-gray-400 font-semibold">+</span>
+                              )}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-lg font-mono text-blue-900 dark:text-blue-100">
+                        <p className="text-lg font-mono text-gray-900 dark:text-gray-100">
                           {skill.metadata.pattern.formula}
                         </p>
                       )}
@@ -236,7 +240,7 @@ export default function SkillPage() {
                   {skill.metadata.exam_tips.comparisons.map((comparison, index) => (
                     <div key={index} className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 space-y-4">
                       <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                        vs {comparison.grammar_name}
+                        {comparison.grammar_name}
                       </h4>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{comparison.difference}</p>
                       <Separator />
@@ -244,10 +248,15 @@ export default function SkillPage() {
                         <div className="space-y-2">
                           <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">本文法</h5>
                           <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                              {comparison.example_pair.this_grammar.content}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                              {comparison.example_pair.this_grammar.structured_breakdown &&
+                               comparison.example_pair.this_grammar.structured_breakdown.length > 0 ? (
+                                <StructuredText breakdown={comparison.example_pair.this_grammar.structured_breakdown} />
+                              ) : (
+                                comparison.example_pair.this_grammar.content
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
                               {comparison.example_pair.this_grammar.translation}
                             </p>
                           </div>
@@ -255,10 +264,15 @@ export default function SkillPage() {
                         <div className="space-y-2">
                           <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">對比文法</h5>
                           <div className="bg-orange-50 dark:bg-orange-950 p-3 rounded border border-orange-200 dark:border-orange-800">
-                            <p className="text-sm font-medium text-orange-900 dark:text-orange-100">
-                              {comparison.example_pair.that_grammar.content}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            <div className="text-sm font-medium text-orange-900 dark:text-orange-100 mb-1">
+                              {comparison.example_pair.that_grammar.structured_breakdown &&
+                               comparison.example_pair.that_grammar.structured_breakdown.length > 0 ? (
+                                <StructuredText breakdown={comparison.example_pair.that_grammar.structured_breakdown} />
+                              ) : (
+                                comparison.example_pair.that_grammar.content
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
                               {comparison.example_pair.that_grammar.translation}
                             </p>
                           </div>

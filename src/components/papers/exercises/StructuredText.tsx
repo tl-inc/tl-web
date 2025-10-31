@@ -176,14 +176,14 @@ const UnitSpan = memo(function UnitSpan({
           absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-3
           px-4 py-3 bg-gray-900 dark:bg-gray-100
           text-white dark:text-gray-900 rounded-lg shadow-2xl
-          whitespace-nowrap min-w-[120px]
+          w-[200px] sm:w-auto sm:min-w-[120px] sm:max-w-[300px]
           ${isActive ? 'visible opacity-100' : 'invisible opacity-0'}
           transition-opacity duration-200
         `}>
-          <div className="font-bold text-base mb-2 text-center">{unit.translation}</div>
-          <div className="text-gray-300 dark:text-gray-600 text-xs text-center mb-1">{unit.pos}</div>
+          <div className="font-bold text-base mb-2 text-center whitespace-normal break-words">{unit.translation}</div>
+          <div className="text-gray-300 dark:text-gray-600 text-xs text-center mb-1 whitespace-normal break-words">{unit.pos}</div>
           {unit.explanation && (
-            <div className="text-gray-400 dark:text-gray-500 text-xs max-w-[250px] whitespace-normal text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-1">
+            <div className="text-gray-400 dark:text-gray-500 text-xs whitespace-normal break-words text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-1">
               {unit.explanation}
             </div>
           )}
