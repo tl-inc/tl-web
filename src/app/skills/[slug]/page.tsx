@@ -97,25 +97,6 @@ export default function SkillPage() {
               {skill.type === 'phrase' && '片語'}
               {skill.type === 'concept' && '概念'}
             </Badge>
-            {isGrammarSkill(skill) && skill.metadata?.category && (
-              <Badge variant="secondary">{skill.metadata.category}</Badge>
-            )}
-            {isGrammarSkill(skill) && skill.metadata?.level && (
-              <Badge
-                variant="secondary"
-                className={
-                  skill.metadata.level === 'beginner'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    : skill.metadata.level === 'intermediate'
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                }
-              >
-                {skill.metadata.level === 'beginner' && '初級'}
-                {skill.metadata.level === 'intermediate' && '中級'}
-                {skill.metadata.level === 'advanced' && '高級'}
-              </Badge>
-            )}
           </div>
         </div>
       </div>
