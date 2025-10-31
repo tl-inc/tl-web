@@ -142,20 +142,42 @@ const UnitSpan = memo(function UnitSpan({
   onToggle: () => void;
 }) {
   const isPunctuation = unit.pos === '標點符號';
+  const lastTouchTime = useRef(0);
+  const touchStartPos = useRef({ x: 0, y: 0 });
 
   if (isPunctuation) {
     return <>{unit.content}{' '}</>;
   }
 
   const handleClick = (e: React.MouseEvent) => {
+    // 如果最近 500ms 內有觸摸事件，忽略點擊（避免重複觸發）
+    if (Date.now() - lastTouchTime.current < 500) {
+      e.preventDefault();
+      return;
+    }
     e.stopPropagation();
     onToggle();
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault(); // 防止瀏覽器的預設行為（如滾動）
-    e.stopPropagation();
-    onToggle();
+    // 記錄觸摸開始位置，用於判斷是否為滾動
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // 計算觸摸移動距離
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+    // 如果移動距離小於 10px，視為點擊而非滾動
+    if (deltaX < 10 && deltaY < 10) {
+      e.preventDefault(); // 只在確定是點擊時才阻止預設行為
+      e.stopPropagation();
+      lastTouchTime.current = Date.now(); // 記錄觸摸時間，防止後續 click 觸發
+      onToggle();
+    }
   };
 
   return (
@@ -164,6 +186,7 @@ const UnitSpan = memo(function UnitSpan({
         className="relative inline-block cursor-pointer"
         onClick={handleClick}
         onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         tabIndex={0}
       >
         <span className={`
