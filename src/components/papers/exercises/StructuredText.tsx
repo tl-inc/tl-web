@@ -152,7 +152,6 @@ const UnitSpan = memo(function UnitSpan({
   const handleClick = (e: React.MouseEvent) => {
     // 如果最近 500ms 內有觸摸事件，忽略點擊（避免重複觸發）
     if (Date.now() - lastTouchTime.current < 500) {
-      e.preventDefault();
       return;
     }
     e.stopPropagation();
@@ -173,7 +172,7 @@ const UnitSpan = memo(function UnitSpan({
 
     // 如果移動距離小於 10px，視為點擊而非滾動
     if (deltaX < 10 && deltaY < 10) {
-      e.preventDefault(); // 只在確定是點擊時才阻止預設行為
+      // 不使用 preventDefault()，讓滾動正常運作
       e.stopPropagation();
       lastTouchTime.current = Date.now(); // 記錄觸摸時間，防止後續 click 觸發
       onToggle();
