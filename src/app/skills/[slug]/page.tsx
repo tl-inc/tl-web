@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { AlertCircle, BookOpen, Info, Check, MessageSquare, Lightbulb } from 'lucide-react';
 import { skillService } from '@/lib/api/skill';
-import type { Skill, GrammarMetadata } from '@/types/skill';
+import type { Skill } from '@/types/skill';
 import { isGrammarSkill } from '@/types/skill';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -118,26 +118,29 @@ export default function SkillPage() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">公式</h3>
                     <div className="p-4">
-                      {skill.metadata.pattern.visual_parts && skill.metadata.pattern.visual_parts.length > 0 ? (
-                        <div className="flex flex-wrap gap-2 items-center text-lg">
-                          {skill.metadata.pattern.visual_parts.map((part, idx) => (
-                            <span key={idx} className="flex items-center gap-2">
-                              <span
-                                className={`px-3 py-1 rounded-md font-semibold ${getPartColorClasses(part.type)}`}
-                              >
-                                {part.text}
+                      {(() => {
+                        const visualParts = skill.metadata.pattern.visual_parts;
+                        return visualParts && visualParts.length > 0 ? (
+                          <div className="flex flex-wrap gap-2 items-center text-lg">
+                            {visualParts.map((part, idx) => (
+                              <span key={idx} className="flex items-center gap-2">
+                                <span
+                                  className={`px-3 py-1 rounded-md font-semibold ${getPartColorClasses(part.type)}`}
+                                >
+                                  {part.text}
+                                </span>
+                                {idx < visualParts.length - 1 && (
+                                  <span className="text-gray-600 dark:text-gray-400 font-semibold">+</span>
+                                )}
                               </span>
-                              {idx < skill.metadata.pattern.visual_parts!.length - 1 && (
-                                <span className="text-gray-600 dark:text-gray-400 font-semibold">+</span>
-                              )}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-lg font-mono text-gray-900 dark:text-gray-100">
-                          {skill.metadata.pattern.formula}
-                        </p>
-                      )}
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-lg font-mono text-gray-900 dark:text-gray-100">
+                            {skill.metadata.pattern.formula}
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
                   <Separator />
