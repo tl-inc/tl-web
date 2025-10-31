@@ -172,22 +172,26 @@ const UnitSpan = memo(function UnitSpan({
           {unit.content}
         </span>
 
+        {/* Mobile: show below, Desktop: show above */}
         <span className={`
-          absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-3
+          absolute z-50
+          top-full sm:bottom-full sm:top-auto
+          left-1/2 -translate-x-1/2
+          mt-3 sm:mt-0 sm:mb-3
           px-4 py-3 bg-gray-900 dark:bg-gray-100
           text-white dark:text-gray-900 rounded-lg shadow-2xl
           w-[200px] sm:w-auto sm:min-w-[120px] sm:max-w-[300px]
           ${isActive ? 'visible opacity-100' : 'invisible opacity-0'}
           transition-opacity duration-200
         `}>
-          <div className="font-bold text-base mb-2 text-center whitespace-normal break-words">{unit.translation}</div>
-          <div className="text-gray-300 dark:text-gray-600 text-xs text-center mb-1 whitespace-normal break-words">{unit.pos}</div>
+          <div className="font-bold text-base text-center whitespace-normal break-words">{unit.translation}</div>
           {unit.explanation && (
-            <div className="text-gray-400 dark:text-gray-500 text-xs whitespace-normal break-words text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-1">
+            <div className="text-gray-400 dark:text-gray-500 text-xs whitespace-normal break-words text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-2">
               {unit.explanation}
             </div>
           )}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-1.5 border-[6px] border-transparent border-t-gray-900 dark:border-t-gray-100" />
+          {/* Arrow: point up on mobile, down on desktop */}
+          <span className="absolute bottom-full sm:bottom-auto sm:top-full left-1/2 -translate-x-1/2 -mb-1.5 sm:mb-0 sm:-mt-1.5 border-[6px] border-transparent border-b-gray-900 dark:border-b-gray-100 sm:border-b-transparent sm:border-t-gray-900 sm:dark:border-t-gray-100" />
         </span>
       </span>
       {/* 真實空格 */}

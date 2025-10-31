@@ -14,13 +14,13 @@ import { StructuredText } from '@/components/papers/exercises/StructuredText';
 // 根據 type 取得顏色樣式
 function getPartColorClasses(type: string): string {
   const colorMap: Record<string, string> = {
-    subject: 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100',
-    verb: 'bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100',
-    object: 'bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-100',
-    adverb: 'bg-yellow-100 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-100',
-    be_verb: 'bg-pink-100 text-pink-900 dark:bg-pink-900 dark:text-pink-100',
-    main_verb_gerund: 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-100',
-    other: 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100',
+    subject: 'bg-blue-500 text-white dark:bg-blue-400 dark:text-gray-900',
+    verb: 'bg-purple-500 text-white dark:bg-purple-400 dark:text-gray-900',
+    object: 'bg-green-500 text-white dark:bg-green-400 dark:text-gray-900',
+    adverb: 'bg-yellow-500 text-white dark:bg-yellow-400 dark:text-gray-900',
+    be_verb: 'bg-pink-500 text-white dark:bg-pink-400 dark:text-gray-900',
+    main_verb_gerund: 'bg-indigo-500 text-white dark:bg-indigo-400 dark:text-gray-900',
+    other: 'bg-slate-500 text-white dark:bg-slate-400 dark:text-gray-900',
   };
   return colorMap[type] || colorMap.other;
 }
