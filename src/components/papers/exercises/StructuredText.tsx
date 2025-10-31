@@ -142,25 +142,49 @@ const UnitSpan = memo(function UnitSpan({
   onToggle: () => void;
 }) {
   const isPunctuation = unit.pos === '標點符號';
+  const lastTouchTime = useRef(0);
+  const touchStartPos = useRef({ x: 0, y: 0 });
 
   if (isPunctuation) {
     return <>{unit.content}{' '}</>;
   }
 
   const handleClick = (e: React.MouseEvent) => {
+    // 如果最近 500ms 內有觸摸事件，忽略點擊（避免重複觸發）
+    if (Date.now() - lastTouchTime.current < 500) {
+      return;
+    }
     e.stopPropagation();
     onToggle();
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.stopPropagation();
-    onToggle();
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // 記錄觸摸開始位置，用於判斷是否為滾動
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
   };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // 計算觸摸移動距離
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+    // 如果移動距離小於 10px，視為點擊而非滾動
+    if (deltaX < 10 && deltaY < 10) {
+      // 不使用 preventDefault()，讓滾動正常運作
+      e.stopPropagation();
+      lastTouchTime.current = Date.now(); // 記錄觸摸時間，防止後續 click 觸發
+      onToggle();
+    }
+  };
+
   return (
     <>
       <span
         className="relative inline-block cursor-pointer"
         onClick={handleClick}
+        onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         tabIndex={0}
       >
@@ -172,22 +196,26 @@ const UnitSpan = memo(function UnitSpan({
           {unit.content}
         </span>
 
+        {/* Mobile: show below, Desktop: show above */}
         <span className={`
-          absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-3
+          absolute z-50
+          top-full sm:bottom-full sm:top-auto
+          left-1/2 -translate-x-1/2
+          mt-3 sm:mt-0 sm:mb-3
           px-4 py-3 bg-gray-900 dark:bg-gray-100
           text-white dark:text-gray-900 rounded-lg shadow-2xl
-          whitespace-nowrap min-w-[120px]
+          w-[200px] sm:w-auto sm:min-w-[120px] sm:max-w-[300px]
           ${isActive ? 'visible opacity-100' : 'invisible opacity-0'}
           transition-opacity duration-200
         `}>
-          <div className="font-bold text-base mb-2 text-center">{unit.translation}</div>
-          <div className="text-gray-300 dark:text-gray-600 text-xs text-center mb-1">{unit.pos}</div>
+          <div className="font-bold text-base text-center whitespace-normal break-words">{unit.translation}</div>
           {unit.explanation && (
-            <div className="text-gray-400 dark:text-gray-500 text-xs max-w-[250px] whitespace-normal text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-1">
+            <div className="text-gray-400 dark:text-gray-500 text-xs whitespace-normal break-words text-center border-t border-gray-700 dark:border-gray-300 pt-2 mt-2">
               {unit.explanation}
             </div>
           )}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-1.5 border-[6px] border-transparent border-t-gray-900 dark:border-t-gray-100" />
+          {/* Arrow: point up on mobile, down on desktop */}
+          <span className="absolute bottom-full sm:bottom-auto sm:top-full left-1/2 -translate-x-1/2 -mb-1.5 sm:mb-0 sm:-mt-1.5 border-[6px] border-transparent border-b-gray-900 dark:border-b-gray-100 sm:border-b-transparent sm:border-t-gray-900 sm:dark:border-t-gray-100" />
         </span>
       </span>
       {/* 真實空格 */}

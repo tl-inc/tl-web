@@ -49,7 +49,6 @@ describe('StructuredText', () => {
 
     // Tooltip should be visible
     expect(screen.getByText('你好')).toBeVisible();
-    expect(screen.getByText('感嘆詞')).toBeVisible();
     expect(screen.getByText('A greeting word')).toBeVisible();
   });
 
@@ -78,12 +77,10 @@ describe('StructuredText', () => {
     // Click first word
     fireEvent.click(helloWord);
     expect(screen.getByText('你好')).toBeInTheDocument();
-    expect(screen.getByText('感嘆詞')).toBeInTheDocument();
 
     // Click second word - should show different tooltip
     fireEvent.click(worldWord);
     expect(screen.getByText('世界')).toBeInTheDocument();
-    expect(screen.getByText('名詞')).toBeInTheDocument();
   });
 
   it('should close tooltip when clicking outside', () => {
@@ -124,7 +121,6 @@ describe('StructuredText', () => {
     fireEvent.click(testWord);
 
     expect(screen.getByText('測試')).toBeVisible();
-    expect(screen.getByText('名詞')).toBeVisible();
     // No explanation should be rendered
     const tooltip = testWord.parentElement?.querySelector('.border-t');
     expect(tooltip).not.toBeInTheDocument();
