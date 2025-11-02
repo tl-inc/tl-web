@@ -100,18 +100,69 @@ export interface LexiconMetadata {
 // Phrase Skill Metadata
 // ============================================================================
 
-export interface PhraseForm {
-  form: string;
+// Phrase example with translation
+export interface PhraseExample {
+  content: string;          // English example sentence
+  translation: string;      // Chinese translation
 }
 
+// Phrase form with usage notes and examples
+export interface PhraseForm {
+  form: string;             // The phrase form (e.g., "turn on", "turn off")
+  usage_note: string;       // Usage explanation
+  examples?: PhraseExample[];           // General examples
+  merged_examples?: PhraseExample[];    // Merged form examples (for phrasal verbs)
+  separated_examples?: PhraseExample[]; // Separated form examples (for phrasal verbs)
+}
+
+// Phrasal verb specific information
+export interface PhrasalVerbInfo {
+  base_verb: string;        // Base verb (e.g., "turn")
+  particle: string;         // Particle (e.g., "on", "off")
+  separability: 'optional' | 'cannot_separate' | 'must_separate';
+  separability_note: string; // Explanation of separability
+}
+
+// Common mistake entry
+export interface PhraseCommonMistake {
+  wrong: string;            // Incorrect usage
+  correct: string;          // Correct usage
+  explanation: string;      // Why it's wrong and how to fix
+  importance: 'high' | 'medium' | 'low';
+}
+
+// Synonym or antonym entry
+export interface SynonymAntonym {
+  word: string;             // The synonym or antonym
+  translation: string;      // Chinese translation
+  type: 'synonym' | 'antonym';
+  difference: string;       // Key difference explanation
+}
+
+// Phrase Metadata
 export interface PhraseMetadata {
-  type?: string;            // e.g., "phrasal_verb", "idiom"
-  meaning?: string;         // Chinese meaning
-  forms?: {
-    base?: PhraseForm;
-    [key: string]: PhraseForm | undefined;
+  // Summary (條列式，可用於顯示和 SEO)
+  summary: string[];        // Bulleted summary points
+
+  // Basic info
+  type: string;             // phrasal_verb, idiom, collocation, expression, prepositional_phrase, conjunctive_phrase, be_phrase
+  meaning: string;          // Chinese meaning
+  formality: 'formal' | 'informal' | 'neutral';
+
+  // Phrasal verb specific (only for phrasal_verb type)
+  phrasal_verb_info?: PhrasalVerbInfo;
+
+  // Forms (base + optional variants)
+  forms: {
+    base: PhraseForm;
+    variants?: PhraseForm[];
   };
-  [key: string]: unknown;
+
+  // Common mistakes (optional)
+  common_mistakes?: PhraseCommonMistake[];
+
+  // Synonyms and antonyms (optional)
+  synonyms_antonyms?: SynonymAntonym[];
 }
 
 // ============================================================================

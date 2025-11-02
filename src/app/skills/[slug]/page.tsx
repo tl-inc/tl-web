@@ -5,10 +5,11 @@ import { useParams } from 'next/navigation';
 import { AlertCircle, BookOpen } from 'lucide-react';
 import { skillService } from '@/lib/api/skill';
 import type { Skill } from '@/types/skill';
-import { isGrammarSkill } from '@/types/skill';
+import { isGrammarSkill, isPhraseSkill } from '@/types/skill';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GrammarSkillV3 } from './GrammarSkillV3';
+import { PhraseSkill } from './PhraseSkill';
 
 export default function SkillPage() {
   const params = useParams();
@@ -90,6 +91,8 @@ export default function SkillPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {isGrammarSkill(skill) && skill.metadata ? (
           <GrammarSkillV3 skill={skill} v3={skill.metadata} />
+        ) : isPhraseSkill(skill) && skill.metadata ? (
+          <PhraseSkill skill={skill} metadata={skill.metadata} />
         ) : (
           <Card>
             <CardHeader>
