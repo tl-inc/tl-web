@@ -88,22 +88,8 @@ export default function SkillPage() {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {isGrammarSkill(skill) && skill.metadata?.v3 ? (
-          <GrammarSkillV3 skill={skill} v3={skill.metadata.v3} />
-        ) : isGrammarSkill(skill) ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                此技能尚未轉換為 V3 格式
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
-                此文法技能尚未更新至最新格式，敬請期待。
-              </p>
-            </CardContent>
-          </Card>
+        {isGrammarSkill(skill) && skill.metadata ? (
+          <GrammarSkillV3 skill={skill} v3={skill.metadata} />
         ) : (
           <Card>
             <CardHeader>
