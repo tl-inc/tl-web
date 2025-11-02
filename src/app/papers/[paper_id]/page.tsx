@@ -53,14 +53,6 @@ export default function PaperDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paper_id]);
 
-  // 禁止 body 捲動
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
-
   // 處理函數
   const handleStart = async () => {
     try {
@@ -168,12 +160,12 @@ export default function PaperDetailPage() {
 
   return (
     <ProtectedRoute>
-      <SidebarLayout lockScroll={true}>
+      <SidebarLayout>
         <Toaster position="top-center" />
 
         {viewMode === 'scroll' ? (
           // 整頁模式
-          <div className="flex flex-col h-[100dvh] bg-gray-50 dark:bg-gray-900 overflow-hidden">
+          <div className="flex flex-col h-[100dvh] bg-gray-50 dark:bg-gray-900">
             {/* Header */}
             <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-900 pt-8 pb-4 shadow-lg dark:shadow-gray-950/50 relative z-10">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

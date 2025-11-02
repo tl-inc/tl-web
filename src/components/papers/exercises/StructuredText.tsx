@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState, useEffect, useRef } from 'react';
+import { memo, useState, useEffect } from 'react';
 import type { StructuredBreakdownUnit } from '@/types/paper';
 
 /**
@@ -88,32 +88,24 @@ export const StructuredText = memo(function StructuredText({
   highlightedIndices,
 }: StructuredTextProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLSpanElement>(null);
 
   // 點擊外部關閉字卡
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        if (activeIndex !== null) {
-          e.stopPropagation();
-          setActiveIndex(null);
-        }
-      }
+    const handleClickOutside = () => {
+      setActiveIndex(null);
     };
 
     if (activeIndex !== null) {
-      document.addEventListener('mousedown', handleClickOutside, true);
-      document.addEventListener('touchstart', handleClickOutside, { capture: true, passive: false });
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside, true);
-      document.removeEventListener('touchstart', handleClickOutside, true);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [activeIndex]);
 
   return (
-    <span ref={containerRef} className="inline leading-relaxed">
+    <span className="inline leading-relaxed">
       {breakdown.map((unit, idx) => (
         <UnitSpan
           key={idx}
@@ -142,50 +134,16 @@ const UnitSpan = memo(function UnitSpan({
   onToggle: () => void;
 }) {
   const isPunctuation = unit.pos === '標點符號';
-  const lastTouchTime = useRef(0);
-  const touchStartPos = useRef({ x: 0, y: 0 });
 
   if (isPunctuation) {
     return <>{unit.content}{' '}</>;
   }
 
-  const handleClick = (e: React.MouseEvent) => {
-    // 如果最近 500ms 內有觸摸事件，忽略點擊（避免重複觸發）
-    if (Date.now() - lastTouchTime.current < 500) {
-      return;
-    }
-    e.stopPropagation();
-    onToggle();
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // 記錄觸摸開始位置，用於判斷是否為滾動
-    const touch = e.touches[0];
-    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    // 計算觸摸移動距離
-    const touch = e.changedTouches[0];
-    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
-    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
-
-    // 如果移動距離小於 10px，視為點擊而非滾動
-    if (deltaX < 10 && deltaY < 10) {
-      // 不使用 preventDefault()，讓滾動正常運作
-      e.stopPropagation();
-      lastTouchTime.current = Date.now(); // 記錄觸摸時間，防止後續 click 觸發
-      onToggle();
-    }
-  };
-
   return (
     <>
       <span
         className="relative inline-block cursor-pointer"
-        onClick={handleClick}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onClick={onToggle}
         tabIndex={0}
       >
         <span className={`

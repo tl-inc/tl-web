@@ -15,51 +15,66 @@
 export type SkillType = 'grammar' | 'lexicon' | 'phrase' | 'concept';
 
 // ============================================================================
-// Grammar Skill Metadata
+// Grammar Skill Metadata - V3 Simplified Schema (2025-01)
 // ============================================================================
 
-export interface GrammarPattern {
-  formula: string;           // e.g., "主詞 + am/is/are + Ving"
-  explanation: string;       // e.g., "表示現在正在進行的動作"
-  visual_parts?: Array<{
-    text: string;
-    type: string;
-  }>;
+/**
+ * V3 Schema Design Principles:
+ * - 簡潔精練易於學習 (Simple, refined, easy to learn)
+ * - 從錯中學 (Learn from mistakes) - students arrive from questions, not browsing
+ * - SEO 優化 - summary can be used as meta description
+ * - AI-driven example refinement - avoid redundant similar examples
+ */
+
+// Example sentence with translation
+export interface GrammarExampleV3 {
+  sentence: string;          // English example sentence
+  translation: string;       // Chinese translation
 }
 
-export interface GrammarScenario {
-  content: string;
-  context: string;
-  translation: string;
-  structured_breakdown?: Array<{
-    pos: string;
-    content: string;
-    explanation: string;
-    translation: string;
-  }>;
+// Formula pattern with examples
+export interface FormulaPatternV3 {
+  pattern: string;           // Formula pattern (e.g., "How often + do/does + 主詞 + 動詞原形...?")
+  note?: string;             // Optional explanation note
+  examples: GrammarExampleV3[];  // Example sentences (AI-refined to avoid redundancy)
 }
 
-export interface GrammarComparison {
-  grammar_name: string;
-  difference: string;
-  example_pair: {
-    this_grammar: GrammarScenario;
-    that_grammar: GrammarScenario;
-  };
+// Common mistake entry (critical for question generation)
+export interface CommonMistakeV3 {
+  wrong: string;             // Incorrect usage
+  correct: string;           // Correct usage
+  explanation: string;       // Why it's wrong and how to fix
 }
 
+// Similar grammar comparison (optional)
+export interface SimilarGrammarV3 {
+  grammar_name: string;      // Name of similar grammar
+  difference: string;        // Key difference explanation
+  example_this: GrammarExampleV3;   // Example using current grammar
+  example_that: GrammarExampleV3;   // Example using similar grammar
+}
+
+// V3 Grammar Metadata (Simplified)
+export interface GrammarMetadataV3 {
+  // 1. Grammar Summary (條列式，可用於顯示和 SEO meta description)
+  summary: string[];         // Bulleted summary points
+
+  // 2. Basic Formula (基本公式，AI-refined examples to avoid redundancy)
+  basic_formulas: FormulaPatternV3[];
+
+  // 3. Answer Formula (Optional - only for question-type grammar)
+  answer_formulas?: FormulaPatternV3[];
+
+  // 4. Common Mistakes (重要！用於出題，問句文法應包含答句錯誤)
+  common_mistakes: CommonMistakeV3[];
+
+  // 5. Similar Grammar Comparison (Optional - 不強制，沒有相似文法就不寫)
+  similar_grammars?: SimilarGrammarV3[];
+}
+
+// V3 is the only supported schema (2025-01 Complete Rewrite)
 export interface GrammarMetadata {
-  category?: string;         // e.g., "tense", "voice", "mood"
-  level?: string;           // e.g., "beginner", "intermediate", "advanced", "basic"
-  pattern?: GrammarPattern;
-  usage?: {
-    when_to_use?: string[];
-    scenarios?: GrammarScenario[];
-  };
-  exam_tips?: {
-    comparisons?: GrammarComparison[];
-  };
-  [key: string]: unknown;   // Allow for future extensions
+  v3: GrammarMetadataV3;
 }
 
 // ============================================================================
