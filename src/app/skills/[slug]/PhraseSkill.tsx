@@ -376,18 +376,18 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             {metadata.synonyms_antonyms.map((item, index) => (
               <div
                 key={index}
-                className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-2"
+                className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3"
               >
-                <div className="flex items-center gap-3">
+                <div className="space-y-2">
                   <Badge variant={item.type === 'synonym' ? 'default' : 'destructive'}>
                     {item.type === 'synonym' ? '同義' : '反義'}
                   </Badge>
                   <p className="font-mono text-lg text-gray-900 dark:text-gray-100 font-semibold">
                     {item.word}
                   </p>
-                  <span className="text-gray-600 dark:text-gray-400">({item.translation})</span>
+                  <p className="text-gray-600 dark:text-gray-400">({item.translation})</p>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed pl-2">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                   {item.difference}
                 </p>
               </div>
