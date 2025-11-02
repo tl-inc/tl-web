@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, BookOpen, Info, MessageSquare, Lightbulb, GitCompareArrows, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertCircle, BookOpen, Info, MessageSquare, GitCompareArrows, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Skill, GrammarMetadataV3 } from '@/types/skill';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 
@@ -219,7 +219,7 @@ export function GrammarSkillV3({ skill, v3 }: GrammarSkillV3Props) {
                   </div>
                 )}
 
-                {index < v3.answer_formulas.length - 1 && <Separator />}
+                {index < (v3.answer_formulas?.length ?? 0) - 1 && <Separator />}
               </div>
             ))}
           </CardContent>
@@ -331,7 +331,7 @@ export function GrammarSkillV3({ skill, v3 }: GrammarSkillV3Props) {
                   </div>
                 </div>
 
-                {index < v3.similar_grammars.length - 1 && <Separator />}
+                {index < (v3.similar_grammars?.length ?? 0) - 1 && <Separator />}
               </div>
             ))}
           </CardContent>
