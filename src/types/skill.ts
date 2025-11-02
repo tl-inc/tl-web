@@ -73,9 +73,8 @@ export interface GrammarMetadataV3 {
 }
 
 // V3 is the only supported schema (2025-01 Complete Rewrite)
-export interface GrammarMetadata {
-  v3: GrammarMetadataV3;
-}
+// Note: Metadata is stored directly without v3 wrapper (as of 2025-01-02)
+export type GrammarMetadata = GrammarMetadataV3;
 
 // ============================================================================
 // Lexicon Skill Metadata
