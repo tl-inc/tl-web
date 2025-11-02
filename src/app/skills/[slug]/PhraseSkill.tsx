@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, BookOpen, Info, Lightbulb, ChevronDown, ChevronUp, Tag, Shuffle } from 'lucide-react';
+import { AlertCircle, BookOpen, Lightbulb, ChevronDown, ChevronUp, Shuffle } from 'lucide-react';
 import type { Skill, PhraseMetadata } from '@/types/skill';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -51,42 +51,6 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
     });
   };
 
-  // Helper to get formality badge color
-  const getFormalityColor = (formality: string) => {
-    switch (formality) {
-      case 'formal':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'informal':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-    }
-  };
-
-  // Helper to get phrase type display name
-  const getPhraseTypeDisplay = (type: string) => {
-    const typeMap: Record<string, string> = {
-      phrasal_verb: '動詞片語',
-      idiom: '慣用語',
-      collocation: '搭配詞',
-      expression: '表達方式',
-      prepositional_phrase: '介係詞片語',
-      conjunctive_phrase: '連接片語',
-      be_phrase: 'Be 動詞片語',
-    };
-    return typeMap[type] || type;
-  };
-
-  // Helper to get separability display
-  const getSeparabilityDisplay = (separability: string) => {
-    const map: Record<string, { text: string; color: string }> = {
-      optional: { text: '可分離', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-      must_separate: { text: '必須分離', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
-      cannot_separate: { text: '不可分離', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-    };
-    return map[separability] || { text: separability, color: 'bg-gray-100 text-gray-800' };
-  };
-
   return (
     <div className="space-y-6">
       {/* 1. Phrase Summary */}
@@ -111,80 +75,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         </Card>
       )}
 
-      {/* 2. Basic Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Tag className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-            基本資訊
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Type */}
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">類型</p>
-              <Badge variant="secondary" className="text-sm">
-                {getPhraseTypeDisplay(metadata.type)}
-              </Badge>
-            </div>
-
-            {/* Meaning */}
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">意思</p>
-              <p className="text-gray-900 dark:text-gray-100 font-medium">{metadata.meaning}</p>
-            </div>
-
-            {/* Formality */}
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">正式程度</p>
-              <Badge className={getFormalityColor(metadata.formality)}>
-                {metadata.formality === 'formal' ? '正式' : metadata.formality === 'informal' ? '非正式' : '中性'}
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 3. Phrasal Verb Info (只在 phrasal_verb 類型時顯示) */}
-      {metadata.phrasal_verb_info && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              動詞片語資訊
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Base Verb + Particle */}
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">組成</p>
-                <p className="font-mono text-lg text-gray-900 dark:text-gray-100">
-                  <span className="text-purple-600 dark:text-purple-400">{metadata.phrasal_verb_info.base_verb}</span>
-                  {' + '}
-                  <span className="text-blue-600 dark:text-blue-400">{metadata.phrasal_verb_info.particle}</span>
-                </p>
-              </div>
-
-              {/* Separability */}
-              <div className="md:col-span-2">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">可分離性</p>
-                <div className="flex items-start gap-3">
-                  <Badge className={getSeparabilityDisplay(metadata.phrasal_verb_info.separability).color}>
-                    {getSeparabilityDisplay(metadata.phrasal_verb_info.separability).text}
-                  </Badge>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1">
-                    {metadata.phrasal_verb_info.separability_note}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 4. Forms - Base Form */}
+      {/* 2. Forms - Base Form */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -425,7 +316,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         </CardContent>
       </Card>
 
-      {/* 5. Common Mistakes */}
+      {/* 3. Common Mistakes */}
       {metadata.common_mistakes && metadata.common_mistakes.length > 0 && (
         <Card>
           <CardHeader>
@@ -472,7 +363,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         </Card>
       )}
 
-      {/* 6. Synonyms & Antonyms */}
+      {/* 4. Synonyms & Antonyms */}
       {metadata.synonyms_antonyms && metadata.synonyms_antonyms.length > 0 && (
         <Card>
           <CardHeader>
