@@ -58,7 +58,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-500" />
               片語摘要
             </CardTitle>
           </CardHeader>
@@ -66,8 +66,8 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             <ul className="space-y-2">
               {metadata.summary.map((point, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <span className="text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0">•</span>
-                  <span className="text-gray-700 dark:text-gray-300 flex-1">{point}</span>
+                  <span className="text-blue-600 dark:text-blue-500 mt-1 flex-shrink-0">•</span>
+                  <span className="text-gray-700 dark:text-gray-400 flex-1">{point}</span>
                 </li>
               ))}
             </ul>
@@ -79,18 +79,18 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <Lightbulb className="h-5 w-5 text-green-600 dark:text-green-500" />
             形式與用法
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Base Form */}
           <div className="space-y-3">
-            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <p className="font-mono text-xl text-gray-900 dark:text-gray-100 font-semibold mb-2">
+            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-4">
+              <p className="font-mono text-xl text-gray-900 dark:text-gray-200 font-semibold mb-2">
                 {metadata.forms.base.form}
               </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="text-sm text-gray-700 dark:text-gray-400 leading-relaxed">
                 💡 {metadata.forms.base.usage_note}
               </p>
             </div>
@@ -129,9 +129,9 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
                     return (
                       <div
                         key={exIdx}
-                        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                        className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                       >
-                        <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                        <p className="font-medium text-gray-900 dark:text-gray-200 mb-1">
                           {example.content}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -179,9 +179,9 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
                     return (
                       <div
                         key={exIdx}
-                        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                        className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                       >
-                        <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                        <p className="font-medium text-gray-900 dark:text-gray-200 mb-1">
                           {example.content}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -227,9 +227,9 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
                     return (
                       <div
                         key={exIdx}
-                        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                        className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                       >
-                        <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                        <p className="font-medium text-gray-900 dark:text-gray-200 mb-1">
                           {example.content}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -249,14 +249,14 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             <>
               <Separator />
               <div className="space-y-6">
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">其他形式：</p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-400">其他形式：</p>
                 {metadata.forms.variants.map((variant, varIdx) => (
                   <div key={varIdx} className="space-y-3">
-                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                      <p className="font-mono text-lg text-gray-900 dark:text-gray-100 font-semibold mb-2">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                      <p className="font-mono text-lg text-gray-900 dark:text-gray-200 font-semibold mb-2">
                         {variant.form}
                       </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <p className="text-sm text-gray-700 dark:text-gray-400 leading-relaxed">
                         💡 {variant.usage_note}
                       </p>
                     </div>
@@ -293,9 +293,9 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
                             return (
                               <div
                                 key={exIdx}
-                                className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+                                className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                               >
-                                <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                                <p className="font-medium text-gray-900 dark:text-gray-200 mb-1">
                                   {example.content}
                                 </p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -321,7 +321,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
               常見錯誤
             </CardTitle>
           </CardHeader>
@@ -329,13 +329,13 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             {metadata.common_mistakes.map((mistake, index) => (
               <div
                 key={index}
-                className="border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 rounded-lg p-4 space-y-3"
+                className="border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 space-y-3"
               >
                 {/* Wrong */}
                 <div className="flex items-start gap-2">
-                  <span className="text-red-600 dark:text-red-400 font-bold text-lg mt-0.5 flex-shrink-0">✗</span>
+                  <span className="text-red-600 dark:text-red-500 font-bold text-lg mt-0.5 flex-shrink-0">✗</span>
                   <div className="flex-1">
-                    <p className="font-mono text-gray-900 dark:text-gray-100">
+                    <p className="font-mono text-gray-900 dark:text-gray-200">
                       {mistake.wrong}
                     </p>
                   </div>
@@ -343,9 +343,9 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
 
                 {/* Correct */}
                 <div className="flex items-start gap-2">
-                  <span className="text-green-600 dark:text-green-400 font-bold text-lg mt-0.5 flex-shrink-0">✓</span>
+                  <span className="text-green-600 dark:text-green-500 font-bold text-lg mt-0.5 flex-shrink-0">✓</span>
                   <div className="flex-1">
-                    <p className="font-mono text-gray-900 dark:text-gray-100 font-medium">
+                    <p className="font-mono text-gray-900 dark:text-gray-200 font-medium">
                       {mistake.correct}
                     </p>
                   </div>
@@ -353,7 +353,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
 
                 {/* Explanation */}
                 <div className="pl-6">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm text-gray-700 dark:text-gray-400 leading-relaxed">
                     {mistake.explanation}
                   </p>
                 </div>
@@ -368,7 +368,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shuffle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <Shuffle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
               同義詞與反義詞
             </CardTitle>
           </CardHeader>
@@ -376,18 +376,18 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             {metadata.synonyms_antonyms.map((item, index) => (
               <div
                 key={index}
-                className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3"
+                className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 space-y-3"
               >
                 <div className="space-y-2">
                   <Badge variant={item.type === 'synonym' ? 'default' : 'destructive'}>
                     {item.type === 'synonym' ? '同義' : '反義'}
                   </Badge>
-                  <p className="font-mono text-lg text-gray-900 dark:text-gray-100 font-semibold">
+                  <p className="font-mono text-lg text-gray-900 dark:text-gray-200 font-semibold">
                     {item.word}
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">({item.translation})</p>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-sm text-gray-700 dark:text-gray-400 leading-relaxed">
                   {item.difference}
                 </p>
               </div>
@@ -406,7 +406,7 @@ export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
               此 summary 將用於 SEO meta description：
             </p>
-            <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-auto">
+            <pre className="text-xs bg-gray-100 dark:bg-gray-800/50 p-3 rounded overflow-auto">
               {metadata.summary.join(' ')}
             </pre>
           </CardContent>
