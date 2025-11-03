@@ -5,11 +5,12 @@ import { useParams } from 'next/navigation';
 import { AlertCircle, BookOpen } from 'lucide-react';
 import { skillService } from '@/lib/api/skill';
 import type { Skill } from '@/types/skill';
-import { isGrammarSkill, isPhraseSkill } from '@/types/skill';
+import { isGrammarSkill, isPhraseSkill, isLexiconSkill } from '@/types/skill';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GrammarSkillV3 } from './GrammarSkillV3';
 import { PhraseSkill } from './PhraseSkill';
+import { LexiconSkill } from './LexiconSkill';
 
 export default function SkillPage() {
   const params = useParams();
@@ -93,13 +94,13 @@ export default function SkillPage() {
           <GrammarSkillV3 skill={skill} v3={skill.metadata} />
         ) : isPhraseSkill(skill) && skill.metadata ? (
           <PhraseSkill skill={skill} metadata={skill.metadata} />
+        ) : isLexiconSkill(skill) && skill.metadata ? (
+          <LexiconSkill skill={skill} metadata={skill.metadata} />
         ) : (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                {skill.type === 'lexicon' && '單字技能'}
-                {skill.type === 'phrase' && '片語技能'}
                 {skill.type === 'concept' && '概念技能'}
               </CardTitle>
             </CardHeader>
