@@ -761,8 +761,7 @@ git commit --no-verify -m "emergency fix"
 ### 有用的資源
 
 - [架構文檔](ARCHITECTURE.md)
-- [Google OAuth 設定](GOOGLE_OAUTH_SETUP.md)
-- [Vercel 部署指南](VERCEL_DEPLOYMENT.md)
+- [部署指南](DEPLOYMENT.md)
 - [Next.js 文檔](https://nextjs.org/docs)
 - [React 文檔](https://react.dev)
 - [TypeScript 文檔](https://www.typescriptlang.org/docs)
@@ -777,4 +776,4 @@ git commit --no-verify -m "emergency fix"
 
 ---
 
-**最後更新**: 2025-10-16
+**最後更新**: 2025-11-06

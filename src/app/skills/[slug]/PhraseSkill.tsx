@@ -22,7 +22,7 @@ interface PhraseSkillProps {
  * - 不鼓勵漫無目的瀏覽
  * - SEO 優化：summary 可用於 meta description
  */
-export function PhraseSkill({ skill, metadata }: PhraseSkillProps) {
+export function PhraseSkill({ skill: _skill, metadata }: PhraseSkillProps) {
   // State for managing expanded examples
   const [expandedBaseForms, setExpandedBaseForms] = useState<Set<number>>(new Set());
   const [expandedVariants, setExpandedVariants] = useState<Set<number>>(new Set());

@@ -95,7 +95,7 @@ TL-Web 採用 **Next.js App Router** 架構,結合 **服務端渲染 (SSR)** 和
 | 技術 | 版本 | 用途 |
 |------|------|------|
 | **Next.js** | 15.5.4 | React 框架,SSR/SSG 支援 |
-| **React** | 19.1.0 | UI 框架 |
+| **React** | 19.2.0 | UI 框架 |
 | **TypeScript** | 5.x | 型別安全 |
 | **Tailwind CSS** | 4.x | 樣式框架 |
 
@@ -123,7 +123,7 @@ TL-Web 採用 **Next.js App Router** 架構,結合 **服務端渲染 (SSR)** 和
 |------|------|------|
 | **Vitest** | 3.2.4 | 測試框架 |
 | **Testing Library** | 16.3.0 | React 測試工具 |
-| **Storybook** | 9.1.10 | 元件開發環境 |
+| **Storybook** | 9.1.15 | 元件開發環境 |
 | **ESLint** | 9.x | 程式碼檢查 |
 | **Husky** | 9.1.7 | Git Hooks |
 
@@ -714,7 +714,9 @@ export interface UserPaper {
 ╱────────────────────────────╲
 ```
 
-### 當前覆蓋率: **47.95%**
+### 當前覆蓋率: **26.55%**
+
+⚠️ **重要**: 測試覆蓋率從 47.95% 下降到 26.55%，主要原因是新增了 Exercise Session 功能但尚未完成測試。優先改進項目已列在本文檔底部。
 
 #### 100% 覆蓋模組
 - ✅ AuthContext
@@ -922,28 +924,40 @@ const paper = await paperService.getUserPaper(1);
 
 ---
 
-## 未來規劃
+## 改進計劃
 
-### 短期 (1-2 個月)
+### 測試覆蓋率提升（優先）
 
+**目標**: 從 26.55% 提升至 60%+
+
+**優先補充測試的模組**:
+1. `hooks/exerciseSession/` (目前 10.97%)
+2. `stores/` (目前 29.49%)
+3. `lib/api.ts` (目前 22.77%)
+4. 新增的 Exercise Session 相關功能
+
+**短期目標 (2-4 週)**:
+- [ ] Exercise Session 功能測試達 60%+
+- [ ] 整體覆蓋率提升至 40%
+
+**中期目標 (2-3 個月)**:
+- [ ] 整體覆蓋率達 60%+
 - [ ] E2E 測試 (Playwright)
+
+### 功能開發
+
+**短期 (1-2 個月)**:
 - [ ] Web Vitals 監控
 - [ ] 錯誤追蹤 (Sentry)
 - [ ] i18n 國際化
-- [ ] PWA 支援
 
-### 中期 (3-6 個月)
-
-- [ ] 微前端架構探索
-- [ ] GraphQL 整合
+**中期 (3-6 個月)**:
 - [ ] WebSocket 即時功能
 - [ ] 離線支援
+- [ ] PWA 支援
 
-### 長期 (6-12 個月)
-
-- [ ] Monorepo 架構
+**長期 (6-12 個月)**:
 - [ ] 元件設計系統
-- [ ] Chrome Extension
 - [ ] Mobile App (React Native)
 
 ---
@@ -956,5 +970,5 @@ const paper = await paperService.getUserPaper(1);
 
 ---
 
-**最後更新**: 2025-10-18
-**文檔版本**: 1.0
+**最後更新**: 2025-11-06
+**文檔版本**: 1.1

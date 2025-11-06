@@ -37,7 +37,7 @@ function getInflectionLabel(type: string): string {
  * - 完整的單字資訊（發音、詞性、例句、常見錯誤）
  * - 清晰的視覺層次
  */
-export function LexiconSkill({ skill, metadata }: LexiconSkillProps) {
+export function LexiconSkill({ skill: _skill, metadata }: LexiconSkillProps) {
   return (
     <div className="space-y-6">
       {/* 1. Learning Summary (學習摘要) */}
