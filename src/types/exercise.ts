@@ -122,22 +122,55 @@ export interface DialogueAsset {
   }>;
 }
 
+// Listening Asset Types
+export interface ListeningQuestionResponseAsset {
+  question: string;
+  translation: string;
+  audio_url: string;
+  topic_id: number;
+  angle_id: number;
+  speed: number;
+}
+
+export interface ListeningDialogueAsset {
+  dialogue: Array<{
+    speaker: string;
+    text: string;
+  }>;
+  translation: string;
+  audio_url: string;
+  topic_id: number;
+  angle_id: number;
+  speed: number;
+}
+
+export interface ListeningPassageAsset {
+  passage: string;
+  translation: string;
+  audio_url: string;
+  topic_id: number;
+  angle_id: number;
+  speed: number;
+}
+
 // ============================================================================
 // 題型檢查 Helper Types
 // ============================================================================
 
 // Exercise type names (從後端 exercise_types 表)
 export type ExerciseTypeName =
-  | 'vocabulary'           // 單字
-  | 'phrase'              // 片語
-  | 'grammar'             // 文法
-  | 'cloze'               // 克漏字
-  | 'picture'             // 圖片理解
-  | 'reading'             // 閱讀理解
-  | 'listening'           // 聽力
-  | 'menu'                // 菜單
-  | 'notice'              // 通知單
-  | 'timetable'           // 時刻表
-  | 'advertisement'       // 廣告
-  | 'dialogue';           // 對話
+  | 'vocabulary'                    // 單字
+  | 'phrase'                       // 片語
+  | 'grammar'                      // 文法
+  | 'cloze'                        // 克漏字
+  | 'picture'                      // 圖片理解
+  | 'reading'                      // 閱讀理解
+  | 'listening_question_response'  // 聽力問答
+  | 'listening_dialogue'           // 聽力對話
+  | 'listening_passage'            // 聽力旁白
+  | 'menu'                         // 菜單
+  | 'notice'                       // 通知單
+  | 'timetable'                    // 時刻表
+  | 'advertisement'                // 廣告
+  | 'dialogue';                    // 對話
 
