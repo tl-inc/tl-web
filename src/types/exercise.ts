@@ -122,6 +122,15 @@ export interface DialogueAsset {
   }>;
 }
 
+// Reading Asset Type
+export interface ReadingAsset {
+  passage: string;
+  translation: string;
+  structured_breakdown: unknown | null;
+  topic_id: number | null;
+  angle_id: number | null;
+}
+
 // Listening Asset Types
 export interface ListeningQuestionResponseAsset {
   question: string;
