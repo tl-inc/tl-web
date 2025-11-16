@@ -173,13 +173,15 @@ describe('ItemSetExercise', () => {
     expect(screen.queryByText('中文翻譯')).not.toBeInTheDocument();
   });
 
-  it('should render MenuAsset for exercise type 8', () => {
+  it('should render MenuAsset for information reading with menu category', () => {
     const exercise = {
       ...baseExercise,
       exercise_type_id: 8,
       asset_json: {
-        title: 'Menu Title',
-        items: [{ name: 'Item 1', price: 100 }],
+        menu: {
+          title: 'Menu Title',
+          items: [{ name: 'Item 1', price: 100 }],
+        },
       },
     };
 
@@ -196,13 +198,15 @@ describe('ItemSetExercise', () => {
     expect(container.querySelector('.space-y-4')).toBeInTheDocument();
   });
 
-  it('should render NoticeAsset for exercise type 9', () => {
+  it('should render NoticeAsset for information reading with notice category', () => {
     const exercise = {
       ...baseExercise,
-      exercise_type_id: 9,
+      exercise_type_id: 8,
       asset_json: {
-        title: 'Notice Title',
-        content: 'Notice content',
+        notice: {
+          title: 'Notice Title',
+          content: 'Notice content',
+        },
       },
     };
 
@@ -219,10 +223,10 @@ describe('ItemSetExercise', () => {
     expect(container.querySelector('.space-y-4')).toBeInTheDocument();
   });
 
-  it('should render DialogueAsset for exercise type 12', () => {
+  it('should render DialogueAsset for information reading with dialogue category', () => {
     const exercise = {
       ...baseExercise,
-      exercise_type_id: 12,
+      exercise_type_id: 8,
       asset_json: {
         dialogue: [
           { speaker: 'A', text: 'Hello' },

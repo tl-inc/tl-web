@@ -46,8 +46,8 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
   const isListening = exercise.exercise_type_id === 7;
   const shouldShowPassage = passageText && (!isListening || mode === 'completed');
 
-  // Information reading (8-12) renders asset_json
-  const isInformationReading = exercise.exercise_type_id >= 8 && exercise.exercise_type_id <= 12;
+  // Information reading (unified type 8) renders asset_json based on structure
+  const isInformationReading = exercise.exercise_type_id === 8;
 
   // Memoize asset rendering to avoid re-rendering on every state change
   const informationAsset = useMemo(() => {
@@ -55,16 +55,15 @@ export const ItemSetExercise = memo(function ItemSetExercise({ exercise, answers
     const asset = exercise.asset_json;
     if (!asset) return null;
 
-    const typeId = exercise.exercise_type_id;
-
-    if (typeId === 8) return <MenuAsset asset={asset as MenuAssetData} mode={mode} />;
-    if (typeId === 9) return <NoticeAsset asset={asset as NoticeAssetData} mode={mode} />;
-    if (typeId === 10) return <TimetableAsset asset={asset as TimetableAssetData} mode={mode} />;
-    if (typeId === 11) return <AdvertisementAsset asset={asset as AdvertisementAssetData} mode={mode} />;
-    if (typeId === 12) return <DialogueAsset asset={asset as DialogueAssetData} mode={mode} />;
+    // Determine component type based on asset_json structure
+    if ('menu' in asset) return <MenuAsset asset={asset as MenuAssetData} mode={mode} />;
+    if ('notice' in asset) return <NoticeAsset asset={asset as NoticeAssetData} mode={mode} />;
+    if ('timetable' in asset) return <TimetableAsset asset={asset as TimetableAssetData} mode={mode} />;
+    if ('advertisement' in asset) return <AdvertisementAsset asset={asset as AdvertisementAssetData} mode={mode} />;
+    if ('dialogue' in asset) return <DialogueAsset asset={asset as DialogueAssetData} mode={mode} />;
 
     return null;
-  }, [isInformationReading, exercise.asset_json, exercise.exercise_type_id, mode]);
+  }, [isInformationReading, exercise.asset_json, mode]);
 
   // Extract translation for type safety
   const passageTranslation = exercise.asset_json && 'translation' in exercise.asset_json
